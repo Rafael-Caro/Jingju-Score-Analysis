@@ -164,3 +164,70 @@ def findIntervalsPosition(stream, intl, directed=False):
         score.show()
 
     return positions
+
+def beatCountPerNote(pitchClass, stream, showScore=True):
+    working_stream = copy.deepcopy(stream)
+    notes = working_stream.flat.notes
+    found_notes = []
+    for n in notes:
+        if n.name == pitchClass:
+            n.color = 'red'
+            found_notes.append(n)
+    if len(found_notes) == 0:
+        return 'The given pitch class does not appear in the given stream.'
+    else:
+        beat_dic = {}
+        for n in found_notes:
+            beat_class = n.beat # This number has tu be changed to the time signature's numerator
+            if beat_class not in beat_dic:
+                beat_dic[beat_class] = 1
+            else:
+                beat_dic[beat_class] += 1
+
+#    return found_notes
+
+    beat_classes = [i for i in beat_dic]
+    beat_classes.sort()
+    beat_values = [beat_dic[i] for i in beat_classes]
+    beat_ticks = [str(i) for i in beat_classes]
+
+#    plt.bar(beat_classes, yvalues, width)
+#    plt.xticks(np.array(beat_classes) + width/2, xticks)
+#    plt.show()
+
+    if showScore:
+        working_stream.show()
+
+    return beat_classes, beat_values, beat_ticks
+
+def beatHistogram(stream, tonic=None, width=0.1, rotation=45):
+    pitch_classes = []
+    for n in stream.flat.notes:
+        if n.name not in pitch_classes:
+            pitch_classes.append(n.name)
+
+    plots = len(pitch_classes)
+    rows = (plots / 2) + (plots % 2)
+    rowsAndCol = rows * 100 + 20
+
+    # Setting the y margin
+    maxima = []
+    for i in pitch_classes:
+        x, y, t = beatCountPerNote(i, stream, showScore=False)
+        maxima.append(max(y))
+    ylim = max(maxima)
+
+    fig = plt.figure()
+    for i in range(len(pitch_classes)):
+        x, y, t = beatCountPerNote(pitch_classes[i], stream, showScore=False)
+        ax = fig.add_subplot(rowsAndCol + i)
+        ax.bar(x, y, width)
+        ax.set_ylim(0, ylim)
+        ax.set_xlim(1, 3)
+        ax.set_xticks(np.array(x) + width/2)
+        ax.set_xticklabels(t, rotation=rotation)
+        ax.set_title(pitch_classes[i])
+
+    fig.tight_layout()
+    plt.show()
+    
