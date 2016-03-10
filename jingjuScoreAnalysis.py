@@ -1,61 +1,64 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+
 from music21 import *
 import numpy as np
 import matplotlib.pyplot as plt
-import copy
 
-def ejemplo():
-    '''Creates a short phrase to be used as an example'''
-    x = converter.parse("tinynotation: c4. d8 e d f16 g e d c2")
-    adorno = note.Note('B3')
-    adorno.duration.type = 'eighth'
-    adorno = adorno.getGrace()
-    x.insert(4.0, adorno)
-    return x
-
-def weightedHistogramPitchSpace(stream, width=.4, count = 'abs', figsize=None,
-                                fontsize=None):
-    '''(music21.stream.Score) -> matplotlib.pyplot.bar, dict
-    Plots a pitch histogram for stream and returns a dictionary with
-    the note classes as keys and their agregate duration as value.
-    Width sets the width of the bars. Count can be set to 'abs' for
-    displaying the total agregate duration of each note class, to 'sum'
-    for displaying the duration normalized to the summation of all durations,
-    or 'max' for displaying the duration normalized to the maximum
-    duration.
+def weightedHistogramPitchSpace(xmls, count='abs', figsize=None,
+                                width=.4, showlabels=(True, True, True),
+                                fontsize=None, rotation=None, xlimit=None,
+                                ylimit=None, ticks_reduction_factor=0.5):
+    '''([str]) --> matplotlib.pyplot.bar, dict
+    It takes a list of musicXml file names as input, computes a weighted
+    histogram of pitch space, plots it in a bar chart, and returns a dictionary
+    with the pitch classes and their agregate duration.
+    Count can be 'abs' for absolute duration values, 'sum' for the normalised
+    duration to the summation, and 'max' for the normalised duration to the
+    maximum.
+    figsize: w,h tuple in inches
+    showlabels: tuple of three bol, referring to title, xlabel, ylabel
+    width: bars width (even number)
+    fontsize:
+    rotation:
+    xlimit: minimum, maximum tuple
+    ylimit: minimum, maximum tuple
+    ticks_reduction_factor:
     '''
 
-    # Creating a dictionary with the all the notes in stream as keys
-    # and the agregate duration for each note as values.
-    noteDur = {}
-    for n in stream.flat.notes:
-        if n.nameWithOctave not in noteDur:
-            noteDur[n.nameWithOctave] = n.quarterLength
-        else:
-            noteDur[n.nameWithOctave] += n.quarterLength
+    if count not in ['abs', 'sum', 'max']:
+        print 'Error: given count is not allowed.'
+        return
 
-    # Creating an list of note clases sorted by pitch
-    notes = [k for k in noteDur] # List of notes classes
+    # Counting duration per pitch class
+    noteDurations = {}
 
-    noteFreq = {} # Dictionary of notes and Hz frequencies for sorting
-    for i in notes:
-        noteFreq[i] = note.Note(i).frequency
-    sortedNotes = sorted(noteFreq, key=noteFreq.get) # Sorted notes
+    for xml in xmls:
+        print 'Parsing', xml
+        s = converter.parse(xml)
+        for n in s.flat.notes:
+            name = n.nameWithOctave
+            duration = n.quarterLength
+            noteDurations[name] = noteDurations.get(name, 0) + duration
 
-    # Calculating duration values for each note class
-    absValues = np.array([]) # Agragate duration for each note
-    for i in sortedNotes:
-        absValues = np.append(absValues, noteDur[i])
-    if count == 'abs':
-        values = absValues
-        ylabel = 'Count'
-    elif count == 'sum':
-        values = absValues / sum(absValues)
+    # Sorting duration per pitch class frequency
+    notes = noteDurations.keys()
+    noteFrequencies = [(n, note.Note(n).frequency) for n in notes]
+    sortedNoteFrequencies = sorted(noteFrequencies, key=lambda x: x[1])
+    sortedNotes = [n[0] for n in sortedNoteFrequencies]
+    sortedDurations = np.array([noteDurations[n] for n in sortedNotes])
+
+    # Normalising, if requested
+    if count == 'sum':
+        values = sortedDurations / float(sum(sortedDurations))
         ylabel = 'Normalized Count'
     elif count == 'max':
-        values = absValues / max(absValues)
+        values = sortedDurations / float(max(sortedDurations))
         ylabel = 'Normalized Count'
+    else:
+        values = sortedDurations
+        ylabel = 'Count'
 
-    # Plotting a bar chart
     xposition = np.array([0]) # Xticks' positions separated by intervals
     for i in range(len(sortedNotes)-1):
         n1 = note.Note(sortedNotes[i])
@@ -63,273 +66,366 @@ def weightedHistogramPitchSpace(stream, width=.4, count = 'abs', figsize=None,
         step = interval.notesToChromatic(n1, n2).directed
         xposition = np.append(xposition, xposition[-1] + step)
 
-    plt.figure(1, figsize)
-    plt.bar(xposition, values, width)
-    plt.title('Weighted Histogram of Pitch Space', fontsize=fontsize)
-    plt.xlabel('Pitch', fontsize=fontsize)
-    plt.ylabel(ylabel, fontsize=fontsize)
-    if fontsize != None:
-        plt.xticks(xposition + width/2, sortedNotes, fontsize=(fontsize*0.6))
-    else:
-        plt.xticks(xposition + width/2, sortedNotes)
-    plt.grid(True, axis='y')
-    plt.show()
+    # Plotting
+    plotting(xposition, values, 'Weighted Histogram of Pitch Space', 'Pitch',
+             ylabel, showlabels, sortedNotes, figsize, width, fontsize,
+             rotation, xlimit, ylimit, ticks_reduction_factor)
 
-    return noteDur
+    # plt.figure(1, figsize)
+    # plt.bar(xposition, values, width)
+    # plt.title(title, fontsize=fontsize)
+    # plt.xlabel('Pitch', fontsize=fontsize)
+    # plt.ylabel(ylabel, fontsize=fontsize)
+    # if fontsize != None:
+    #     plt.xticks(xposition + width/2, sortedNotes, fontsize=(fontsize*
+    #     ticks_reduction_factor), rotation=rotation)
+    #     plt.yticks(fontsize=(fontsize*ticks_reduction_factor))
+    # else:
+    #     plt.xticks(xposition + width/2, sortedNotes, rotation=rotation)
+    # if xlimit != None:
+    #     plt.xlim(xlimit[0], xlimit[1])
+    # plt.grid(True, axis='y')
+    # plt.tight_layout()
+    # plt.show()
 
-def intervalHistogram(stream, width=.4, directed=False, count='abs',
-                      figsize=None, fontsize=None):
-    '''(music21.stream.Score) -> matplotlib.pyplot.bar, dict
-    Plots a histograms of the intervals found in stream and returns a
-    dictionary with the interval classes as keys and their total count
-    as values.
+    return noteDurations
+
+
+def intervalHistogram(xmls, directed=False, restThreshold=0, count='abs',
+                      figsize=None, showlabels=(True, True, True), width=.4,
+                      fontsize=None,rotation=None, xlimit=None, ylimit=None,
+                      ticks_reduction_factor=0.5):
+    '''([str]) --> matplotlib.pyplot.bar, dict
+    It takes a list of musicXml file names as input, computes a interval
+    histogram, plots it in a bar chart, and returns a dictionary
+    with the interval classes and their occurrence.
+    directed: if True, takes into account the direction of the interval
+    restThreshold: the maximun rest duration in quarter length between two
+        notes not to be considered for computing the interval between those
+        notes.
+    count can be 'abs' for absolute occurrrence values, 'sum' for the normalised
+    occurrence to the summation, and 'max' for the normalised occurrence to the
+    maximum.
+    figsize: w,h tuple in inches
+    showlabels: tuple of three bol, referring to title, xlabel, ylabel
+    width: bars width (even number)
+    fontsize:
+    rotation:
+    xlimit: minimum, maximum tuple
+    ylimit: minimum, maximum tuple
+    ticks_reduction_factor:
     '''
-    notes = stream.flat.notesAndRests
-    
-    # Creating a dictionary with the interval classes as keys and their
-    # count as values
-    intCount = {}
-    for i in range(len(notes)-1):
-        if isinstance(notes[i], note.Note) and isinstance(notes[i+1],
-                                                          note.Note):
-            intl = interval.notesToInterval(notes[i], notes[i+1])
-            if directed:
-                intName = intl.directedName
-            else:
-                intName = intl.name
-                
-            if intName not in intCount:
-                intCount[intName] = 1
-            else:
-                intCount[intName] += 1
 
-    # Creating lists for computing the plot:
-    # Interval classes to be displayed
-    intClasses = [k for k in intCount]
+    if count not in ['abs', 'sum', 'max']:
+        print 'Error: given count is not allowed.'
+        return
 
-    # Sorting interval classes according to their semitones steps
-    intSteps = {}
-    for i in intClasses:
-        intSteps[i] = interval.Interval(i).chromatic.directed
-    sortedInt = sorted(intSteps, key=intSteps.get)
+    intvlOccurrence = {}
 
-    # (Normalized) count values to be displayed
-    intValues = np.array([intCount[i] for i in sortedInt])
-    if count == 'abs':
-        ylabel = 'Count'
-    elif count == 'sum':
-        intValues = intValues / float(sum(intValues))
+    for xml in xmls:
+        print 'Parsing', xml
+        s = converter.parse(xml)
+        notes = s.flat.notesAndRests
+
+        for i in range(len(notes)-1):
+            if notes[i].isNote and notes[i+1].isNote:
+                if notes[i].tie != None and notes[i].tie.type == 'start':
+                    continue
+                intvl = computeInterval(notes[i], notes[i+1], directed)
+                intvlOccurrence[intvl] = intvlOccurrence.get(intvl, 0) + 1
+            elif notes[i].isNote and notes[i+1].isRest:
+                try:
+                    if ((notes[i+1].quarterLength <= restThreshold) and
+                        (notes[i+2].isNote)):
+                        intvl = computeInterval(notes[i], notes[i+2], directed)
+                        intvlOccurrence[intvl] = intvlOccurrence.get(intvl,0)+1
+                except:
+                    print 'Algo raro ha pasado...'
+
+    # Sorting occurerence per interval length
+    intvls = intvlOccurrence.keys()
+    intvlSemitons = [(i, interval.Interval(i).chromatic.directed) for i in
+        intvls]
+    sortedIntvlSemitons = sorted(intvlSemitons, key=lambda x: x[1])
+    sortedIntvls = [i[0] for i in sortedIntvlSemitons]
+    sortedOcurrences = np.array([intvlOccurrence[i] for i in sortedIntvls])
+
+    # Normalising, if requested
+    if count == 'sum':
+        values = sortedOcurrences / float(sum(sortedOcurrences))
         ylabel = 'Normalized Count'
     elif count == 'max':
-        intValues = intValues / float(max(intValues))
+        values = sortedOcurrences / float(max(sortedOcurrences))
         ylabel = 'Normalized Count'
+    else:
+        values = sortedOcurrences
+        ylabel = 'Count'
 
-    # Position of xticks, separated for semitones steps
-    xposition = np.array(sorted([intSteps[i] for i in sortedInt]))
+    xposition = np.array([i[1] for i in sortedIntvlSemitons])
 
-    # Plotting the bar chart
+    plotting(xposition, values, 'Interval histogram', 'Interval class', ylabel,
+             showlabels, sortedIntvls, figsize, width,
+             fontsize, rotation, xlimit, ylimit, ticks_reduction_factor)
+
+    return intvlOccurrence
+
+def findInterval(xmls, interval, restThreshold=0, directed=False):
+    '''([str], str, bol) --> {str:[{str:int}]}
+    Takes a list of musicXml files addresses and an interval as input and find
+    it in each of the scores by plotting the involved notes in red. It returns
+    a list with the offset positions of each of the notes involved.
+    '''
+
+    allPositions = {}
+    for xml in xmls:
+        print 'Parsing', xml
+        s = converter.parse(xml)
+        notes = s.flat.notesAndRests
+
+        positions = []
+        intvl = None
+
+        for i in range(len(notes)-1):
+            if notes[i].isNote and notes[i+1].isNote:
+                if notes[i].tie != None and notes[i].tie.type == 'start':
+                    continue
+                intvl = computeInterval(notes[i], notes[i+1], directed)
+                n1 = notes[i]
+                n2 = notes[i+1]
+            elif notes[i].isNote and notes[i+1].isRest:
+                try:
+                    if ((notes[i+1].quarterLength <= restThreshold) and
+                        (notes[i+2].isNote)):
+                        intvl = computeInterval(notes[i], notes[i+2], directed)
+                        n1 = notes[i]
+                        n2 = notes[i+2]
+                except:
+                    print 'Algo raro ha pasado...'
+
+            if (intvl != None) and (intvl == interval):
+                    n1.color = '#FF0000' # Red in the RGB color code
+                    n2.color = '#FF0000' # Red in the RGB color code
+                    pair = {n1.nameWithOctave:n1.offset, n2.nameWithOctave:
+                            n2.offset}
+                    positions.append(pair)
+
+        if len(positions) != 0:
+            print '\t' + str(len(positions)), 'found'
+            s.show()
+            allPositions[xml]=positions
+        else:
+            print '\tNone found'
+
+    return allPositions
+
+def computeInterval(n1, n2, directed=False):
+    '''(music21.note.Note, music21.note.Note, bool) --> str
+    Given to music21 notes, computes the interval between and returns its name.
+    If directed is True, it takes into account the direction of the interval.
+    '''
+
+    intvl = interval.notesToInterval(n1, n2)
+    if directed:
+        intvlName = intvl.directedName
+    else:
+        intvlName = intvl.name
+
+    return intvlName
+
+def plotting(xposition, values, title, xlabel, ylabel, showlabels, xticks,
+             figsize, width, fontsize, rotation, xlimit, ylimit,
+             ticks_reduction_factor):
+    if not showlabels[0]: title = ''
+    if not showlabels[1]: xlabel = ''
+    if not showlabels[2]: ylabel = ''
     plt.figure(1, figsize)
-    plt.bar(xposition, intValues, width)
-    plt.title('Histogram of Intervals', fontsize=fontsize)
-    plt.xlabel('Interval class', fontsize=fontsize)
+    plt.bar(xposition, values, width)
+    plt.title(title, fontsize=fontsize)
+    plt.xlabel(xlabel, fontsize=fontsize)
     plt.ylabel(ylabel, fontsize=fontsize)
-    plt.xticks(xposition + width/2, sortedInt, fontsize=(fontsize*.6))
+    if fontsize != None:
+        plt.xticks(xposition + width/2, xticks, fontsize=(fontsize*
+        ticks_reduction_factor), rotation=rotation)
+        plt.yticks(fontsize=(fontsize*ticks_reduction_factor))
+    else:
+        plt.xticks(xposition + width/2, xticks, rotation=rotation)
+    if xlimit != None:
+        plt.xlim(xlimit[0], xlimit[1])
+    if ylimit != None:
+        plt.ylim(ylimit[0], ylimit[1])
     plt.grid(True, axis='y')
+    plt.tight_layout()
     plt.show()
 
-    return intCount
+# Chinese punctuation marcs: ，。？！
+diacritics = [u'\uff0c', u'\u3002', u'\uff1f', u'\uff01']
 
-def findIntervalsPosition(stream, intl, directed=False):
-    '''(music21.stream.Score, str) ->
-    Finds the offset for each pair of notes separated by interval intl in sream.
+def getlyrics(filename, returnLyrics=False):
+    '''(str) -->
+    It takes a musicXml file name as input and prints its lyrics. I returnLyrics
+    is True, it also returns the lyrics.
     '''
 
-    # Create a copy of the stream, so that notes color can be changed
-    # without affecting the original stream
-    score = copy.deepcopy(stream)
+    s = converter.parse(filename)
 
-    # Get the notes and rests from score
-    notes = score.flat.notesAndRests
+    print 'Parsing', filename
 
-    # Create a list with the offset positions of the intervals
-    positions = []
-    for i in range(len(notes)-1):
-        n1 = notes[i]
-        n2 = notes[i + 1]
-        if isinstance(n1, note.Note) and isinstance(n2, note.Note):
-            intlCand = interval.notesToInterval(n1, n2)
-            if directed:
-                intName = intlCand.directedName
+    for i in s:
+        if i.isClassOrSubclass(('Stream', 'Part')):
+            if i.flat.notes[0].quarterLength == 0:
+                n = i.flat.notes[1]
             else:
-                intName = intlCand.name
+                n = i.flat.notes[0]
 
-            # Change the color of the interval notes
-            if intName == intl:
-                n1.color = 'red'
-                n2.color = 'red'
-                pair = {n1.nameWithOctave:n1.offset, n2.nameWithOctave:
-                        n2.offset}
-                positions.append(pair)
+            if n.hasLyrics:
+                p = i.flat.notes
 
-    if len(positions) != 0:
-        score.show()
+    rawlyrics = ''
+    lyrics = ''
+    lines = 0
 
-    return positions
+    for note in p:
+        if note.hasLyrics(): rawlyrics += note.lyric
 
-def beatCountPerNote(pitchClass, stream, showScore=True):
-    working_stream = copy.deepcopy(stream)
-    notes = working_stream.flat.notes
-    found_notes = []
-    for n in notes:
-        if n.name == pitchClass:
-            n.color = 'red'
-            found_notes.append(n)
-    if len(found_notes) == 0:
-        return 'The given pitch class does not appear in the given stream.'
-    else:
-        beat_dic = {}
-        for n in found_notes:
-            beat_class = n.beat # This number has to be changed to the time signature's numerator
-            if beat_class not in beat_dic:
-                beat_dic[beat_class] = 1
+    for i in range(len(rawlyrics)):
+        if rawlyrics[i] not in diacritics:
+            lyrics += rawlyrics[i]
+        elif rawlyrics[i] == diacritics[1]: # Chinese full stop 。
+            lyrics += (rawlyrics[i] + '\n')
+            lines += 1
+        else:
+            if i < len(rawlyrics)-5:
+                condition1 = ((rawlyrics[i+4] not in diacritics) and
+                              (rawlyrics[i+5] not in diacritics) and
+                              (rawlyrics[i+6] not in diacritics))
+                condition2 = ((rawlyrics[i-4] not in diacritics) and
+                              (rawlyrics[i-5] not in diacritics) and
+                              (rawlyrics[i-6] not in diacritics))
+                if condition1 and condition2:
+                    lyrics += (rawlyrics[i] + '\n')
+                    lines += 1
+                else:
+                    lyrics += rawlyrics[i]
             else:
-                beat_dic[beat_class] += 1
+                lyrics += (rawlyrics[i] + '\n')
+                lines += 1
 
-#    return found_notes
+    if lyrics[-1] != '\n':
+        lyrics += '\n'
 
-    beat_classes = [i for i in beat_dic]
-    beat_classes.sort()
-    beat_values = [beat_dic[i] for i in beat_classes]
-    beat_ticks = [str(i) for i in beat_classes]
+    print str(lines), 'lines.'
+    print lyrics
 
-#    plt.bar(beat_classes, yvalues, width)
-#    plt.xticks(np.array(beat_classes) + width/2, xticks)
-#    plt.show()
+    if returnLyrics:
+        return lyrics
 
-    if showScore:
-        working_stream.show()
-
-    return beat_classes, beat_values, beat_ticks
-
-def beatHistogram(stream, tonic=None, width=.4, rotation=45, figsize=None,
-                  fontsize=None):
-    pitches = []
-    for n in stream.flat.notes:
-        if n.name not in pitches:
-            pitches.append(n.name)
-
-    # Organize pitches starting from the given tonic, if any
-    pitches.sort()
-    if tonic != None:
-        ton_ind = pitches.index(tonic)
-        pitch_classes = pitches[ton_ind:]
-        pitch_classes.extend(pitches[:ton_ind])
-    else:
-        pitch_classes = pitches
-
-    plots = len(pitch_classes)
-    rows = (plots / 2) + (plots % 2)
-    rowsAndCol = rows * 100 + 20
-
-    # Setting the y margin
-    maxima = []
-    for i in pitch_classes:
-        x, y, t = beatCountPerNote(i, stream, showScore=False)
-        maxima.append(max(y))
-    ylim = max(maxima)
-
-    fig = plt.figure(figsize=figsize)
-    ax0 = fig.add_subplot(111)
-    for i in ['top', 'bottom', 'left', 'right']:
-        ax0.spines[i].set_color('none')
-    ax0.tick_params(labelcolor='w', top='off', bottom='off', left='off',
-                    right='off')
-    ax0.set_xlabel('Beat', fontsize=fontsize)
-    ax0.set_ylabel('Count', fontsize=fontsize)
-    for i in range(len(pitch_classes)):
-        x, y, t = beatCountPerNote(pitch_classes[i], stream, showScore=False)
-        ax = fig.add_subplot(rowsAndCol + i + 1)
-        ax.bar(x, y, width=width)
-        ax.set_ylim(0, ylim)
-        ax.set_xlim(1, 3)
-#        ax.yaxis.set_ticks(np.arange(0, ylim, 3))
-        ax.set_xticks(np.array(x) + width/2)
-        ax.set_xticklabels(t, rotation=rotation)
-        ax.set_title(pitch_classes[i], fontsize=(fontsize*.75))
-        ax.grid(True, axis='y')
-
-    fig.tight_layout()
-    plt.show()
-    
-def timeSignatureMeasures(timeSignature, source):
-    '''(str, music21.stream) --> list of lists
-    Returns a list of lists containing the start measure number and the end measure number
-    for each section in source that is set to timesignature
+def noteStrings(xmls, stringLength, restThreshold=0, removeGraces=True):
+    '''([str], int, bol) --> [(str, int)]
+    It takes a list of musicXml file names and the length of the note string to
+    be searched (either 3 or 4), and it returns an ordered list of tuples with
+    the notestring and its count. If removeGraces is True, grace notes are
+    removed before counting.
     '''
-    timeSignatures = source.flat.getTimeSignatures()
-    measureNumbers = []
-    for i in timeSignatures:
-        if i.ratioString == timeSignature:
-            ini = i.measureNumber
-            end = timeSignatures[timeSignatures.index(i)+1].measureNumber-1
-            measureNumbers.append([ini, end])
 
-    return measureNumbers
-    
-def getSectionByTimeSignature(timeSignatureList, source):
-    '''(list, music21.stream) --> music21.stream
-    Given a list conatining lists with the start measure number and the end measure number
-    for each section in a specific time Signature, it returns a stream containing all
-    those sections from source
+    notestrings = {}
+
+    for xml in xmls:
+        print 'Parsing', xml
+        s = converter.parse(xml)
+        p = s.flat.notesAndRests
+
+        # Removing grace notes if applicable
+        if removeGraces:
+            graces = []
+            for n in p:
+                if n.isGrace:
+                    graces.append(n)
+            p.remove(graces)
+
+        # Removing rests between notes equal or under the given restThreshold
+        if restThreshold > 0:
+            rests = []
+            for i in range(1, len(p)-1):
+                if (p[i].isRest and (p[i].quarterLength<=restThreshold) and
+                p[i-1].isNote and p[i+1].isNote):
+                    rests.append(p[i])
+            p.remove(rests)
+
+        # Finding note strings of given lenght
+        if stringLength == 3:
+            for i in range(2, len(p)):
+                if p[i-2].isNote and p[i-1].isNote and p[i].isNote:
+                    notestring = p[i-2].name + p[i-1].name + p[i].name
+                    notestrings[notestring] = notestrings.get(notestring, 0) + 1
+
+        elif stringLength == 4:
+            for i in range(3, len(p)):
+                if (p[i-3].isNote and p[i-2].isNote and p[i-1].isNote and
+                    p[i].isNote):
+                    notestring = p[i-3].name+p[i-2].name+p[i-1].name+p[i].name
+                    notestrings[notestring] = notestrings.get(notestring, 0) + 1
+
+    return sorted(notestrings.items(), key=lambda x: x[1], reverse=True)
+
+def findNoteString(xml, notestring, restThreshold=0, removeGraces=True,
+                   show=True):
+    '''(str, str) -->
+    Parses the given musicXml file with music21, and searches for the given
+    notestring. If show is True, it shows the score with the notes that form the
+    notestring in red.
+    NOTE: notestrings should be of 3 or 4 notes long
     '''
-    section = stream.Stream()
-    for i in timeSignatureList:
-        for j in source.measures(i[0], i[1]).getElementsByClass('Measure'):
-            section.append(j)
 
-    return section
+    print 'Parsing', xml
+    s = converter.parse(xml)
+    p = s.flat.notesAndRests
 
-def beatAnalysis(stream, beatList, tonic=None, width=.4, figsize=None,
-                 fontsize=None):
-    
-    beats = {}
-    for n in stream.flat.notes:
-        if n.duration.quarterLength > 0:
-            if n.name not in beats:
-                beats[n.name] = [n.beat]
-            else:
-                beats[n.name].append(n.beat)
+    # Removing grace notes if applicable
+    if removeGraces:
+        graces = []
+        for n in p:
+            if n.isGrace:
+                graces.append(n)
+        p.remove(graces)
 
-    count = {}
-    for i in beats:
-        count[i] = []
-        for j in beatList:
-            count[i].append(beats[i].count(j))
+    # Removing rests between notes equal or under the given restThreshold
+    if restThreshold > 0:
+        rests = []
+        for i in range(1, len(p)-1):
+            if (p[i].isRest and (p[i].quarterLength<=restThreshold) and
+            p[i-1].isNote and p[i+1].isNote):
+                rests.append(p[i])
+        p.remove(rests)
 
-    pitches = [i for i in beats]
+    noteNames = []
+    for char in notestring:
+        if char not in ['-', '#']:
+            noteNames.append(char)
+        else:
+            noteNames[-1] += char
+    print '\tSearching for', noteNames
 
-    # Organize pitches starting from the given tonic, if any
-    pitches.sort()
-    if tonic != None:
-        ton_ind = pitches.index(tonic)
-        pitch_classes = pitches[ton_ind:]
-        pitch_classes.extend(pitches[:ton_ind])
-    else:
-        pitch_classes = pitches
+    stringsFound = 0
+    if len(noteNames) == 3:
+        for i in range(2, len(p)):
+            if ((p[i-2].name == noteNames[0]) and (p[i-1].name == noteNames[1])
+                and (p[i].name == noteNames[2])):
+                p[i-2].color = '#FF0000' # Red in the RGB color code
+                p[i-1].color = '#FF0000' # Red in the RGB color code
+                p[i].color = '#FF0000' # Red in the RGB color code
+                stringsFound += 1
 
-    #return beats, count, pitch_classes
+    elif len(noteNames) == 4:
+        for i in range(3, len(p)):
+            if ((p[i-3].name==noteNames[0]) and (p[i-2].name==noteNames[1])
+                and (p[i-1].name==noteNames[2]) and (p[i].name==noteNames[3])):
+                p[i-3].color = '#FF0000' # Red in the RGB color code
+                p[i-2].color = '#FF0000' # Red in the RGB color code
+                p[i-1].color = '#FF0000' # Red in the RGB color code
+                p[i].color = '#FF0000' # Red in the RGB color code
+                stringsFound += 1
 
-    ind = np.arange(len(beatList))
-    colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet']
-    bottom = np.zeros(len(ind))
+    print '\tFound', str(stringsFound), 'occurrences'
 
-    plots = []
-    for i in range(len(pitch_classes)):
-        height = count[pitch_classes[i]]
-        plots.append(plt.bar(ind, height, width, bottom=bottom,
-                color=colors[i]))
-        bottom += height
-    plt.xticks(ind+width/2., [str(i) for i in beatList])
-    plt.legend(plots, pitch_classes)
-
-    plt.show()
+    if stringsFound > 0:
+        s.show()
