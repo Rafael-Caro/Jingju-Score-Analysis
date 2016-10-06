@@ -21,55 +21,59 @@ def findVoicePart(score):
                 voicePart = p
         elif n.next().hasLyrics():
             voicePart = p
+    
+    # Deletes the instrument in the voice part
+    if voicePart.hasElementOfClass('Instrument'):
+        voicePart.remove(voicePart.getInstrument())
             
     return voicePart
 
-def cleanScore(filename, showCleanScore=True, slurs=True):
-    '''str --> music21.stream.Score
-    
-    filename = string with the path to the file
-    If showCleanScore=True, the resulting score will be showed according to
-        music21 configuration
-    If slurs=True, it draws a slur for each syllable melisma
-    '''
-    
-    s = converter.parse(filename)
-    
-    # Transpose from C major (from Medeli) to E major
-    s.transpose('M3', classFilterList=['Note'], inPlace=True)
-    
-    # Delete barline objects from measures
-    for i in s.parts:
-        for j in i:
-            if j.isStream:
-                j.removeByClass(bar.Barline)
-    
-    s.makeNotation(inPlace=True)
-    
-    # Add slurs for syllable melismae
-    if slurs:
-        voicePart = findVoicePart(s)        
-        allnotes = voicePart.flat.notes.stream()
-        for n in allnotes: # Removing grace notes for slurring
-            if n.quarterLength == 0:
-                allnotes.remove(n)
-        for n in allnotes:
-            if n.hasLyrics() and not n.next().hasLyrics():
-                slurstart = n
-                i = allnotes.index(n) + 1
-                slurend = allnotes[i]
-                while not slurend.next().hasLyrics() and i < len(allnotes):
-                    slurend = allnotes[i]
-                    i += 1
-                slur = spanner.Slur([slurstart, slurend])
-                voicePart.insert(0, slur)
-            
-                    
-    if showCleanScore: s.show()
-    
-    return s
+#def cleanScore(filename, showCleanScore=True, slurs=True):
+#    '''str --> music21.stream.Score
+#    
+#    filename = string with the path to the file
+#    If showCleanScore=True, the resulting score will be showed according to
+#        music21 configuration
+#    If slurs=True, it draws a slur for each syllable melisma
+#    '''
+#    
+#    s = converter.parse(filename)
+#    
+#    # Transpose from C major (from Medeli) to E major
+#    s.transpose('M3', classFilterList=['Note'], inPlace=True)
+#    
+#    # Delete barline objects from measures
+#    for i in s.parts:
+#        for j in i:
+#            if j.isStream:
+#                j.removeByClass(bar.Barline)
+#    
+#    s.makeNotation(inPlace=True)
+#    
+#    # Add slurs for syllable melismae
+#    if slurs:
+#        voicePart = findVoicePart(s)        
+#        allnotes = voicePart.flat.notes.stream()
+#        for n in allnotes: # Removing grace notes for slurring
+#            if n.quarterLength == 0:
+#                allnotes.remove(n)
+#        for n in allnotes:
+#            if n.hasLyrics() and not n.next().hasLyrics():
+#                slurstart = n
+#                i = allnotes.index(n) + 1
+#                slurend = allnotes[i]
+#                while not slurend.next().hasLyrics() and i < len(allnotes):
+#                    slurend = allnotes[i]
+#                    i += 1
+#                slur = spanner.Slur([slurstart, slurend])
+#                voicePart.insert(0, slur)
+#            
+#                    
+#    if showCleanScore: s.show()
+#    
+#    return s
 
-def extractPhrases(filename, lines, clean=False, slurs=False):
+def extractPhrases(filename, lines): #, clean=False, slurs=False):
     '''str, list --> list
     
     filename: string with the path to the score
@@ -77,11 +81,13 @@ def extractPhrases(filename, lines, clean=False, slurs=False):
     of each music phrase.
     '''
     
-    if clean:
-        s = cleanScore(filename, showCleanScore=False, slurs=slurs)
-    else:
-        s = converter.parse(filename)
-        
+#    if clean:
+#        s = cleanScore(filename, showCleanScore=False, slurs=slurs)
+#    else:
+#        s = converter.parse(filename)
+
+    s = converter.parse(filename)
+
     voicePart = findVoicePart(s)
     
     fragments = [] # It stores the streams per line
@@ -96,20 +102,20 @@ def extractPhrases(filename, lines, clean=False, slurs=False):
     #   a score, this results in an error, so clef, key signature and time
     #   signature should be moved to offset 0.0 in the first meausre of each
     #   part.
-    cl = fragments[0].getClefs()[0]
-    ks = fragments[0].getKeySignatures()[0]
-    ts = fragments[0].getTimeSignatures()[0]
-    
-    toRemove = [cl, ks, ts]
-    toInsert = [0, cl, 0, ks, 0, ts]
-    
-    for fragment in fragments:
-        fragment.remove(toRemove)
-        fragment[1].insert(toInsert)
+#    cl = fragments[0].getClefs()[0]
+#    ks = fragments[0].getKeySignatures()[0]
+#    ts = fragments[0].getTimeSignatures()[0]
+#    
+#    toRemove = [cl, ks, ts]
+#    toInsert = [0, cl, 0, ks, 0, ts]
+#    
+#    for fragment in fragments:
+#        fragment.remove(toRemove)
+#        fragment[1].insert(toInsert)
         
     return fragments
 
-def alignLines(scores, clean=False, slurs=False, showAlignedScore=True):
+def alignLines(scores, showAlignedScore=True): #, clean=False, slurs=False):
     '''{str:[()]}, list --> music21.stream.Score
     
     scores: dictionary whose keys are strings with the path to the score and
@@ -119,25 +125,34 @@ def alignLines(scores, clean=False, slurs=False, showAlignedScore=True):
     
     parts = [] # It stores the streams per line
     
+    longestLength = 0 # Finding the longest measure length
+    
     for score in scores:
-        fragments = extractPhrases(score, scores[score], clean=clean,
-                                   slurs=slurs)
+        s = converter.parse(score)
+        voicePart = findVoicePart(s)
+        fragments = [] # It stores the streams per line
+        for line in scores[score]:
+            fragment = voicePart.measures(line[0], line[1])
+            fragment.remove(fragment.getTimeSignatures()[0])
+            if len(fragment.getElementsByClass('Measure')) > longestLength:
+                longestLength = len(fragment.getElementsByClass('Measure'))
+            fragments.append(fragment)
         parts.extend(fragments)
     
     # Completing parts with empty measures so that all of them have the same
     #   length as the longest.
-    longestLength = 0
+    
     for part in parts:
-        if len(part) > longestLength:
-            longestLength = len(part)
-    for part in parts:
-        if len(part) < longestLength:
-            part.repeatAppend(stream.Measure(), longestLength-len(part))
+        partLength = len(part.getElementsByClass('Measure'))        
+        if partLength < longestLength:
+            part.repeatAppend(stream.Measure(), longestLength-partLength)
     
     alignedScore = stream.Score()
     for part in parts:
         alignedScore.insert(0, part)
         
+    alignedScore.makeNotation(inPlace=True)
+    
     if showAlignedScore: alignedScore.show()
         
     return alignedScore
