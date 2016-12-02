@@ -129,6 +129,7 @@ def alignLines(scores, showAlignedScore=True): #, clean=False, slurs=False):
     
     for score in scores:
         s = converter.parse(score)
+        print(score.split('/')[-1] + ' parsed.')
         voicePart = findVoicePart(s)
         fragments = [] # It stores the streams per line
         for line in scores[score]:
@@ -146,6 +147,7 @@ def alignLines(scores, showAlignedScore=True): #, clean=False, slurs=False):
         partLength = len(part.getElementsByClass('Measure'))        
         if partLength < longestLength:
             part.repeatAppend(stream.Measure(), longestLength-partLength)
+    print('\nExtra empty measures appended.\n\nAligning parts...')
     
     alignedScore = stream.Score()
     for part in parts:
@@ -153,6 +155,36 @@ def alignLines(scores, showAlignedScore=True): #, clean=False, slurs=False):
         
     alignedScore.makeNotation(inPlace=True)
     
-    if showAlignedScore: alignedScore.show()
+    print('\nDone!')    
+    
+    if showAlignedScore:
+        print ('\nOpening aligned score with MuseScore')
+        alignedScore.show()
         
     return alignedScore
+
+def changeDurations(score, value, showScore=True, save=False):
+    '''str, int --> music21.stream.Score
+    
+    Given a string with the address of a xml score and an integer, it returns a
+    score without time signature and with all the durations multiplied by the
+    given integer.
+    '''
+    
+    s = converter.parse(score)
+    
+    for p in s.parts:
+        try:
+            p.measure(0).removeByClass('TimeSignature')
+        except:
+            p.measure(1).removeByClass('TimeSignature')
+    
+    for n in s.flat.notesAndRests:
+        n.quarterLength = n.quarterLength * 2
+        
+    if showScore:
+        s.show()
+        
+    if save:
+        scoreName = score[:-4] + '-x' + str(value) + '.xml'
+        s.write(fp=scoreName)
