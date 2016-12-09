@@ -7,26 +7,38 @@ Created on Wed Aug 31 12:57:07 2016
 
 from music21 import *
 
-def findVoicePart(score):
-    '''music21.stream.Score --> music21.stream.Part
+def findVoiceParts(score):
+    '''music21.stream.Score --> [music21.stream.Part]
     
-    Given a music21.stream.Score with one or more parts in which ONE of them is
-        a sung part, it returns it as a music21.stream.Part
+    Given a music21.stream.Score with one or more parts, it returns a list of
+    the parts that contain lyrics
     '''
     
-    for p in score.parts:
-        n = p.flat.notes.stream()[0]
-        if n.quarterLength != 0:
-            if n.hasLyrics():
-                voicePart = p
-        elif n.next().hasLyrics():
-            voicePart = p
+    voiceParts = []
     
-    # Deletes the instrument in the voice part
-    if voicePart.hasElementOfClass('Instrument'):
-        voicePart.remove(voicePart.getInstrument())
+    for p in score.parts:
+        if len(p.flat.notes) == 0: continue
+        i = 0
+        n = p.flat.notes[i]
+        while n.quarterLength == 0:
+            i += 1
+            n = p.flat.notes[i]
+        if n.hasLyrics():
+                if p.hasElementOfClass('Instrument'):
+                    p.remove(p.getInstrument())
+                voiceParts.append(p)
+#        n = p.flat.notes.stream()[0]
+#        if n.quarterLength != 0:
+#            if n.hasLyrics():
+#                if p.hasElementOfClass('Instrument'):
+#                    p.remove(p.getInstrument())
+#                voiceParts.append(p)
+#        elif n.next().hasLyrics():
+#            if p.hasElementOfClass('Instrument'):
+#                p.remove(p.getInstrument())
+#            voiceParts.append(p)
             
-    return voicePart
+    return voiceParts
 
 #def cleanScore(filename, showCleanScore=True, slurs=True):
 #    '''str --> music21.stream.Score
@@ -188,3 +200,92 @@ def changeDurations(score, value, showScore=True, save=False):
     if save:
         scoreName = score[:-4] + '-x' + str(value) + '.xml'
         s.write(fp=scoreName)
+
+# Chinese punctuation marcs: ，。？！
+diacritics = [u'\uff0c', u'\u3002', u'\uff1f', u'\uff01']
+
+def lyricsFromPart(part, printLyrics=False):
+    '''music21.stream.Part --> str
+    It takes a music21.stream.Part as input and returns its lyrics. If
+    printLyrics is True, it also prints them in the console.
+    '''
+
+    notes = part.flat.notes
+
+    rawlyrics = ''
+    lyrics = ''
+    lines = 0
+
+    for n in notes:
+        if n.hasLyrics(): rawlyrics += n.lyric
+
+    for i in range(len(rawlyrics)):
+        if rawlyrics[i] not in diacritics:
+            lyrics += rawlyrics[i]
+        elif rawlyrics[i] != diacritics[0]: # Chinese comma ，
+            lyrics += (rawlyrics[i] + '\n')
+            lines += 1
+        else:
+            if i < len(rawlyrics)-5:
+                condition1 = ((rawlyrics[i+4] not in diacritics) and
+                              (rawlyrics[i+5] not in diacritics) and
+                              (rawlyrics[i+6] not in diacritics))
+                condition2 = ((rawlyrics[i-4] not in diacritics) and
+                              (rawlyrics[i-5] not in diacritics) and
+                              (rawlyrics[i-6] not in diacritics))
+                if condition1 and condition2:
+                    lyrics += (rawlyrics[i] + '\n')
+                    lines += 1
+                else:
+                    lyrics += rawlyrics[i]
+            else:
+                lyrics += (rawlyrics[i] + '\n')
+                lines += 1
+
+    if lyrics[-1] != '\n':
+        lyrics += '\n'
+
+    print('This part contains', str(lines), 'lines:')
+    
+    if printLyrics: print(lyrics)
+
+    return lyrics
+
+def lyricsFromScore(filename, printLyrics=False):
+    '''music21.stream.Score --> str
+    It takes a music21.stream.Score as input and returns the lyrics of all the
+    parts that contain lyrics. If printLyrics is True, it also prints them in
+    the console.
+    '''
+    
+    print('Parsing ' + filename.split('/')[-1])
+    s = converter.parse(filename)
+    
+    voiceParts = findVoiceParts(s)
+    
+    if len(voiceParts) == 1:
+        lyrics = lyricsFromPart(voiceParts[0], printLyrics)
+    else:
+        lyrics = ''
+        for p in voiceParts:
+            heading = 'Part ' + str(voiceParts.index(p) + 1) + '\n'          
+            partLyrics = lyricsFromPart(p, printLyrics=False)
+            lyrics += (heading + partLyrics)
+            if printLyrics: print(heading + partLyrics)
+    
+    return lyrics
+
+def lyrics2csv(scores, csv, printLyrics=True):
+    '''[str], str --> csv file
+    Given a list of paths for xml scores, it creates a csv file with all the
+    lyrics per score in the given 'csv' path. If printLyrics is true, it prints
+    the lyrics of each file in the cosole.
+    '''
+    for s in scores:
+        lyrics = lyricsFromScore(s, printLyrics)
+        with open(csv, 'a', encoding='utf-8') as f:
+            f.write(s.split('/')[-1] + ',' + lyrics.split('\n')[0])
+            for l in lyrics.split('\n')[1:-1]:
+                f.write('\n,' + l)
+            f.write('\n')
+                
