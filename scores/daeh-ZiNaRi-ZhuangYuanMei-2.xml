@@ -8,7 +8,7 @@
     <rights>曹宝荣，编著《京剧唱腔板式解读·上册》北京：人民音乐出版社，2010；第24-27页</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-10-24</encoding-date>
+      <encoding-date>2016-12-14</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -24014,7 +24014,7 @@
         <beam number="1">end</beam>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>眷，</text>
+          <text>眷、</text>
           </lyric>
         </note>
       </measure>
@@ -24320,7 +24320,7 @@
         <beam number="1">end</beam>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>犯，</text>
+          <text>犯、</text>
           </lyric>
         </note>
       </measure>

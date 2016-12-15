@@ -8,7 +8,7 @@
     <rights>刘吉典《京剧音乐概论》北京：人民音乐出版社，1981；第390-391页</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-11-30</encoding-date>
+      <encoding-date>2016-12-14</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -954,7 +954,7 @@
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="87" width="189.07">
+    <measure number="87" width="190.62">
       <print new-system="yes">
         <system-layout>
           <system-margins>
@@ -970,56 +970,56 @@
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="88" width="118.79">
+    <measure number="88" width="120.35">
       <note>
         <rest/>
         <duration>4</duration>
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="89" width="148.46">
+    <measure number="89" width="136.01">
       <note>
         <rest/>
         <duration>4</duration>
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="90" width="118.79">
+    <measure number="90" width="120.35">
       <note>
         <rest/>
         <duration>4</duration>
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="91" width="107.29">
+    <measure number="91" width="108.85">
       <note>
         <rest/>
         <duration>4</duration>
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="92" width="97.88">
+    <measure number="92" width="99.43">
       <note>
         <rest/>
         <duration>4</duration>
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="93" width="118.29">
+    <measure number="93" width="119.85">
       <note>
         <rest/>
         <duration>4</duration>
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="94" width="85.46">
+    <measure number="94" width="87.01">
       <note>
         <rest/>
         <duration>4</duration>
         <voice>1</voice>
         </note>
       </measure>
-    <measure number="95" width="93.46">
+    <measure number="95" width="95.01">
       <note>
         <rest/>
         <duration>4</duration>
@@ -4661,7 +4661,7 @@
           </lyric>
         </note>
       </measure>
-    <measure number="87" width="189.07">
+    <measure number="87" width="190.62">
       <print new-system="yes">
         <staff-layout number="1">
           <staff-distance>65.00</staff-distance>
@@ -4687,7 +4687,7 @@
           <text>篡</text>
           </lyric>
         </note>
-      <note default-x="125.10" default-y="-145.00">
+      <note default-x="125.53" default-y="-145.00">
         <pitch>
           <step>E</step>
           <octave>4</octave>
@@ -4702,7 +4702,7 @@
           <slur type="stop" number="1"/>
           </notations>
         </note>
-      <note default-x="149.09" default-y="-145.00">
+      <note default-x="149.95" default-y="-145.00">
         <pitch>
           <step>E</step>
           <octave>4</octave>
@@ -4718,7 +4718,7 @@
           </lyric>
         </note>
       </measure>
-    <measure number="88" width="118.79">
+    <measure number="88" width="120.35">
       <note default-x="16.42" default-y="-140.00">
         <pitch>
           <step>F</step>
@@ -4735,7 +4735,7 @@
           <text>卖</text>
           </lyric>
         </note>
-      <note default-x="61.21" default-y="-145.00">
+      <note default-x="61.90" default-y="-145.00">
         <pitch>
           <step>E</step>
           <octave>4</octave>
@@ -4751,7 +4751,7 @@
           <text>国</text>
           </lyric>
         </note>
-      <note default-x="89.20" default-y="-140.00">
+      <note default-x="90.32" default-y="-140.00">
         <pitch>
           <step>F</step>
           <alter>1</alter>
@@ -4769,7 +4769,7 @@
           </lyric>
         </note>
       </measure>
-    <measure number="89" width="148.46">
+    <measure number="89" width="136.01">
       <note default-x="16.42" default-y="-135.00">
         <pitch>
           <step>G</step>
@@ -4790,7 +4790,7 @@
           <text>奸</text>
           </lyric>
         </note>
-      <note default-x="47.40" default-y="-140.00">
+      <note default-x="45.92" default-y="-140.00">
         <pitch>
           <step>F</step>
           <alter>1</alter>
@@ -4806,7 +4806,7 @@
           <slur type="stop" number="1"/>
           </notations>
         </note>
-      <note default-x="78.38" default-y="-135.00">
+      <note default-x="75.42" default-y="-135.00">
         <pitch>
           <step>G</step>
           <alter>1</alter>
@@ -4820,10 +4820,10 @@
         <beam number="2">continue</beam>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>贼，</text>
+          <text>贼</text>
           </lyric>
         </note>
-      <note default-x="115.88" default-y="-125.00">
+      <note default-x="104.92" default-y="-125.00">
         <pitch>
           <step>B</step>
           <octave>4</octave>
@@ -4840,7 +4840,7 @@
           </lyric>
         </note>
       </measure>
-    <measure number="90" width="118.79">
+    <measure number="90" width="120.35">
       <note default-x="16.42" default-y="-140.00">
         <pitch>
           <step>F</step>
@@ -4863,7 +4863,7 @@
           <text>名</text>
           </lyric>
         </note>
-      <note default-x="44.41" default-y="-145.00">
+      <note default-x="44.84" default-y="-145.00">
         <pitch>
           <step>E</step>
           <octave>4</octave>
@@ -4879,7 +4879,7 @@
           <text>叫</text>
           </lyric>
         </note>
-      <note default-x="72.40" default-y="-155.00">
+      <note default-x="73.27" default-y="-155.00">
         <pitch>
           <step>C</step>
           <alter>1</alter>
@@ -4896,7 +4896,7 @@
           </lyric>
         </note>
       </measure>
-    <measure number="91" width="107.29">
+    <measure number="91" width="108.85">
       <note default-x="17.42" default-y="-145.00">
         <pitch>
           <step>E</step>
@@ -4917,7 +4917,7 @@
           <text>嵩，</text>
           </lyric>
         </note>
-      <note default-x="61.56" default-y="-145.00">
+      <note default-x="62.33" default-y="-145.00">
         <pitch>
           <step>E</step>
           <octave>4</octave>
@@ -4933,7 +4933,7 @@
           </lyric>
         </note>
       </measure>
-    <measure number="92" width="97.88">
+    <measure number="92" width="99.43">
       <note default-x="16.42" default-y="-160.00">
         <pitch>
           <step>B</step>
@@ -4949,7 +4949,7 @@
           <text>本</text>
           </lyric>
         </note>
-      <note default-x="56.35" default-y="-155.00">
+      <note default-x="57.12" default-y="-155.00">
         <pitch>
           <step>C</step>
           <alter>1</alter>
@@ -4966,7 +4966,7 @@
           </lyric>
         </note>
       </measure>
-    <measure number="93" width="118.29">
+    <measure number="93" width="119.85">
       <note default-x="16.42" default-y="-145.00">
         <pitch>
           <step>E</step>
@@ -4982,7 +4982,7 @@
           <text>金</text>
           </lyric>
         </note>
-      <note default-x="66.56" default-y="-145.00">
+      <note default-x="67.33" default-y="-145.00">
         <pitch>
           <step>E</step>
           <octave>4</octave>
@@ -4998,7 +4998,7 @@
           </lyric>
         </note>
       </measure>
-    <measure number="94" width="85.46">
+    <measure number="94" width="87.01">
       <note default-x="16.42" default-y="-145.00">
         <pitch>
           <step>E</step>
@@ -5014,7 +5014,7 @@
           <text>殿</text>
           </lyric>
         </note>
-      <note default-x="50.14" default-y="-155.00">
+      <note default-x="50.92" default-y="-155.00">
         <pitch>
           <step>C</step>
           <alter>1</alter>
@@ -5031,7 +5031,7 @@
           </notations>
         </note>
       </measure>
-    <measure number="95" width="93.46">
+    <measure number="95" width="95.01">
       <note default-x="12.00" default-y="-155.00">
         <pitch>
           <step>C</step>
@@ -5048,7 +5048,7 @@
           <tied type="stop"/>
           </notations>
         </note>
-      <note default-x="51.93" default-y="-155.00">
+      <note default-x="52.71" default-y="-155.00">
         <pitch>
           <step>C</step>
           <alter>1</alter>

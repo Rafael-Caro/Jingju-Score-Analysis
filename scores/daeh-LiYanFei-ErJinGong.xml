@@ -8,7 +8,7 @@
     <rights>刘吉典《京剧音乐概论》北京：人民音乐出版社，1981；第228-232页</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-11-26</encoding-date>
+      <encoding-date>2016-12-14</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -82,7 +82,7 @@
       <print>
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>170.00</top-system-distance>
@@ -140,7 +140,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>125.82</system-distance>
@@ -385,7 +385,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>125.82</system-distance>
@@ -716,8 +716,8 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
-            <right-margin>-0.00</right-margin>
+            <left-margin>-0.00</left-margin>
+            <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>125.82</system-distance>
           </system-layout>
@@ -739,7 +739,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>125.82</system-distance>
@@ -1067,7 +1067,7 @@
       <print new-page="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>70.00</top-system-distance>
@@ -1318,7 +1318,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>91.66</system-distance>
@@ -1662,7 +1662,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>91.66</system-distance>
@@ -1999,7 +1999,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>91.66</system-distance>
@@ -2356,8 +2356,8 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
-            <right-margin>-0.00</right-margin>
+            <left-margin>-0.00</left-margin>
+            <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>91.66</system-distance>
           </system-layout>
@@ -2442,7 +2442,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>91.66</system-distance>
@@ -2465,7 +2465,7 @@
       <print new-page="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>70.00</top-system-distance>
@@ -2855,7 +2855,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>88.66</system-distance>
@@ -3088,7 +3088,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>88.66</system-distance>
@@ -3111,7 +3111,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>88.66</system-distance>
@@ -3394,7 +3394,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>88.66</system-distance>
@@ -3630,7 +3630,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>88.66</system-distance>
@@ -3924,7 +3924,7 @@
       <print new-page="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>70.00</top-system-distance>
@@ -4163,7 +4163,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>143.32</system-distance>
@@ -4531,7 +4531,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>143.32</system-distance>
@@ -4846,7 +4846,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>143.32</system-distance>
@@ -5086,11 +5086,11 @@
         <type>eighth</type>
         </note>
       </measure>
-    <measure number="47" width="607.57">
+    <measure number="47" width="614.07">
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>143.32</system-distance>
@@ -5115,7 +5115,7 @@
           <text>怀</text>
           </lyric>
         </note>
-      <note default-x="134.64" default-y="-55.00">
+      <note default-x="135.41" default-y="-55.00">
         <grace/>
         <pitch>
           <step>B</step>
@@ -5128,7 +5128,7 @@
           <slur type="start" number="2"/>
           </notations>
         </note>
-      <note default-x="160.50" default-y="-65.00">
+      <note default-x="161.27" default-y="-65.00">
         <pitch>
           <step>G</step>
           <alter>1</alter>
@@ -5143,7 +5143,7 @@
           <slur type="stop" number="2"/>
           </notations>
         </note>
-      <note default-x="219.90" default-y="-65.00">
+      <note default-x="221.43" default-y="-65.00">
         <pitch>
           <step>G</step>
           <alter>1</alter>
@@ -5158,7 +5158,7 @@
           <slur type="stop" number="1"/>
           </notations>
         </note>
-      <note default-x="279.30" default-y="-55.00">
+      <note default-x="281.59" default-y="-55.00">
         <pitch>
           <step>B</step>
           <octave>3</octave>
@@ -5173,7 +5173,7 @@
           <text>抱</text>
           </lyric>
         </note>
-      <note default-x="338.69" default-y="-65.00">
+      <note default-x="341.75" default-y="-65.00">
         <pitch>
           <step>G</step>
           <alter>1</alter>
@@ -5192,7 +5192,7 @@
           <text>太</text>
           </lyric>
         </note>
-      <note default-x="372.23" default-y="-60.00">
+      <note default-x="376.05" default-y="-60.00">
         <grace/>
         <pitch>
           <step>A</step>
@@ -5205,7 +5205,7 @@
           <slur type="start" number="2"/>
           </notations>
         </note>
-      <note default-x="398.09" default-y="-65.00">
+      <note default-x="401.91" default-y="-65.00">
         <pitch>
           <step>G</step>
           <alter>1</alter>
@@ -5221,7 +5221,7 @@
           <slur type="stop" number="2"/>
           </notations>
         </note>
-      <note default-x="435.21" default-y="-50.00">
+      <note default-x="439.51" default-y="-50.00">
         <pitch>
           <step>C</step>
           <alter>1</alter>
@@ -5237,7 +5237,7 @@
           <slur type="stop" number="1"/>
           </notations>
         </note>
-      <note default-x="472.33" default-y="-55.00">
+      <note default-x="477.11" default-y="-55.00">
         <pitch>
           <step>B</step>
           <octave>3</octave>
@@ -5258,7 +5258,7 @@
         <type>eighth</type>
         </note>
       </measure>
-    <measure number="48" width="469.92">
+    <measure number="48" width="463.42">
       <note default-x="16.42" default-y="-65.00">
         <pitch>
           <step>G</step>
@@ -5278,7 +5278,7 @@
           <text>两</text>
           </lyric>
         </note>
-      <note default-x="53.15" default-y="-60.00">
+      <note default-x="52.25" default-y="-60.00">
         <grace/>
         <pitch>
           <step>A</step>
@@ -5291,7 +5291,7 @@
           <slur type="start" number="2"/>
           </notations>
         </note>
-      <note default-x="79.01" default-y="-65.00">
+      <note default-x="78.11" default-y="-65.00">
         <pitch>
           <step>G</step>
           <alter>1</alter>
@@ -5307,7 +5307,7 @@
           <slur type="stop" number="2"/>
           </notations>
         </note>
-      <note default-x="141.61" default-y="-55.00">
+      <note default-x="139.81" default-y="-55.00">
         <pitch>
           <step>B</step>
           <octave>3</octave>
@@ -5326,7 +5326,7 @@
           <text>泪</text>
           </lyric>
         </note>
-      <note default-x="217.94" default-y="-50.00">
+      <note default-x="215.04" default-y="-50.00">
         <pitch>
           <step>C</step>
           <alter>1</alter>
@@ -5342,7 +5342,7 @@
           <slur type="stop" number="1"/>
           </notations>
         </note>
-      <note default-x="257.06" default-y="-40.00">
+      <note default-x="253.60" default-y="-40.00">
         <pitch>
           <step>E</step>
           <octave>4</octave>
@@ -5356,7 +5356,7 @@
           <text>汪</text>
           </lyric>
         </note>
-      <note default-x="324.67" default-y="-35.00">
+      <note default-x="319.97" default-y="-35.00">
         <grace/>
         <pitch>
           <step>F</step>
@@ -5370,7 +5370,7 @@
           <slur type="start" number="1"/>
           </notations>
         </note>
-      <note default-x="343.13" default-y="-50.00">
+      <note default-x="338.43" default-y="-50.00">
         <pitch>
           <step>C</step>
           <alter>1</alter>
@@ -5387,10 +5387,10 @@
           </notations>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>汪，</text>
+          <text>汪</text>
           </lyric>
         </note>
-      <note default-x="387.26" default-y="-45.00">
+      <note default-x="381.66" default-y="-45.00">
         <grace/>
         <pitch>
           <step>D</step>
@@ -5404,7 +5404,7 @@
           <slur type="start" number="2"/>
           </notations>
         </note>
-      <note default-x="405.72" default-y="-55.00">
+      <note default-x="400.12" default-y="-55.00">
         <pitch>
           <step>B</step>
           <octave>3</octave>
@@ -5424,7 +5424,7 @@
       <print new-page="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>70.00</top-system-distance>
@@ -5849,7 +5849,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>150.00</system-distance>
@@ -6243,7 +6243,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>150.00</system-distance>
@@ -11596,7 +11596,7 @@
         <beam number="2">end</beam>
         </note>
       </measure>
-    <measure number="47" width="607.57">
+    <measure number="47" width="614.07">
       <print new-system="yes">
         <staff-layout number="1">
           <staff-distance>80.00</staff-distance>
@@ -11620,7 +11620,7 @@
         <voice>1</voice>
         <type>eighth</type>
         </note>
-      <note default-x="531.73" default-y="-170.00">
+      <note default-x="537.27" default-y="-170.00">
         <pitch>
           <step>C</step>
           <alter>1</alter>
@@ -11633,7 +11633,7 @@
         <beam number="1">begin</beam>
         <beam number="2">begin</beam>
         </note>
-      <note default-x="568.85" default-y="-175.00">
+      <note default-x="574.87" default-y="-175.00">
         <pitch>
           <step>B</step>
           <octave>3</octave>
@@ -11646,7 +11646,7 @@
         <beam number="2">end</beam>
         </note>
       </measure>
-    <measure number="48" width="469.92">
+    <measure number="48" width="463.42">
       <note>
         <rest/>
         <duration>32</duration>

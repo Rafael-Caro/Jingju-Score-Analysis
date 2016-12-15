@@ -8,7 +8,7 @@
     <rights>曹宝荣，编著《京剧唱腔板式解读·下册》北京：人民音乐出版社，2010；第85页</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-11-30</encoding-date>
+      <encoding-date>2016-12-14</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -6320,7 +6320,7 @@
         <beam number="1">begin</beam>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>月，</text>
+          <text>月、</text>
           </lyric>
         </note>
       <note default-x="72.44" default-y="-125.00">
@@ -6419,7 +6419,7 @@
         <stem>down</stem>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>防，</text>
+          <text>防、</text>
           </lyric>
         </note>
       </measure>
@@ -8568,7 +8568,7 @@
         <stem>down</stem>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>听，</text>
+          <text>听、</text>
           </lyric>
         </note>
       </measure>

@@ -22,7 +22,7 @@ def findVoiceParts(score):
         n = p.flat.notes[i]
         while n.quarterLength == 0:
             i += 1
-            n = p.flat.notes[i]
+            n = p.flat.notes.stream()[i]
         if n.hasLyrics():
                 if p.hasElementOfClass('Instrument'):
                     p.remove(p.getInstrument())
@@ -202,7 +202,8 @@ def changeDurations(score, value, showScore=True, save=False):
         s.write(fp=scoreName)
 
 # Chinese punctuation marcs: ，。？！
-diacritics = [u'\uff0c', u'\u3002', u'\uff1f', u'\uff01']
+#diacritics = [u'\uff0c', u'\u3002', u'\uff1f', u'\uff01']
+diacritics = ['，', '。', '？', '！', '；', '：']
 
 def lyricsFromPart(part, printLyrics=False):
     '''music21.stream.Part --> str
@@ -245,7 +246,7 @@ def lyricsFromPart(part, printLyrics=False):
     if lyrics[-1] != '\n':
         lyrics += '\n'
 
-    print('This part contains', str(lines), 'lines:')
+    print('One part with', str(lines), 'lines')
     
     if printLyrics: print(lyrics)
 
@@ -288,4 +289,130 @@ def lyrics2csv(scores, csv, printLyrics=True):
             for l in lyrics.split('\n')[1:-1]:
                 f.write('\n,' + l)
             f.write('\n')
-                
+
+def partSegmentation(part, printLyrics):
+    '''music21.stream.Part --> str
+    It takes a music21 part as an input and it returns a string in the csv file
+    format to be used in the lyricsSegmentation function
+    '''
+    lyrics = lyricsFromPart(part, printLyrics)   
+    notes = part.flat.notes.stream()
+    offsets = [notes[0].offset]
+    index = 0
+    limit = False
+
+    for n in notes:
+        if not n.hasLyrics(): continue
+        nl = n.lyric
+        ll = lyrics[index:index+len(nl)]
+        if nl != ll:
+            print('Error at index ', str(index), ' (', nl, ')')
+            break
+        if (lyrics[index+len(nl):index+len(nl)+1] == '\n') and (lyrics[index-1]
+            != '\n'):
+            limit = True                
+            index += (len(nl) + 1)
+        else:
+            if limit:
+                offsets.append(n.previous().offset)
+                offsets.append(n.offset)
+                limit = False                    
+                index += len(nl)
+            else:
+                index += len(nl)
+    offsets.append(notes[-1].offset)
+
+    partLyrics = ','
+    index = 0
+    for line in lyrics.split('\n')[:-1]:
+        partLyrics += (line + ',' + str(offsets[index]) + ',' + 
+                      str(offsets[index+1]) + '\n,')
+        index += 2
+        
+    return partLyrics
+
+def lyricsSegmentation(scores, csv, printLyrics=False):
+    '''[str], str --> csv file
+    Given a list of paths for xml scores, it creates a csv file in the given
+    'csv' path with all the lyrics per score divede by lines plus the offset of
+    the first and last note of each line. If printLyrics is true, it prints the
+    lyrics of each file in the cosole.
+    '''
+
+    for score in scores:
+        print('Parsing ' + score.split('/')[-1])
+        s = converter.parse(score)
+        
+#        lyrics = lyricsFromScore(score, printLyrics)
+        
+        voiceParts = findVoiceParts(s)
+        
+#        for p in voiceParts:
+#            offsets = [p.flat.notes[0].offset]        
+#    
+#            notes = p.flat.notes.stream()
+#            index = 0
+#            limit = False
+#    
+#            for n in notes:
+#                if not n.hasLyrics(): continue
+#                nl = n.lyric
+#                ll = lyrics[index:index+len(nl)]
+#                if nl != ll:
+#                    print('Error at index ', str(index), ' (', nl, ')')
+#                    break
+#                if lyrics[index+len(nl):index+len(nl)+1] == '\n':
+#                    limit = True                
+#                    index += (len(nl) + 1)
+#                    
+#                else:
+#                    if limit:
+#                        offsets.append(n.previous().offset)
+#                        offsets.append(n.offset)
+#                        limit = False                    
+#                        index += len(nl)
+#                    else:
+#                        index += len(nl)
+#            offsets.append(notes[-1].offset)
+        
+        if len(voiceParts) == 1:
+            partLyrics = partSegmentation(voiceParts[0], printLyrics)
+        else:
+            partLyrics = ','
+            for p in voiceParts:
+                onePartLyrics = partSegmentation(p, printLyrics)
+                partLyrics += ('Part ' + str(voiceParts.index(p)+1) + '\n' +
+                               onePartLyrics)
+    
+        finalFile = score.split('/')[-1] + partLyrics
+        
+#        index = 0
+#        for line in lyrics.split('\n')[:-1]:
+#            finalFile += (line + ',' + str(offsets[index]) + ',' + 
+#                          str(offsets[index+1]) + '\n,')
+#            index += 2        
+        
+        with open(csv, 'a', encoding='utf-8') as f:
+            f.write(finalFile[:-1])
+
+def getMelodicLine(filename, start, end, partIndex=1, show=False):
+    '''str, float, float --> music21.stream.Stream
+    Given the file path to a jingju score, and the offset value of the first
+    and last note of a given line, it returns a music21 stream with that line.
+    If the score has more than one singing parts, the part index should be
+    introduced (strating from 1). If show is True, the line is shown.
+    '''
+    
+    print('Parsing ' + filename.split('/')[-1])
+    s = converter.parse(filename)
+    
+    voiceParts = findVoiceParts(s)
+    
+    p = voiceParts[partIndex-1]
+    
+    line = p.getElementsByOffset(start, end, mustBeginInSpan=False)
+    
+    if show:
+        line.show()
+    
+    return line
