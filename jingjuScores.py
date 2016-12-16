@@ -410,7 +410,8 @@ def getMelodicLine(filename, start, end, partIndex=1, show=False):
     
     p = voiceParts[partIndex-1]
     
-    line = p.getElementsByOffset(start, end, mustBeginInSpan=False)
+    line = p.getElementsByOffset(start, end, mustBeginInSpan=False,
+                                 includeElementsThatEndAtStart=False)
     
     if show:
         line.show()
