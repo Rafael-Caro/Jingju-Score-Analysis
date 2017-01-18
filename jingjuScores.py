@@ -127,53 +127,53 @@ def extractPhrases(filename, lines): #, clean=False, slurs=False):
         
     return fragments
 
-def alignLines(scores, showAlignedScore=True): #, clean=False, slurs=False):
-    '''{str:[()]}, list --> music21.stream.Score
-    
-    scores: dictionary whose keys are strings with the path to the score and
-    whose values are lists of tuples of integers indicating the first and last
-    measure of each music phrase.
-    '''
-    
-    parts = [] # It stores the streams per line
-    
-    longestLength = 0 # Finding the longest measure length
-    
-    for score in scores:
-        s = converter.parse(score)
-        print(score.split('/')[-1] + ' parsed.')
-        voicePart = findVoicePart(s)
-        fragments = [] # It stores the streams per line
-        for line in scores[score]:
-            fragment = voicePart.measures(line[0], line[1])
-            fragment.remove(fragment.getTimeSignatures()[0])
-            if len(fragment.getElementsByClass('Measure')) > longestLength:
-                longestLength = len(fragment.getElementsByClass('Measure'))
-            fragments.append(fragment)
-        parts.extend(fragments)
-    
-    # Completing parts with empty measures so that all of them have the same
-    #   length as the longest.
-    
-    for part in parts:
-        partLength = len(part.getElementsByClass('Measure'))        
-        if partLength < longestLength:
-            part.repeatAppend(stream.Measure(), longestLength-partLength)
-    print('\nExtra empty measures appended.\n\nAligning parts...')
-    
-    alignedScore = stream.Score()
-    for part in parts:
-        alignedScore.insert(0, part)
-        
-    alignedScore.makeNotation(inPlace=True)
-    
-    print('\nDone!')    
-    
-    if showAlignedScore:
-        print ('\nOpening aligned score with MuseScore')
-        alignedScore.show()
-        
-    return alignedScore
+#def alignLines(scores, showAlignedScore=True): #, clean=False, slurs=False):
+#    '''{str:[()]}, list --> music21.stream.Score
+#    
+#    scores: dictionary whose keys are strings with the path to the score and
+#    whose values are lists of tuples of integers indicating the first and last
+#    measure of each music phrase.
+#    '''
+#    
+#    parts = [] # It stores the streams per line
+#    
+#    longestLength = 0 # Finding the longest measure length
+#    
+#    for score in scores:
+#        s = converter.parse(score)
+#        print(score.split('/')[-1] + ' parsed.')
+#        voicePart = findVoicePart(s)
+#        fragments = [] # It stores the streams per line
+#        for line in scores[score]:
+#            fragment = voicePart.measures(line[0], line[1])
+#            fragment.remove(fragment.getTimeSignatures()[0])
+#            if len(fragment.getElementsByClass('Measure')) > longestLength:
+#                longestLength = len(fragment.getElementsByClass('Measure'))
+#            fragments.append(fragment)
+#        parts.extend(fragments)
+#    
+#    # Completing parts with empty measures so that all of them have the same
+#    #   length as the longest.
+#    
+#    for part in parts:
+#        partLength = len(part.getElementsByClass('Measure'))        
+#        if partLength < longestLength:
+#            part.repeatAppend(stream.Measure(), longestLength-partLength)
+#    print('\nExtra empty measures appended.\n\nAligning parts...')
+#    
+#    alignedScore = stream.Score()
+#    for part in parts:
+#        alignedScore.insert(0, part)
+#        
+#    alignedScore.makeNotation(inPlace=True)
+#    
+#    print('\nDone!')    
+#    
+#    if showAlignedScore:
+#        print ('\nOpening aligned score with MuseScore')
+#        alignedScore.show()
+#        
+#    return alignedScore
 
 def changeDurations(score, value, showScore=True, save=False):
     '''str, int --> music21.stream.Score
@@ -223,25 +223,25 @@ def lyricsFromPart(part, printLyrics=False):
     for i in range(len(rawlyrics)):
         if rawlyrics[i] not in diacritics:
             lyrics += rawlyrics[i]
-        elif rawlyrics[i] != diacritics[0]: # Chinese comma ，
+#        elif rawlyrics[i] != diacritics[0]: # Chinese comma ，
+#            lyrics += (rawlyrics[i] + '\n')
+#            lines += 1
+#        else:
+#            if i < len(rawlyrics)-5:
+#                condition1 = ((rawlyrics[i+4] not in diacritics) and
+#                              (rawlyrics[i+5] not in diacritics) and
+#                              (rawlyrics[i+6] not in diacritics))
+#                condition2 = ((rawlyrics[i-4] not in diacritics) and
+#                              (rawlyrics[i-5] not in diacritics) and
+#                              (rawlyrics[i-6] not in diacritics))
+#                if condition1 and condition2:
+#                    lyrics += (rawlyrics[i] + '\n')
+#                    lines += 1
+#                else:
+#                    lyrics += rawlyrics[i]
+        else:
             lyrics += (rawlyrics[i] + '\n')
             lines += 1
-        else:
-            if i < len(rawlyrics)-5:
-                condition1 = ((rawlyrics[i+4] not in diacritics) and
-                              (rawlyrics[i+5] not in diacritics) and
-                              (rawlyrics[i+6] not in diacritics))
-                condition2 = ((rawlyrics[i-4] not in diacritics) and
-                              (rawlyrics[i-5] not in diacritics) and
-                              (rawlyrics[i-6] not in diacritics))
-                if condition1 and condition2:
-                    lyrics += (rawlyrics[i] + '\n')
-                    lines += 1
-                else:
-                    lyrics += rawlyrics[i]
-            else:
-                lyrics += (rawlyrics[i] + '\n')
-                lines += 1
 
     if lyrics[-1] != '\n':
         lyrics += '\n'
@@ -417,3 +417,118 @@ def getMelodicLine(filename, start, end, partIndex=1, show=False):
         line.show()
     
     return line
+    
+def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
+    createInfoFile=True):
+    '''str, str, str, str, str --> music21.stream.Score
+    Given a file path for scores data, it returns a score with the aligned
+    lines that belong to the given role type (hd), shengqiang (sq), banshi (bs)
+    and couplet line (sx). Scores should be in the same folder as the data file
+    '''
+    
+    path = './scores/'
+#    path = datafile[:datafile.rfind('/')+1]
+#    
+#    with open(datafile, 'r', encoding='utf-8') as f:
+#        data = f.readlines()
+    
+    linesdata = {}
+
+    filename = ''
+    part = 0
+    
+    infoFile = hd + ', ' + sq + ', ' + bs + ', ' + sx + '\n'
+    lineNumber = 1
+    titleAlready = False
+    
+    lines2beAligned = 0
+    scores2parse = 0
+        
+    for linedata in minidata:
+        datacolumns = linedata.split(',')
+        if datacolumns[0] != '':
+            name = linedata.split(',')[0]
+            filename = path+name
+            titleAlready = False
+            lineNumber = 1
+            if part != 0: part = 0
+        if 'Part ' in linedata:
+            pi = int(linedata[linedata.find('Part ')+len('Part ')])-1
+            part = pi
+        else:
+            if ((hd == datacolumns[1]) and
+                (sq == datacolumns[2]) and
+                (bs == datacolumns[3]) and
+                (sx == datacolumns[4])):
+                
+                lines2beAligned += 1
+
+                if not titleAlready:
+                    infoFile += '\n'+name+'\n'
+                    titleAlready = True
+                    scores2parse += 1
+                infoFile += str(lineNumber)+'\t'+datacolumns[-3]+'\n'
+                lineNumber += 1
+
+                start = float(datacolumns[-2])
+                end = float(datacolumns[-1])
+    #            linesdata.append((path+filename, start, end))
+                if filename not in linesdata:
+                    linesdata[filename] = {part:[(start, end)]}
+                else:
+                    if part not in linesdata[filename]:
+                        linesdata[filename][part] = [(start, end)]
+                    else:                        
+                        linesdata[filename][part].extend([(start, end)])
+
+    print('Found ' + str(lines2beAligned) + ' lines to be aligned from ' +
+          str(scores2parse) + ' scores\n')
+
+    filenames = sorted(linesdata.keys())
+    
+    lines = []
+    scores = []
+    linesCount = 20
+    
+    for f in filenames:
+        s = converter.parse(f)
+        print('Parsing ' + f.split('/')[-1] + '\n')
+        voiceParts = findVoiceParts(s)
+        for i in linesdata[f]:
+            p = voiceParts[i]
+            if removeSlurs:
+                p.removeByClass('Slur')
+            for j in linesdata[f][i]:
+                line = p.getElementsByOffset(j[0], j[1], mustBeginInSpan=False,
+                                             includeElementsThatEndAtStart=False)
+                ts = line.flat.getTimeSignatures()
+                if len(ts) > 0:
+                    line[0].remove(ts[0])
+                ks = line.flat.getKeySignatures()
+                if len(ks) == 0:
+                    line[0].insert(0, key.KeySignature(4))
+                if linesCount == 20:
+                    alignedScore = stream.Score()
+                    scores.append(alignedScore)
+                    alignedScore.insert(0, line)
+                    linesCount = 0
+                else:
+                    alignedScore.insert(0, line)
+                    linesCount += 1
+
+    if len(scores) == 1:
+        print('1 score to be created\n')
+    else:
+        print(str(len(scores)) + ' scores to be created\n')
+
+    if showScore:
+        for s in scores: s.show()
+    
+    print('Aligned lines for ' + infoFile)
+    
+    if createInfoFile:
+        file2write = path+hd+'-'+sq+'-'+bs+'-'+sx+'.txt'
+        with open(file2write, 'w', encoding='utf-8') as f:
+            f.write(infoFile)
+    
+    return linesdata, scores
