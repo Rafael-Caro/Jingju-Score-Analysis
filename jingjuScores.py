@@ -418,7 +418,7 @@ def getMelodicLine(filename, start, end, partIndex=1, show=False):
     
     return line
     
-def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
+def alignLines(datafile, hd, sq, bs, sx, removeSlurs=True, showScore=False,
     createInfoFile=True):
     '''str, str, str, str, str --> music21.stream.Score
     Given a file path for scores data, it returns a score with the aligned
@@ -426,25 +426,26 @@ def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
     and couplet line (sx). Scores should be in the same folder as the data file
     '''
     
-    path = './scores/'
-#    path = datafile[:datafile.rfind('/')+1]
-#    
-#    with open(datafile, 'r', encoding='utf-8') as f:
-#        data = f.readlines()
+#    path = './scores/'
+    path = datafile[:datafile.rfind('/')+1]
+    
+    with open(datafile, 'r', encoding='utf-8') as f:
+        data = f.readlines()
     
     linesdata = {}
 
     filename = ''
     part = 0
     
-    infoFile = hd + ', ' + sq + ', ' + bs + ', ' + sx + '\n'
+    title = hd + ', ' + sq + ', ' + bs + ', ' + sx
+    infoFile = title + '\n'
     lineNumber = 1
     titleAlready = False
     
     lines2beAligned = 0
     scores2parse = 0
         
-    for linedata in minidata:
+    for linedata in data:
         datacolumns = linedata.split(',')
         if datacolumns[0] != '':
             name = linedata.split(',')[0]
@@ -472,7 +473,6 @@ def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
 
                 start = float(datacolumns[-2])
                 end = float(datacolumns[-1])
-    #            linesdata.append((path+filename, start, end))
                 if filename not in linesdata:
                     linesdata[filename] = {part:[(start, end)]}
                 else:
@@ -488,7 +488,7 @@ def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
     
     lines = []
     scores = []
-    linesCount = 20
+    linesCount = 19
     
     for f in filenames:
         s = converter.parse(f)
@@ -496,8 +496,9 @@ def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
         voiceParts = findVoiceParts(s)
         for i in linesdata[f]:
             p = voiceParts[i]
-            if removeSlurs:
-                p.removeByClass('Slur')
+            toRemove = list(p.recurse().getElementsByClass(['PageLayout',
+                            'SystemLayout', 'Barline']))
+            p.remove(toRemove, recurse=True)
             for j in linesdata[f][i]:
                 line = p.getElementsByOffset(j[0], j[1], mustBeginInSpan=False,
                                              includeElementsThatEndAtStart=False)
@@ -507,7 +508,7 @@ def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
                 ks = line.flat.getKeySignatures()
                 if len(ks) == 0:
                     line[0].insert(0, key.KeySignature(4))
-                if linesCount == 20:
+                if linesCount == 19:
                     alignedScore = stream.Score()
                     scores.append(alignedScore)
                     alignedScore.insert(0, line)
@@ -520,6 +521,15 @@ def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
         print('1 score to be created\n')
     else:
         print(str(len(scores)) + ' scores to be created\n')
+    
+    for s in scores:
+        s.insert(0, metadata.Metadata())
+        s.metadata.title = (title+' ('+str(scores.index(s)+1)+'/'+
+                            str(len(scores))+')')
+        s.makeNotation(inPlace=True)
+        if removeSlurs:
+            slurs2remove = list(s.recurse().getElementsByClass('Slur'))
+            s.remove(slurs2remove, recurse=True)
 
     if showScore:
         for s in scores: s.show()
@@ -531,4 +541,4 @@ def alignLines(minidata, hd, sq, bs, sx, removeSlurs=True, showScore=False,
         with open(file2write, 'w', encoding='utf-8') as f:
             f.write(infoFile)
     
-    return linesdata, scores
+    return scores

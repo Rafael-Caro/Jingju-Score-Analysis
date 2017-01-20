@@ -1,0 +1,40 @@
+laosheng, xipi, yuanban, s
+
+lsxp-HenPingWang-WenZhaoGuan.xml
+1	恨平王无道乱楚宫（兀），
+2	我的（呀）父谏奏反把命（哪）送，
+
+lsxp-LiangGuoJiao-ShiJieTing-1.xml
+1	两国交（哇）锋龙虎斗，
+2	管待三（哪）军要宽厚，
+3	此一番领兵去镇守，
+
+lsxp-LiangGuoJiao-ShiJieTing-2.xml
+1	两国交锋龙虎斗，
+2	管带三（呐）军要宽厚，
+3	此一番领（呃）兵去镇守，
+
+lsxp-QingGongYan-FaDongWu.xml
+1	庆功宴上把酒饮，
+2	弟兄们创业多艰难，
+
+lsxp-ShenGongWu-LongFengChengXiang.xml
+1	深宫无（哇）处不飞花，
+2	朝欢暮乐无牵挂，
+
+lsxp-YiShiWu-YuCangJian.xml
+1	一事无成两鬓斑，
+2	日月轮流催晓（哇）箭，
+3	恨平王无道纲常乱，
+4	他害我满门（呐）真悲惨，
+5	实指（喏）望到吴国借兵（呐）转，
+
+lsxp-ZiCongQian-ZhuLianZhai.xml
+1	自从千岁离朝后，
+2	为千岁懒把朝房走，
+3	山高路远少来问候，
+
+lsxp-ZiGuDao-HuangHeLou.xml
+1	自古道吉人有天相，
+2	曾记得当年赴河梁，
+3	今日主公把宴上，

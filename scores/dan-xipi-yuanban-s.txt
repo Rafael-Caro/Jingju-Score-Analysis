@@ -1,0 +1,53 @@
+dan, xipi, yuanban, s
+
+daxp-DangRiLi-SuoLinNang.xml
+1	当日里好风光忽觉转变，
+2	在轿中只觉得天昏地暗。
+3	那花轿必定是因陋就简，
+4	虽然是古青庐以朴为俭，
+5	轿中人必定有一腔幽怨，
+6	于归日理应当喜形于面，
+7	那时节奴妆奁不下百万，
+8	急切里想起了锁麟囊一（呀）件，
+
+daxp-LaoDieDie-DaYuShaJia-1.xml
+1	老爹爹清晨起前去出前，
+2	将身儿坐至在草堂等候，
+
+daxp-LaoDieDie-DaYuShaJia-2.xml
+1	老爹爹清晨起前去出首，
+2	将身儿坐至在草堂等候，
+
+daxp-LaoDieDie-YuZhouFeng.xml
+1	老爹爹发恩德将本修上，
+2	倘若是有道君皇恩浩荡，
+
+daxp-MengJunZi-ChunQiuPei-1.xml
+1	蒙君子至殷勤再三问话，
+2	家住在罗郡城魁星楼下，
+3	在家中受不过继母拷打，
+
+daxp-MengJunZi-ChunQiuPei-2.xml
+1	蒙君子至诚心再三问话，
+2	家住在罗郡城魁星楼下，
+3	身有病还受那继母拷打，
+
+daxp-NiDeFu-FenHeWan.xml
+1	你的父去投军无音信，
+2	把弓带和鱼镖与儿带定，
+
+daxp-QiaoLouShang-HuangShanLei.xml
+1	到三更真个是月明人静，
+2	忙移步隔花荫留神听定，
+3	听画鼓报四更愈添凄冷，
+4	我不免引寒机伴奴坐等，
+5	数更等交五鼓空房愈冷，
+6	我不免唤琏儿到街前探问，
+
+daxp-WoDeNiang-XinAnYi.xml
+1	我的娘她忘了女生外姓，
+2	这几日身不爽心中烦闷，
+
+sdeh-WenSanNiang-SanNiangJiaoZi.xml
+1	老薛保你不必苦哀告，
+2	实指望教训他终身有靠，

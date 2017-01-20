@@ -1,0 +1,45 @@
+laosheng, xipi, yuanban, x
+
+lsxp-HenPingWang-WenZhaoGuan.xml
+1	父纳子（呃）妻礼难容，
+2	满门的家着血染红。
+
+lsxp-LiangGuoJiao-ShiJieTing-1.xml
+1	各为其主统貔貅，
+2	赏罚中公（呃）平莫要自由。
+3	靠山近水把营收。
+
+lsxp-LiangGuoJiao-ShiJieTing-2.xml
+1	各为其（呀）主统貔貅。
+2	赏罚中公（呃）平莫要自由。
+3	靠山近水把管收。
+
+lsxp-QingGongYan-FaDongWu.xml
+1	想起桃园结拜情。
+2	又谁知中途两离分。
+
+lsxp-ShenGongWu-LongFengChengXiang.xml
+1	年老得配女娇娃。
+2	耳听笙歌闹喧哗。
+
+lsxp-WoBenShi-KongChengJi-2.xml
+1	我面前却少个知（呃）音的人。
+
+lsxp-YiShiWu-YuCangJian.xml
+1	叹光明一去不回还（呐）；
+2	靠山绿（哇）水常在面前。
+3	信用无极狗奸谗。
+4	我与奸贼不共戴天！
+
+lsxp-ZiCongQian-ZhuLianZhai.xml
+1	满朝中文武臣泪双流。
+2	为千岁懒观五凤楼。
+3	望千岁恕学生礼貌不周。
+
+lsxp-ZiGuDao-HuangHeLou.xml
+1	主公不必加愁肠。
+2	二将军保架过长江。
+3	四将军保架料也无妨。
+
+sdeh-WenSanNiang-SanNiangJiaoZi.xml
+1	问三娘发雷霆却是为何？

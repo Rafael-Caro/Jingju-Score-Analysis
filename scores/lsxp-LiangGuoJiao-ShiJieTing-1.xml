@@ -8,7 +8,7 @@
     <rights>刘吉典《京剧音乐概论》北京：人民音乐出版社，1981；第320-321页</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-10-06</encoding-date>
+      <encoding-date>2017-01-19</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -8249,17 +8249,9 @@
     <measure number="79" width="469.55">
       <note>
         <rest/>
-        <duration>40</duration>
+        <duration>32</duration>
         <voice>1</voice>
-        </note>
-      <backup>
-        <duration>24</duration>
-        </backup>
-      <note>
-        <rest/>
-        <duration>16</duration>
-        <voice>1</voice>
-        <type>half</type>
+        <type>whole</type>
         </note>
       <note>
         <rest/>
