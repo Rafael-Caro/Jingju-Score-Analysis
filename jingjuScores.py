@@ -223,25 +223,25 @@ def lyricsFromPart(part, printLyrics=False):
     for i in range(len(rawlyrics)):
         if rawlyrics[i] not in diacritics:
             lyrics += rawlyrics[i]
-#        elif rawlyrics[i] != diacritics[0]: # Chinese comma ，
-#            lyrics += (rawlyrics[i] + '\n')
-#            lines += 1
-#        else:
-#            if i < len(rawlyrics)-5:
-#                condition1 = ((rawlyrics[i+4] not in diacritics) and
-#                              (rawlyrics[i+5] not in diacritics) and
-#                              (rawlyrics[i+6] not in diacritics))
-#                condition2 = ((rawlyrics[i-4] not in diacritics) and
-#                              (rawlyrics[i-5] not in diacritics) and
-#                              (rawlyrics[i-6] not in diacritics))
-#                if condition1 and condition2:
-#                    lyrics += (rawlyrics[i] + '\n')
-#                    lines += 1
-#                else:
-#                    lyrics += rawlyrics[i]
-        else:
+        elif rawlyrics[i] != diacritics[0]: # Chinese comma ，
             lyrics += (rawlyrics[i] + '\n')
             lines += 1
+        else:
+            if i < len(rawlyrics)-5:
+                condition1 = ((rawlyrics[i+4] not in diacritics) and
+                              (rawlyrics[i+5] not in diacritics) and
+                              (rawlyrics[i+6] not in diacritics))
+                condition2 = ((rawlyrics[i-4] not in diacritics) and
+                              (rawlyrics[i-5] not in diacritics) and
+                              (rawlyrics[i-6] not in diacritics))
+                if condition1 and condition2:
+                    lyrics += (rawlyrics[i] + '\n')
+                    lines += 1
+                else:
+                    lyrics += rawlyrics[i]
+#        else:
+#            lyrics += (rawlyrics[i] + '\n')
+#            lines += 1
 
     if lyrics[-1] != '\n':
         lyrics += '\n'
@@ -471,8 +471,20 @@ def alignLines(datafile, hd, sq, bs, sx, removeSlurs=True, showScore=False,
                 infoFile += str(lineNumber)+'\t'+datacolumns[-3]+'\n'
                 lineNumber += 1
 
-                start = float(datacolumns[-2])
-                end = float(datacolumns[-1])
+                startStr = datacolumns[-2]
+                endStr = datacolumns[-1]
+                if '/' in startStr:
+                    start = float(startStr.split('/')[0]) / float(
+                                                        startStr.split('/')[1])
+                else:
+                    start = float(startStr)
+
+                if '/' in endStr:
+                    end = float(endStr.split('/')[0]) / float(
+                                                          endStr.split('/')[1])
+                else:
+                    end = float(endStr)
+
                 if filename not in linesdata:
                     linesdata[filename] = {part:[(start, end)]}
                 else:
@@ -501,7 +513,7 @@ def alignLines(datafile, hd, sq, bs, sx, removeSlurs=True, showScore=False,
             p.remove(toRemove, recurse=True)
             for j in linesdata[f][i]:
                 line = p.getElementsByOffset(j[0], j[1], mustBeginInSpan=False,
-                                             includeElementsThatEndAtStart=False)
+                                           includeElementsThatEndAtStart=False)
                 ts = line.flat.getTimeSignatures()
                 if len(ts) > 0:
                     line[0].remove(ts[0])

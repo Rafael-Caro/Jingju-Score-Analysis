@@ -1,0 +1,46 @@
+dan, xipi, manban, x
+
+daxp-ChenSanLiang-ChenSanLiangPaTang.xml
+1	公正的老爷细听分明。
+2	发奋自强日夜读诗文。
+3	最可恨鸨儿叫我接客人。
+
+daxp-DuiLingHua-BiYuZan.xml
+1	听她言不由人喜上眉尖。
+2	也算得人世间美满姻缘。
+
+daxp-ErDeFu-HongNiGuan.xml
+1	撇下了奴一人好不悲凉。
+2	倒不如与伯党匹配鸾凰。
+3	不想到狠心郎一味猖狂。
+4	又恐怕众将官说短论长。
+
+daxp-LaoDieDie-SanJiZhang-1.xml
+1	我立志不嫁那状元才郎。
+2	贫穷人得了志比富还强。
+
+daxp-LaoDieDie-SanJiZhang-2.xml
+1	儿命苦怎配着状元才郎？
+2	这样人得了志比父还强。
+
+daxp-QiaoLouShang-HuangShanLei.xml
+1	父子们去采药未见回程。
+2	不知他在荒山何处安身。
+
+daxp-WoZhuYe-SiLangTanMu.xml
+1	众文武扶哀家执掌军房。
+2	一心心要夺取宋室江山。
+
+daxp-XiRiLi-LongFengChengXiang.xml
+1	今朝仙女会襄王。
+2	安排虎计害刘王。
+3	纵有大事料无妨。
+
+daxp-XiRiLiang-LongFengChengXiang.xml
+1	今朝仙女会襄王。
+2	安排巧计害刘王。
+
+daxp-XiShiNv-XiShi.xml
+1	难得有开怀事常锁双眉。
+2	每日里浣纱去又傍清溪。
+3	对清溪时照影自整罗农。

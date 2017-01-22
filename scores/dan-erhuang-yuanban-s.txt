@@ -1,0 +1,36 @@
+dan, erhuang, yuanban, s
+
+daeh-NaRiFeng-YuanXiaoMi.xml
+1	那日风波平地起，
+2	舅父前来出主意，
+3	母女隔断三千里，
+4	我今绝少人生趣，
+
+daeh-XiaoNuCai-SanNiangJiaoZi.xml
+1	小奴才他一言问住我，
+2	哭一声亡故夫在阴曹等我，
+3	怒气不息在机房闷坐，
+
+daeh-ZiNaRi-ZhuangYuanMei-1.xml
+1	自那日与六郎姻缘相见，
+2	在潼台被贼擒在命好险，
+3	这桩事闷得我柔肠百转，
+4	百姓们闺房乐如花美眷，
+5	幸喜得珍珠衫称心如愿，
+6	但愿得令公令婆别无异见，
+7	但愿得状元媒月老引线，
+8	愿天下有情人都成姻眷，
+
+daeh-ZiNaRi-ZhuangYuanMei-2.xml
+1	自那日与六郎阵前相见，
+2	在潼台被贼擒性命好险，
+3	这桩事闷得我柔肠百转，
+4	百姓们闺房乐如花美眷，
+5	幸喜得珍珠衫称心如愿，
+6	但愿得令公令婆别无意见，
+7	但愿得状元媒月老引线，
+8	愿天下有情人都成姻眷，
+
+daeh-ZuoRiGong-TaiZhenWaiChuan.xml
+1	昨日宫中何等宠幸，
+2	思想起从前事心中悔恨，
