@@ -480,7 +480,7 @@ def alignLines(linesdata, title, infoFile, file2write, removeSlurs=True,
             f.write(infoFile)
     
     return scores
-    
+
 def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
                          showScore=False, createInfoFile=True):
     '''str, str, str, str, str --> [music21.stream.Score]
@@ -498,8 +498,6 @@ def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
     
     title = hd + ', ' + sq + ', ' + bs + ', ' + sx
     infoFile = title + '\n'
-    lineNumber = 1
-    titleAlready = False
     
     lines2beAligned = 0
     scores2parse = 0
@@ -507,7 +505,7 @@ def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
     for linedata in data:
         datacolumns = linedata.split(',')
         if datacolumns[0] != '':
-            name = linedata.split(',')[0]
+            name = datacolumns[0]
             filename = path+name
             titleAlready = False
             lineNumber = 1
@@ -562,23 +560,158 @@ def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
     
     return scores
 
-def comparePerChangduan(changduans, sx=None, removeSlurs=True, showScore=False,
-                        createInfoFile=True):
+def comparePerChangduan(datafile, changduans, sx=None, removeSlurs=True,
+                        showScore=False, createInfoFile=True):
     '''[str] --> [music21.stream.Score]
     '''
-    title=''
-    infoFile=''
+    path = datafile[:datafile.rfind('/')+1]
+    
+    with open(datafile, 'r', encoding='utf-8') as f:
+        data = f.readlines()
+    
+    linesdata = {}
+
+    filename = ''
+    part = 0
+    
+    title = 'Comparison of ' + str(len(changduans)) + ' changduan'
+    infoFile = title + '\n'
+
+    lines2beAligned = 0
+    scores2parse = 0
+        
+    for linedata in data:
+        datacolumns = linedata.split(',')
+        if datacolumns[0] != '':
+            name = linedata.split(',')[0]
+            filename = path+name
+            titleAlready = False
+            if name in changduans:
+                validLine = True
+            else:
+                validLine = False
+            lineNumber = 1
+            if part != 0: part = 0
+        if 'Part ' in linedata:
+            pi = int(linedata[linedata.find('Part ')+len('Part ')])-1
+            part = pi
+        else:
+            if not validLine: continue
+            if (sx == None) or (datacolumns[4] == sx):
+                lines2beAligned += 1
+    
+                if not titleAlready:
+                    infoFile += '\n'+name+'\n'
+                    titleAlready = True
+                    scores2parse += 1
+                infoFile += str(lineNumber)+'\t'+datacolumns[-3]+'\n'
+                lineNumber += 1
+    
+                startStr = datacolumns[-2]
+                endStr = datacolumns[-1]
+                if '/' in startStr:
+                    start = float(startStr.split('/')[0]) / float(
+                                                    startStr.split('/')[1])
+                else:
+                    start = float(startStr)
+    
+                if '/' in endStr:
+                    end = float(endStr.split('/')[0]) / float(
+                                                      endStr.split('/')[1])
+                else:
+                    end = float(endStr)
+    
+                if filename not in linesdata:
+                    linesdata[filename] = {part:[(start, end)]}
+                else:
+                    if part not in linesdata[filename]:
+                        linesdata[filename][part] = [(start, end)]
+                    else:                        
+                        linesdata[filename][part].extend([(start, end)])
+
+    print('Found ' + str(lines2beAligned) + ' lines to be aligned from ' +
+          str(scores2parse) + ' scores\n')
+          
+    file2write = path + str(len(changduans)) + 'ChangduanCompared.txt'
+    
     scores = alignLines(linesdata, title, infoFile, file2write, removeSlurs,
                         showScore, createInfoFile)
     
     return scores
 
-def comparePerLines(lines, removeSlurs=True, showScore=False,
+def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
                     createInfoFile=True):
     '''[int] --> [music21.stream.Score]
     '''
-    title=''
-    infoFile=''
+    path = datafile[:datafile.rfind('/')+1]
+    
+    with open(datafile, 'r', encoding='utf-8') as f:
+        data = f.readlines()
+    
+    linesdata = {}
+
+    filename = ''
+    part = 0
+
+    lines4title = ''    
+    for l in lines:
+        lines4title += ', ' + str(l)
+        
+    title = 'Comparison of lines' + lines4title[1:]
+    infoFile = title + '\n'
+
+    lines2beAligned = 0
+    scores2parse = 0
+        
+    for linedata in data:
+        datacolumns = linedata.split(',')
+        if datacolumns[0] != '':
+            name = linedata.split(',')[0]
+            filename = path+name
+            titleAlready = False
+            lineNumber = 1
+            if part != 0: part = 0
+        if 'Part ' in linedata:
+            pi = int(linedata[linedata.find('Part ')+len('Part ')])-1
+            part = pi
+        else:
+            if data.index(linedata) not in lines: continue
+            lines2beAligned += 1
+
+            if not titleAlready:
+                infoFile += '\n'+name+'\n'
+                titleAlready = True
+                scores2parse += 1
+            infoFile += str(lineNumber)+'\t'+datacolumns[-3]+'\n'
+            lineNumber += 1
+
+            startStr = datacolumns[-2]
+            endStr = datacolumns[-1]
+            if '/' in startStr:
+                start = float(startStr.split('/')[0]) / float(
+                                                startStr.split('/')[1])
+            else:
+                start = float(startStr)
+
+            if '/' in endStr:
+                end = float(endStr.split('/')[0]) / float(
+                                                  endStr.split('/')[1])
+            else:
+                end = float(endStr)
+
+            if filename not in linesdata:
+                linesdata[filename] = {part:[(start, end)]}
+            else:
+                if part not in linesdata[filename]:
+                    linesdata[filename][part] = [(start, end)]
+                else:                        
+                    linesdata[filename][part].extend([(start, end)])
+
+    print(str(lines2beAligned) + ' lines to be aligned from ' +
+          str(scores2parse) + ' scores\n')
+          
+    file2write = path + str(len(lines)) + 'LinesCompared.txt'
+    
     scores = alignLines(linesdata, title, infoFile, file2write, removeSlurs,
                         showScore, createInfoFile)
     
