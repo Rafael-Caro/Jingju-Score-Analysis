@@ -418,14 +418,73 @@ def getMelodicLine(filename, start, end, partIndex=1, show=False):
     
     return line
     
-def alignLines(datafile, hd, sq, bs, sx, removeSlurs=True, showScore=False,
-    createInfoFile=True):
-    '''str, str, str, str, str --> music21.stream.Score
-    Given a file path for scores data, it returns a score with the aligned
-    lines that belong to the given role type (hd), shengqiang (sq), banshi (bs)
-    and couplet line (sx). Scores should be in the same folder as the data file
+def alignLines(linesdata, title, infoFile, file2write, removeSlurs=True,
+               showScore=False, createInfoFile=True):
+    '''dict --> [music21.stream.Score]
     '''
     
+    filenames = sorted(linesdata.keys())
+    
+    lines = []
+    scores = []
+    linesCount = 19
+    
+    for f in filenames:
+        s = converter.parse(f)
+        print('Parsing ' + f.split('/')[-1] + '\n')
+        voiceParts = findVoiceParts(s)
+        for i in linesdata[f]:
+            p = voiceParts[i]
+            toRemove = list(p.recurse().getElementsByClass(['PageLayout',
+                            'SystemLayout', 'Barline']))
+            p.remove(toRemove, recurse=True)
+            for j in linesdata[f][i]:
+                line = p.getElementsByOffset(j[0], j[1], mustBeginInSpan=False,
+                                           includeElementsThatEndAtStart=False)
+                ts = line.flat.getTimeSignatures()
+                if len(ts) > 0:
+                    line[0].remove(ts[0])
+                ks = line.flat.getKeySignatures()
+                if len(ks) == 0:
+                    line[0].insert(0, key.KeySignature(4))
+                if linesCount == 19:
+                    alignedScore = stream.Score()
+                    scores.append(alignedScore)
+                    alignedScore.insert(0, line)
+                    linesCount = 0
+                else:
+                    alignedScore.insert(0, line)
+                    linesCount += 1
+
+    if len(scores) == 1:
+        print('1 score to be created\n')
+    else:
+        print(str(len(scores)) + ' scores to be created\n')
+    
+    for s in scores:
+        s.insert(0, metadata.Metadata())
+        s.metadata.title = (title+' ('+str(scores.index(s)+1)+'/'+
+                            str(len(scores))+')')
+        s.makeNotation(inPlace=True)
+        if removeSlurs:
+            slurs2remove = list(s.recurse().getElementsByClass('Slur'))
+            s.remove(slurs2remove, recurse=True)
+
+    if showScore:
+        for s in scores: s.show()
+    
+    print('Aligned lines for ' + infoFile)
+    
+    if createInfoFile:
+        with open(file2write, 'w', encoding='utf-8') as f:
+            f.write(infoFile)
+    
+    return scores
+    
+def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
+                         showScore=False, createInfoFile=True):
+    '''str, str, str, str, str --> [music21.stream.Score]
+    '''
 #    path = './scores/'
     path = datafile[:datafile.rfind('/')+1]
     
@@ -495,62 +554,32 @@ def alignLines(datafile, hd, sq, bs, sx, removeSlurs=True, showScore=False,
 
     print('Found ' + str(lines2beAligned) + ' lines to be aligned from ' +
           str(scores2parse) + ' scores\n')
+          
+    file2write = path + hd + '-' + sq + '-' + bs + '-' + sx + '.txt'
+    
+    scores = alignLines(linesdata, title, infoFile, file2write, removeSlurs,
+                        showScore, createInfoFile)
+    
+    return scores
 
-    filenames = sorted(linesdata.keys())
+def comparePerChangduan(changduans, sx=None, removeSlurs=True, showScore=False,
+                        createInfoFile=True):
+    '''[str] --> [music21.stream.Score]
+    '''
+    title=''
+    infoFile=''
+    scores = alignLines(linesdata, title, infoFile, file2write, removeSlurs,
+                        showScore, createInfoFile)
     
-    lines = []
-    scores = []
-    linesCount = 19
-    
-    for f in filenames:
-        s = converter.parse(f)
-        print('Parsing ' + f.split('/')[-1] + '\n')
-        voiceParts = findVoiceParts(s)
-        for i in linesdata[f]:
-            p = voiceParts[i]
-            toRemove = list(p.recurse().getElementsByClass(['PageLayout',
-                            'SystemLayout', 'Barline']))
-            p.remove(toRemove, recurse=True)
-            for j in linesdata[f][i]:
-                line = p.getElementsByOffset(j[0], j[1], mustBeginInSpan=False,
-                                           includeElementsThatEndAtStart=False)
-                ts = line.flat.getTimeSignatures()
-                if len(ts) > 0:
-                    line[0].remove(ts[0])
-                ks = line.flat.getKeySignatures()
-                if len(ks) == 0:
-                    line[0].insert(0, key.KeySignature(4))
-                if linesCount == 19:
-                    alignedScore = stream.Score()
-                    scores.append(alignedScore)
-                    alignedScore.insert(0, line)
-                    linesCount = 0
-                else:
-                    alignedScore.insert(0, line)
-                    linesCount += 1
+    return scores
 
-    if len(scores) == 1:
-        print('1 score to be created\n')
-    else:
-        print(str(len(scores)) + ' scores to be created\n')
-    
-    for s in scores:
-        s.insert(0, metadata.Metadata())
-        s.metadata.title = (title+' ('+str(scores.index(s)+1)+'/'+
-                            str(len(scores))+')')
-        s.makeNotation(inPlace=True)
-        if removeSlurs:
-            slurs2remove = list(s.recurse().getElementsByClass('Slur'))
-            s.remove(slurs2remove, recurse=True)
-
-    if showScore:
-        for s in scores: s.show()
-    
-    print('Aligned lines for ' + infoFile)
-    
-    if createInfoFile:
-        file2write = path+hd+'-'+sq+'-'+bs+'-'+sx+'.txt'
-        with open(file2write, 'w', encoding='utf-8') as f:
-            f.write(infoFile)
+def comparePerLines(lines, removeSlurs=True, showScore=False,
+                    createInfoFile=True):
+    '''[int] --> [music21.stream.Score]
+    '''
+    title=''
+    infoFile=''
+    scores = alignLines(linesdata, title, infoFile, file2write, removeSlurs,
+                        showScore, createInfoFile)
     
     return scores
