@@ -498,6 +498,7 @@ def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
     
     title = hd + ', ' + sq + ', ' + bs + ', ' + sx
     infoFile = title + '\n'
+    lineNumber = 1
     
     lines2beAligned = 0
     scores2parse = 0
@@ -508,7 +509,6 @@ def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
             name = datacolumns[0]
             filename = path+name
             titleAlready = False
-            lineNumber = 1
             if part != 0: part = 0
         if 'Part ' in linedata:
             pi = int(linedata[linedata.find('Part ')+len('Part ')])-1
@@ -526,7 +526,10 @@ def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
                     titleAlready = True
                     scores2parse += 1
                 infoFile += str(lineNumber)+'\t'+datacolumns[-3]+'\n'
-                lineNumber += 1
+                if lineNumber < 20:
+                    lineNumber += 1
+                else:
+                    lineNumber = 1
 
                 startStr = datacolumns[-2]
                 endStr = datacolumns[-1]
@@ -576,6 +579,7 @@ def comparePerChangduan(datafile, changduans, sx=None, removeSlurs=True,
     
     title = 'Comparison of ' + str(len(changduans)) + ' changduan'
     infoFile = title + '\n'
+    lineNumber = 1
 
     lines2beAligned = 0
     scores2parse = 0
@@ -590,7 +594,6 @@ def comparePerChangduan(datafile, changduans, sx=None, removeSlurs=True,
                 validLine = True
             else:
                 validLine = False
-            lineNumber = 1
             if part != 0: part = 0
         if 'Part ' in linedata:
             pi = int(linedata[linedata.find('Part ')+len('Part ')])-1
@@ -605,7 +608,10 @@ def comparePerChangduan(datafile, changduans, sx=None, removeSlurs=True,
                     titleAlready = True
                     scores2parse += 1
                 infoFile += str(lineNumber)+'\t'+datacolumns[-3]+'\n'
-                lineNumber += 1
+                if lineNumber < 20:
+                    lineNumber += 1
+                else:
+                    lineNumber = 1
     
                 startStr = datacolumns[-2]
                 endStr = datacolumns[-1]
@@ -659,6 +665,7 @@ def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
         
     title = 'Comparison of lines' + lines4title[1:]
     infoFile = title + '\n'
+    lineNumber = 1
 
     lines2beAligned = 0
     scores2parse = 0
@@ -669,7 +676,6 @@ def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
             name = linedata.split(',')[0]
             filename = path+name
             titleAlready = False
-            lineNumber = 1
             if part != 0: part = 0
         if 'Part ' in linedata:
             pi = int(linedata[linedata.find('Part ')+len('Part ')])-1
@@ -683,7 +689,10 @@ def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
                 titleAlready = True
                 scores2parse += 1
             infoFile += str(lineNumber)+'\t'+datacolumns[-3]+'\n'
-            lineNumber += 1
+            if lineNumber < 20:
+                lineNumber += 1
+            else:
+                lineNumber = 1
 
             startStr = datacolumns[-2]
             endStr = datacolumns[-1]
