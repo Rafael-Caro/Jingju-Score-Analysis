@@ -334,9 +334,9 @@ def partSegmentation(part, printLyrics):
 def lyricsSegmentation(scores, csv, printLyrics=False):
     '''[str], str --> csv file
     Given a list of paths for xml scores, it creates a csv file in the given
-    'csv' path with all the lyrics per score divede by lines plus the offset of
-    the first and last note of each line. If printLyrics is true, it prints the
-    lyrics of each file in the cosole.
+    'csv' path with all the lyrics per score divided by lines plus the offset
+    of the first and last note of each line. If printLyrics is true, it prints
+    the lyrics of each file in the cosole.
     '''
 
     for score in scores:
@@ -425,7 +425,6 @@ def alignLines(linesdata, title, infoFile, file2write, removeSlurs=True,
     
     filenames = sorted(linesdata.keys())
     
-    lines = []
     scores = []
     linesCount = 19
     
@@ -565,7 +564,7 @@ def comparePerCategories(datafile, hd, sq, bs, sx, removeSlurs=True,
 
 def comparePerChangduan(datafile, changduans, sx=None, removeSlurs=True,
                         showScore=False, createInfoFile=True):
-    '''[str] --> [music21.stream.Score]
+    '''str, [str] --> [music21.stream.Score]
     '''
     path = datafile[:datafile.rfind('/')+1]
     
@@ -645,9 +644,9 @@ def comparePerChangduan(datafile, changduans, sx=None, removeSlurs=True,
     
     return scores
 
-def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
+def comparePerOrderedLines(datafile, lines, removeSlurs=True, showScore=False,
                     createInfoFile=True):
-    '''[int] --> [music21.stream.Score]
+    '''str, [int] --> [music21.stream.Score]
     '''
     path = datafile[:datafile.rfind('/')+1]
     
@@ -667,7 +666,7 @@ def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
     infoFile = title + '\n'
     lineNumber = 1
 
-    lines2beAligned = 0
+    lines2beAligned = len(lines)
     scores2parse = 0
         
     for linedata in data:
@@ -682,7 +681,6 @@ def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
             part = pi
         else:
             if data.index(linedata) not in lines: continue
-            lines2beAligned += 1
 
             if not titleAlready:
                 infoFile += '\n'+name+'\n'
@@ -696,12 +694,15 @@ def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
 
             startStr = datacolumns[-2]
             endStr = datacolumns[-1]
+
+            # Check if the start value is a fraction            
             if '/' in startStr:
                 start = float(startStr.split('/')[0]) / float(
                                                 startStr.split('/')[1])
             else:
                 start = float(startStr)
 
+            # Check if the end value is a fraction
             if '/' in endStr:
                 end = float(endStr.split('/')[0]) / float(
                                                   endStr.split('/')[1])
@@ -723,5 +724,137 @@ def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
     
     scores = alignLines(linesdata, title, infoFile, file2write, removeSlurs,
                         showScore, createInfoFile)
+    
+    return scores
+    
+def comparePerLines(datafile, lines, removeSlurs=True, showScore=False,
+                    createInfoFile=True):
+    '''str, [int] --> [music21.stream.Score]
+    '''
+    path = datafile[:datafile.rfind('/')+1]
+    
+    with open(datafile, 'r', encoding='utf-8') as f:
+        data = f.readlines()
+
+    lines4title = ''    
+    for l in lines:
+        lines4title += ', ' + str(l)
+        
+    title = 'Comparison of lines' + lines4title[1:]
+    infoFile = title + '\n'
+    lineNumber = 1
+
+    lines2beAligned = len(lines)
+    scores2parse = []
+        
+
+    linesdata = [] # List of lines to be aligned
+
+    for line in lines:
+        datacolumns = data[line].split(',')
+
+        # Search the file name:
+        i = line
+        while data[i].split(',')[0] == '':
+            i += -1
+        filename = path + data[i].split(',')[0]
+        if filename not in scores2parse:
+            scores2parse.append(filename)
+
+        # Search the part name:
+        part = 0        
+        j = line
+        while (j > i) and ('Part' not in data[j].split(',')[5]):
+            j += -1
+        if 'Part' in data[j].split(',')[5]:
+            part += int(data[j].split(',')[5][-1])-1
+
+        # Search de line boundaries        
+        startStr = datacolumns[-2]
+        endStr = datacolumns[-1]
+
+        # Check if the start value is a fraction            
+        if '/' in startStr:
+            start = float(startStr.split('/')[0]) / float(
+                                            startStr.split('/')[1])
+        else:
+            start = float(startStr)
+
+        # Check if the end value is a fraction
+        if '/' in endStr:
+            end = float(endStr.split('/')[0]) / float(
+                                              endStr.split('/')[1])
+        else:
+            end = float(endStr)
+
+        # Append line to linesdata
+        linesdata.append((filename, part, start, end))
+            
+        # Info of the lines to the info file
+        infoFile += (str(lineNumber)+'\tline '+str(line)+'\t'+
+                     filename.split('/')[-1]+'\t'+datacolumns[-3]+'\n')
+        if lineNumber < 20:
+            lineNumber += 1
+        else:
+            lineNumber = 1
+
+    print(str(lines2beAligned) + ' lines to be aligned from ' +
+          str(len(scores2parse)) + ' scores\n')
+          
+    scores = []
+    linesCount = 19
+    
+    for linedata in linesdata:
+        file2parse = ''
+        if linedata[0] != file2parse:
+            file2parse = linedata[0]
+            s = converter.parse(file2parse)
+            print('Parsing ' + file2parse.split('/')[-1] + '\n')
+            voiceParts = findVoiceParts(s)
+        p = voiceParts[linedata[1]]
+        toRemove = list(p.recurse().getElementsByClass(['PageLayout',
+                        'SystemLayout', 'Barline']))
+        p.remove(toRemove, recurse=True)
+        line = p.getElementsByOffset(linedata[-2], linedata[-1],
+                                     mustBeginInSpan=False,
+                                     includeElementsThatEndAtStart=False)
+        ts = line.flat.getTimeSignatures()
+        if len(ts) > 0:
+            line[0].remove(ts[0])
+        ks = line.flat.getKeySignatures()
+        if len(ks) == 0:
+            line[0].insert(0, key.KeySignature(4))
+        if linesCount == 19:
+            alignedScore = stream.Score()
+            scores.append(alignedScore)
+            alignedScore.insert(0, line)
+            linesCount = 0
+        else:
+            alignedScore.insert(0, line)
+            linesCount += 1
+
+    if len(scores) == 1:
+        print('1 score to be created\n')
+    else:
+        print(str(len(scores)) + ' scores to be created\n')
+    
+    for s in scores:
+        s.insert(0, metadata.Metadata())
+        s.metadata.title = (title+' ('+str(scores.index(s)+1)+'/'+
+                            str(len(scores))+')')
+        s.makeNotation(inPlace=True)
+        if removeSlurs:
+            slurs2remove = list(s.recurse().getElementsByClass('Slur'))
+            s.remove(slurs2remove, recurse=True)
+
+    if showScore:
+        for s in scores: s.show()
+    
+    print('Aligned lines for ' + infoFile)
+    
+    if createInfoFile:
+        file2write = path + str(len(lines)) + 'LinesCompared.txt'
+        with open(file2write, 'w', encoding='utf-8') as f:
+            f.write(infoFile)
     
     return scores
