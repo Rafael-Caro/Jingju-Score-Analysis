@@ -239,6 +239,8 @@ def lyricsFromPart(part, printLyrics=False):
                     lines += 1
                 else:
                     lyrics += rawlyrics[i]
+            else:
+                lyrics += rawlyrics[i]
 #        else:
 #            lyrics += (rawlyrics[i] + '\n')
 #            lines += 1
