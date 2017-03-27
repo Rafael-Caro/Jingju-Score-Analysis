@@ -8,7 +8,7 @@
     <rights>《京剧曲谱集成·第六集》第45-60页（上海：上海文艺出版社，1992）</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-11-30</encoding-date>
+      <encoding-date>2017-03-23</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -15657,7 +15657,7 @@
           </notations>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>并</text>
+          <text>井</text>
           </lyric>
         </note>
       <note default-x="58.14" default-y="-65.00">

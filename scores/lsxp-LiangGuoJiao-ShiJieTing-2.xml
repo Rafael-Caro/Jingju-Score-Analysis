@@ -8,7 +8,7 @@
     <rights>曹宝荣，编著《京剧唱腔板式解读·下册》北京：人民音乐出版社，2010；第2-3页</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-09-29</encoding-date>
+      <encoding-date>2017-03-23</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -82,7 +82,7 @@
       <print>
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>170.00</top-system-distance>
@@ -527,8 +527,8 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
-            <right-margin>-0.00</right-margin>
+            <left-margin>-0.00</left-margin>
+            <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>134.57</system-distance>
           </system-layout>
@@ -975,7 +975,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>134.57</system-distance>
@@ -1438,7 +1438,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>134.57</system-distance>
@@ -1911,7 +1911,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>134.57</system-distance>
@@ -2334,7 +2334,7 @@
       <print new-page="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>70.00</top-system-distance>
@@ -2805,7 +2805,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>100.66</system-distance>
@@ -3211,7 +3211,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>100.66</system-distance>
@@ -3680,7 +3680,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>100.66</system-distance>
@@ -4181,7 +4181,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>100.66</system-distance>
@@ -4647,7 +4647,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>100.66</system-distance>
@@ -5118,7 +5118,7 @@
       <print new-page="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>70.00</top-system-distance>
@@ -5553,7 +5553,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>150.00</system-distance>
@@ -6030,7 +6030,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>150.00</system-distance>
@@ -6506,7 +6506,7 @@
       <print new-system="yes">
         <system-layout>
           <system-margins>
-            <left-margin>0.00</left-margin>
+            <left-margin>-0.00</left-margin>
             <right-margin>0.00</right-margin>
             </system-margins>
           <system-distance>150.00</system-distance>
@@ -9546,7 +9546,7 @@
           </notations>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>管</text>
+          <text>营</text>
           </lyric>
         </note>
       <note default-x="131.38" default-y="-145.00">
