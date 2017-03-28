@@ -204,6 +204,13 @@ def changeDurations(score, value, showScore=True, save=False):
 # Chinese punctuation marcs: ，。？！
 #diacritics = [u'\uff0c', u'\u3002', u'\uff1f', u'\uff01']
 diacritics = ['，', '。', '？', '！', '；', '：']
+###############################################################################
+## Change the name of the variable diacritics to closingDiacritics, or some- ##
+## thing like that, meaning that these are the ones that are taken as a li-  ##
+## ne segmentation mark, as opposed to allDiacritics, that includes all the  ##
+## existing diacritics for counting purposes. IMPORTANT, change also the na- ##
+## in the functions that use this variable.                                  ##
+###############################################################################
 
 def lyricsFromPart(part, printLyrics=False):
     '''music21.stream.Part --> str
@@ -316,7 +323,11 @@ def partSegmentation(part, printLyrics):
             index += (len(nl) + 1)
         else:
             if limit:
-                offsets.append(n.previous().offset)
+#                offsets.append(n.previous().offset)
+                preNote = n.previous()
+                while preNote.quarterLength == 0:
+                    preNote = preNote.previous()
+                offsets.append(preNote.offset)
                 offsets.append(n.offset)
                 limit = False                    
                 index += len(nl)
@@ -338,7 +349,7 @@ def lyricsSegmentation(scores, csv, printLyrics=False):
     Given a list of paths for xml scores, it creates a csv file in the given
     'csv' path with all the lyrics per score divided by lines plus the offset
     of the first and last note of each line. If printLyrics is true, it prints
-    the lyrics of each file in the cosole.
+    the lyrics of each file in the console.
     '''
 
     for score in scores:
@@ -396,6 +407,132 @@ def lyricsSegmentation(scores, csv, printLyrics=False):
         
         with open(csv, 'a', encoding='utf-8') as f:
             f.write(finalFile[:-1])
+
+allDiacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
+
+def judouSegmentation(lyricsdata, csvfile):
+    '''str --> csv file
+    It takes a lyricsdata file, which should be stored in the same folder as
+    scores. It returns a csv file with the starting and ending offset of each
+    judou.
+    '''
+    
+    with open(lyricsdata, 'r', encoding='utf') as f:
+        info = f.readlines()
+    
+    path = lyricsdata[:lyricsdata.rfind('/')+1]
+    
+    dous = ''
+    
+    for line in info:
+        strInfo = line.strip().split(',')
+        if strInfo[0] != '':
+            score = converter.parse(path+strInfo[0])
+            print('Parsing ' + strInfo[0])
+            voiceParts = findVoiceParts(score)
+            notesMap = createNotesMap(voiceParts, 0)
+            lyricsIndex = 0
+            if 'Part' in line:
+                dous += '\n'
+                continue
+        
+        if 'Part' in line:
+            voicePart = int(strInfo[5][-1]) - 1
+            notesMap = createNotesMap(voiceParts, voicePart)
+            lyricsIndex = 0
+            dous += '\n'
+            continue
+
+        lineDous = ''
+
+        for i in range (9, 12):
+            if len(strInfo[i]) == 0:
+                lineDous += ',,'
+                continue
+            lyricsLength = 0
+            for l in strInfo[i]:
+                if l not in allDiacritics:
+                    lyricsLength += 1
+            n = notesMap[lyricsIndex]
+            if strInfo[i][0:len(n[0])] == n[0]:
+                start = str(n[1])
+                lineDous += start + ','
+            else:
+                print('Error 1 at line', info.index(line), 'dou', i)
+                print(strInfo[i][0:len(n[0])], n[0])
+                return(notesMap)
+            
+            lyricsIndex += lyricsLength-1
+            
+            n = notesMap[lyricsIndex]
+            if strInfo[i][-len(n[0]):] == n[0]:
+                end = str(n[2])
+                lineDous += end + ','
+            else:
+                print('Error 2 at line', info.index(line), 'dou', i)
+                print(strInfo[i][-len(n[0]):], n[0])
+                return(notesMap)
+
+            lyricsIndex += 1
+        
+        lineDous = lineDous.strip(',')
+
+#        toCheck = lineDous.split(',')
+#        if not ((float(toCheck[0])==float(strInfo[6]))
+#                and (float(toCheck[-1])==float(strInfo[7]))):
+#            print('Boundaries of line and dous do not coincide at ' + 
+#                  info.index(line))
+        
+        lineDous += '\n'
+        dous += lineDous
+        
+    with open(path+csvfile, 'w') as f:
+        f.write(dous)
+            
+    return dous
+
+def createNotesMap(voiceParts, voicePart):
+    '''[music21.stream.Part], int --> [[str, float, float]]
+    Given a list of parts found using the findVoiceParts function and an int
+    indicating which of this parts must be used, it returns a list of lists per
+    each note with lyrics in that part, containing its lyric, starting offset
+    and ending offset.
+    '''
+    notes = voiceParts[voicePart].flat.notes.stream()
+    notesMap = []
+    for n in notes:
+        if n.hasLyrics():
+            noteLyric = n.lyric
+            noteOffset = n.offset
+            notesMap.append([noteLyric, noteOffset])
+            if len(notesMap) != 1:
+                preNote = n.previous()
+                while preNote.quarterLength == 0:
+                    preNote = preNote.previous()
+                notesMap[-2].append(preNote.offset)
+    notesMap[-1].append(notes[-1].offset)
+    
+    return notesMap
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        
 
 def getMelodicLine(filename, start, end, partIndex=1, show=False):
     '''str, float, float --> music21.stream.Stream

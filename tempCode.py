@@ -95,15 +95,15 @@ diacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
 #    f.write(texto)
 #        
 
-f1 = 'tones2.txt'
-
-f2 = 'scores/lyricsdata.3.0.csv'
-
-with open(f1, 'r', encoding='utf-8') as f:
-    tones = f.readlines()
-    
-with open(f2, 'r', encoding='utf-8') as f:
-    lyricsdata = f.readlines()
+#f1 = 'tones2.txt'
+#
+#f2 = 'scores/lyricsdata.3.0.csv'
+#
+#with open(f1, 'r', encoding='utf-8') as f:
+#    tones = f.readlines()
+#    
+#with open(f2, 'r', encoding='utf-8') as f:
+#    lyricsdata = f.readlines()
     
 ## Check that tones2 has the same lyrics and punctuation than lyricsdata
 #for i in range(len(tones)):
@@ -117,24 +117,24 @@ with open(f2, 'r', encoding='utf-8') as f:
 #    if not comp:
 #        print(tones[i].split('\t')[0], line1, line2)
 
-newtones = ''
-
-for i in tones:
-    if 'Part' in i:
-        tonesline = '\n'
-    else:
-        tonesline = '\"'
-        line = i.split('\t')[1][:-1]
-        consider = True
-        for j in line:
-            if j == '（':
-                consider = False
-            elif (j in '12345') and consider:
-                tonesline += j
-            elif j == '）':
-                consider = True
-        tonesline += '\"\n'
-    newtones += tonesline
+#newtones = ''
+#
+#for i in tones:
+#    if 'Part' in i:
+#        tonesline = '\n'
+#    else:
+#        tonesline = '\"'
+#        line = i.split('\t')[1][:-1]
+#        consider = True
+#        for j in line:
+#            if j == '（':
+#                consider = False
+#            elif (j in '12345') and consider:
+#                tonesline += j
+#            elif j == '）':
+#                consider = True
+#        tonesline += '\"\n'
+#    newtones += tonesline
 
 #for i in range(len(newtones.split('\n'))-1):
 #    print(newtones.split('\n')[i] + '\n' +
@@ -170,3 +170,16 @@ for i in tones:
 #            elif ch == '）':
 #                inBrackets = False
 #    print(i, line)
+
+f1 = 'scores/lyricsdata.3.0.csv'
+
+with open(f1, 'r', encoding = 'utf-8') as f:
+    data = f.readlines()
+    
+for i in data:
+    if 'Part' in i: continue
+    strInfo = i.strip().split(',')
+    count1 = len(strInfo[5])
+    count2 = len(strInfo[9]) + len(strInfo[10]) + len(strInfo[11])
+    if count1 != count2:
+        print(data.index(i), strInfo[5], strInfo[9], strInfo[10], strInfo[11])
