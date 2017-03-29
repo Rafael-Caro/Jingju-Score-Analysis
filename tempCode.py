@@ -171,15 +171,37 @@ diacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
 #                inBrackets = False
 #    print(i, line)
 
-f1 = 'scores/lyricsdata.3.0.csv'
+#f1 = 'scores/lyricsdata.3.0.csv'
+#
+#with open(f1, 'r', encoding = 'utf-8') as f:
+#    data = f.readlines()
+#    
+#for i in data:
+#    if 'Part' in i: continue
+#    strInfo = i.strip().split(',')
+#    count1 = len(strInfo[5])
+#    count2 = len(strInfo[9]) + len(strInfo[10]) + len(strInfo[11])
+#    if count1 != count2:
+#        print(data.index(i), strInfo[5], strInfo[9], strInfo[10], strInfo[11])
 
-with open(f1, 'r', encoding = 'utf-8') as f:
-    data = f.readlines()
+corpusfile = './scores/corpus.csv'
+
+with open(corpusfile, 'r', encoding='utf-8') as f:
+    corpus = f.readlines()
+
+acc = ''
+
+for line in corpus:
+    strInfo = line.strip().split(',')
+    source = strInfo[6]
+    author = source[:3]
+    if author=='曹宝荣':
+        acc += 'yes\n'
+    elif author in '刘吉典张正治':
+        acc += 'no\n'
+    else:
+        acc += '\n'
+
+with open('acc.csv', 'w') as f:
+    f.write(acc)
     
-for i in data:
-    if 'Part' in i: continue
-    strInfo = i.strip().split(',')
-    count1 = len(strInfo[5])
-    count2 = len(strInfo[9]) + len(strInfo[10]) + len(strInfo[11])
-    if count1 != count2:
-        print(data.index(i), strInfo[5], strInfo[9], strInfo[10], strInfo[11])

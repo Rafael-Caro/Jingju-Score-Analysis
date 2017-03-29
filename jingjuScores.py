@@ -514,26 +514,6 @@ def createNotesMap(voiceParts, voicePart):
     
     return notesMap
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        
-
 def getMelodicLine(filename, start, end, partIndex=1, show=False):
     '''str, float, float --> music21.stream.Stream
     Given the file path to a jingju score, and the offset value of the first
