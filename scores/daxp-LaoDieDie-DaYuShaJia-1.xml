@@ -8,7 +8,7 @@
     <rights>《京剧曲谱集成·第三集》第34-36页（上海：上海文艺出版社，1992）</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-10-24</encoding-date>
+      <encoding-date>2017-04-03</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -634,7 +634,7 @@
           </notations>
         <lyric number="1">
           <syllabic>single</syllabic>
-          <text>前，</text>
+          <text>首，</text>
           </lyric>
         </note>
       <note default-x="52.25" default-y="-15.00">

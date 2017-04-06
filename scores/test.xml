@@ -8,7 +8,7 @@
     <creator type="composer">Composer</creator>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2017-03-29</encoding-date>
+      <encoding-date>2017-03-30</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -63,18 +63,18 @@
       </score-part>
     </part-list>
   <part id="P1">
-    <measure number="1" width="602.35">
+    <measure number="1" width="585.43">
       <print>
         <system-layout>
           <system-margins>
             <left-margin>0.00</left-margin>
-            <right-margin>-0.00</right-margin>
+            <right-margin>0.00</right-margin>
             </system-margins>
           <top-system-distance>170.00</top-system-distance>
           </system-layout>
         </print>
       <attributes>
-        <divisions>2</divisions>
+        <divisions>6</divisions>
         <key>
           <fifths>0</fifths>
           </key>
@@ -92,29 +92,29 @@
           <step>C</step>
           <octave>4</octave>
           </pitch>
-        <duration>1</duration>
+        <duration>3</duration>
         <voice>1</voice>
         <type>eighth</type>
         <stem>up</stem>
         <beam number="1">begin</beam>
         </note>
-      <note default-x="159.95" default-y="-50.00">
+      <note default-x="157.22" default-y="-50.00">
         <pitch>
           <step>C</step>
           <octave>4</octave>
           </pitch>
-        <duration>1</duration>
+        <duration>3</duration>
         <voice>1</voice>
         <type>eighth</type>
         <stem>up</stem>
         <beam number="1">continue</beam>
         </note>
-      <note default-x="244.72" default-y="-50.00">
+      <note default-x="239.26" default-y="-50.00">
         <pitch>
           <step>C</step>
           <octave>4</octave>
           </pitch>
-        <duration>1</duration>
+        <duration>3</duration>
         <voice>1</voice>
         <type>eighth</type>
         <stem>up</stem>
@@ -122,11 +122,11 @@
         </note>
       <note>
         <rest/>
-        <duration>1</duration>
+        <duration>3</duration>
         <voice>1</voice>
         <type>eighth</type>
         </note>
-      <note default-x="380.25" default-y="-30.00">
+      <note default-x="369.33" default-y="-30.00">
         <grace/>
         <pitch>
           <step>G</step>
@@ -138,7 +138,7 @@
         <beam number="1">begin</beam>
         <beam number="2">begin</beam>
         </note>
-      <note default-x="391.21" default-y="-25.00">
+      <note default-x="380.30" default-y="-25.00">
         <grace/>
         <pitch>
           <step>A</step>
@@ -150,7 +150,7 @@
         <beam number="1">continue</beam>
         <beam number="2">continue</beam>
         </note>
-      <note default-x="402.18" default-y="-30.00">
+      <note default-x="391.27" default-y="-30.00">
         <grace/>
         <pitch>
           <step>G</step>
@@ -162,37 +162,82 @@
         <beam number="1">end</beam>
         <beam number="2">end</beam>
         </note>
-      <note default-x="413.89" default-y="-35.00">
+      <note default-x="402.98" default-y="-35.00">
         <pitch>
           <step>F</step>
           <octave>4</octave>
           </pitch>
-        <duration>4</duration>
+        <duration>12</duration>
         <voice>1</voice>
         <type>half</type>
         <stem>up</stem>
         </note>
       </measure>
-    <measure number="2" width="475.14">
+    <measure number="2" width="492.06">
       <note default-x="12.00" default-y="-40.00">
+        <pitch>
+          <step>E</step>
+          <octave>4</octave>
+          </pitch>
+        <duration>6</duration>
+        <voice>1</voice>
+        <type>quarter</type>
+        <stem>up</stem>
+        </note>
+      <note default-x="134.09" default-y="-40.00">
         <pitch>
           <step>E</step>
           <octave>4</octave>
           </pitch>
         <duration>2</duration>
         <voice>1</voice>
-        <type>quarter</type>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          </time-modification>
         <stem>up</stem>
+        <beam number="1">begin</beam>
+        <notations>
+          <tuplet type="start" bracket="no"/>
+          </notations>
         </note>
-      <note>
-        <rest/>
+      <note default-x="196.67" default-y="-45.00">
+        <pitch>
+          <step>D</step>
+          <octave>4</octave>
+          </pitch>
         <duration>2</duration>
         <voice>1</voice>
-        <type>quarter</type>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          </time-modification>
+        <stem>up</stem>
+        <beam number="1">continue</beam>
+        </note>
+      <note default-x="259.25" default-y="-50.00">
+        <pitch>
+          <step>C</step>
+          <octave>4</octave>
+          </pitch>
+        <duration>2</duration>
+        <voice>1</voice>
+        <type>eighth</type>
+        <time-modification>
+          <actual-notes>3</actual-notes>
+          <normal-notes>2</normal-notes>
+          </time-modification>
+        <stem>up</stem>
+        <beam number="1">end</beam>
+        <notations>
+          <tuplet type="stop"/>
+          </notations>
         </note>
       <note>
         <rest/>
-        <duration>4</duration>
+        <duration>12</duration>
         <voice>1</voice>
         <type>half</type>
         </note>
