@@ -18,7 +18,8 @@ import fractions
 class ProcessException(Exception):
     pass
 
-def plotting(xPositions, xLabels, yValues, searchInfo, width=0.8):
+def plotting(xPositions, xLabels, yValues, searchInfo, set_xlim=True,
+             limY=None, scaleGuides=False, width=0.8):
     # Determing the handang and shengqiang present
     hdInfo = searchInfo['hd']
     sqInfo = searchInfo['sq']
@@ -48,16 +49,19 @@ def plotting(xPositions, xLabels, yValues, searchInfo, width=0.8):
     plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
             color = col[hd],
             hatch = h[sq])
-    plt.axvline(x=64+width/2, color='red', zorder=0) # Tonic line
-    plt.axvline(x=76+width/2, color='red', ls='--', zorder=0) # High 8ve tonic
-    plt.axvline(x=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
-    plt.axvline(x=71+width/2, color='gray', ls=':', zorder=0) # Fifth
-    plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
+    if scaleGuides:
+        plt.axvline(x=64+width/2, color='red', zorder=0) # Tonic line
+        plt.axvline(x=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
+        plt.axvline(x=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
+        plt.axvline(x=71+width/2, color='gray', ls=':', zorder=0) # Fifth
+        plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
     for yValue in yValues:
         plt.axhline(y=yValue, color='gray', ls=':', zorder=0)
     plt.xticks(xPositions + width/2, xLabels, rotation=90)
-    plt.xlim(limX[hd][0], limX[hd][1])
-    plt.ylim(0, 0.3)
+    if set_xlim:
+        plt.xlim(limX[hd][0], limX[hd][1])
+    if limY != None:
+        plt.ylim(limY[0], limY[1])
     plt.tight_layout()
     print('Done!')
     plt.show()
@@ -216,7 +220,7 @@ def pitchHistogram(material, count='sum', countGraceNotes=True):
                     if noteDur == 0:
                         if not countGraceNotes: continue
                         noteDur = minDur
-                    pitchCount[noteName] = pitchCount.get(noteName, 0) + noteDur
+                    pitchCount[noteName] = pitchCount.get(noteName, 0)+noteDur
     
     # Sorting duration per pitch class frequency
     pitches = pitchCount.keys()
@@ -238,9 +242,98 @@ def pitchHistogram(material, count='sum', countGraceNotes=True):
         
     print('Plotting...')
 
-    plotting(xPositions, xLabels, yValues, material[0])
+    plotting(xPositions, xLabels, yValues, material[0], limY=[0, 0.3],
+             scaleGuides=True)
 
+def intervalHistogram(material, count='sum', directedInterval=False,
+                      silence2ignore=0.25, ignoreGraceNotes=False):
+    '''list --> , bar plot
+    
+    It takes the list returned by the collectMaterial function, and returns
+    
+    For the bar diagram to be plotted, the values can be normalised according
+    to count:
+    - if count=='sum', they are normalised to their summation,
+    - if count=='max', they are normalised to their maximun value
+    - if count=='abs', they are not normalised, but absolute values given    
+    '''
+    
+    intervalCount = {}
+    
+    for score in material[1:]:
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notesAndRests.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                # Count intervals in the current segment
+                # Find the last note that is not a grace note
+                i = 1
+                lastn = segment[-i]
+                while lastn.quarterLength == 0:
+                    i += 1
+                    lastn = segment[-i]
 
+                for j in range(len(segment)-i):
+                    n1 = segment[j]
+                    if n1.isRest: continue
+                    if ignoreGraceNotes:
+                        if n1.quarterLength == 0: continue
+                    k = 1
+                    while True:
+                        n2 = segment[j+k]
+                        if n2.isRest:
+                            if n2.quarterLength <= silence2ignore:
+                                k += 1
+                            else:
+                                n2 = None
+                                break
+                        elif (n2.quarterLength==0)and(ignoreGraceNotes==True):
+                            j += 1
+                        else:
+                            break
+                    if n2==None: continue
+                    intvl = interval.Interval(n1, n2)
+                    if directedInterval:
+                        intvlName = intvl.directedName
+                    else:
+                        intvlName = intvl.name
+                    intervalCount[intvlName] = (intervalCount.get(intvlName, 0)
+                                                + 1)
+    
+    # Sorting intervals per size
+    intvlNames = intervalCount.keys()
+    toSort = {i:interval.Interval(i).semitones for i in intvlNames}
+    sortedIntvl = sorted(toSort.items(), key=lambda x: x[1])
+    xPositions = np.array([i[1] for i in sortedIntvl])
+    xLabels = [i[0] for i in sortedIntvl]
+    yValues = np.array([intervalCount[l] for l in xLabels])
+    
+    # Normalising, if requested
+    if count == 'sum':
+        yValues = yValues / float(sum(yValues))
+        yLabel = 'Normalized Count'
+    elif count == 'max':
+        yValues = yValues / float(max(yValues))
+        yLabel = 'Normalized Count'
+    else:
+        yLabel = 'Count'
+        
+    print('Plotting...')
+
+    plotting(xPositions, xLabels, yValues, material[0], set_xlim=False)
 
 def getAmbitus(material):
     '''list --> music21.interval.Interval
