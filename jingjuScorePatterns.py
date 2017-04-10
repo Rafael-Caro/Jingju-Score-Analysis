@@ -103,21 +103,22 @@ def concatenateSegments(material, title=None):
     extendedMaterial.append(concatenatedSegments)
     
     # Check that the newSegments are equally long to the original segments:
-    for newSegment in material[-1]:
+    for newSegment in extendedMaterial[-1]:
         newSegmentStart = newSegment[0]
         newSegmentEnd = newSegment[1]
         length1 = newSegmentEnd - newSegmentStart
         score = newSegment[2]
         part = newSegment[3]
         segment = newSegment[4]
-        originalSegment = material[score][part][segment]
+        originalSegment = extendedMaterial[score][part][segment]
         originalSegmentStart = originalSegment[0]
         originalSegmentEnd = originalSegment[1]
         length2 = originalSegmentEnd - originalSegmentStart
         if length1 != length2:
-            print('Possible error with '+material[score][0]+', part '+str(part)
-                  +', segment '+str(material[score][part][segment])+
-                  ', and the new segment '+str(newSegment[:2]))
+            print('Possible error with ' + extendedMaterial[score][0] +
+                  ', part ' + str(part) + ', segment ' + 
+                  str(extendedMaterial[score][part][segment]) + 
+                  ', and the new segment ' + str(newSegment[:2]))
     
     if title != None:
         print('Segments concatenated\nCreating files')
@@ -125,11 +126,11 @@ def concatenateSegments(material, title=None):
         concatenatedScore.title = title
         concatenatedScore.write(fp=title+'.xml')
         with open(title+'.pkl', 'wb') as f:
-            pickle.dump(material, f, protocol=2)
+            pickle.dump(extendedMaterial, f, protocol=2)
     
     print('Done!')
     
-    return concatenatedScore, material
+    return concatenatedScore, extendedMaterial
     
 def plotPatterns(concatenatedScore, inputFile, resultsFile, ):#, extendedMaterial):
     '''str, str, str --> dic
