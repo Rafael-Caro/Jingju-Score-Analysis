@@ -120,6 +120,8 @@ def concatenateSegments(material, title=None):
     
     if title != None:
         print('Segments concatenated\nCreating files')
+        concatenatedScore.insert(0, metadata.Metadata())
+        concatenatedScore.title = title
         concatenatedScore.write(fp=title+'.xml')
         with open(title+'.pkl', 'wb') as f:
             pickle.dump(material, f, protocol=2)
