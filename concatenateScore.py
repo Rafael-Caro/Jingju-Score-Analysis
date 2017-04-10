@@ -20,7 +20,7 @@ if __name__=='__main__':
     
     parser = argparse.ArgumentParser(description='Create a score with all the segments that satisfy the given arguments concatenated in one stave')
     parser.add_argument('csv', help='path to the csv file with the annotations of the scores')
-    parser.add_argument('title', help="title of the resulting score. If not given, the score won't be save as an xml file", default=None)
+    parser.add_argument('-t', '--title', help="title of the resulting score. If not given, the score won't be save as an xml file", default=None)
     parser.add_argument('--hd', nargs='*', help='hangdang which the search would be restricted to', default=default_hd)
     parser.add_argument('--sq', nargs='*', help='shengqiang which the search would be restricted to', default=default_sq)
     parser.add_argument('--bs', nargs='*', help='banshi which the search would be restricted to', default=default_bs)
