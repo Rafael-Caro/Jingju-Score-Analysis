@@ -6,6 +6,7 @@ Created on Fri Apr  7 14:32:36 2017
 """
 
 import copy
+import jingjuScores as jS
 import jingjuScoreAnalysis as jSA
 from music21 import *
 from fractions import Fraction
