@@ -8,6 +8,7 @@ Created on Fri Apr  7 14:32:36 2017
 import copy
 import jingjuScoreAnalysis as jSA
 from music21 import *
+from fractions import Fraction
 
 def concatenateSegments(material, title=None):
     '''list --> music21.stream.Stream, list
@@ -127,17 +128,28 @@ def concatenateSegments(material, title=None):
     
     return concatenatedScore, material
     
-def plotPatterns(resultsFile, concatenatedScore):#, extendedMaterial):
+def plotPatterns(concatenatedScore, inputFile, resultsFile, ):#, extendedMaterial):
     '''str, str, str --> dic
     {str:{str:[[float, float]]}}
     '''
+
+    # Equivalents of morphetic pitches as pitch names with octave in the range
+    # of the corpus score for E major
+    morphPitchs = {56: 'F#3', 57: 'G#3', 58: 'A3', 59: 'B3', 60: 'C#4',
+                   61: 'D#4', 62: 'E4', 63: 'F#4', 64: 'G#4', 65: 'A4',
+                   66: 'B4', 67: 'C#5', 68: 'D#5', 69: 'E5', 70: 'F#5',
+                   71: 'G#5', 72: 'A5', 73: 'B5', 74: 'C#6'}    
+    
+    with open(inputFile, 'r') as f:
+        inputData = f.readlines()
+    
     with open(resultsFile, 'r') as f:
-        data = f.readlines()
+        resultsData = f.readlines()
     
     patterns = {}
     
     # Storing the patterns in the text file into a dictionary
-    for l in data:
+    for l in resultsData:
         line = l.strip()
         if len(line) == 0: continue
         if 'pattern' in line:
@@ -155,35 +167,42 @@ def plotPatterns(resultsFile, concatenatedScore):#, extendedMaterial):
     for pat in patterns.keys():
         for occ in patterns[pat]:
             patterns[pat][occ] = sorted(patterns[pat][occ])
+    
+    patternsNumber = len(patterns.keys())
+    print(patternsNumber, 'patterns contained in the results file')
+    
+    sortedPatterns = sorted(patterns.keys())
             
-    p = patterns['pattern1']['occurrence1']
-    
-    # Find patterns in the concatenated score
-    score = converter.parse(concatenatedScore)
-    notes = score.flat.notes.stream()
-    
-    for i in range(len(notes)):
-        if notes[i].quarterLength == 0: continue
-        mid = notes[i].pitch.midi
-        match = False
-        if mid == p[0][1]:
-            print('\n')
-            print(mid, p[0][1])
-            match = True
-            j = 1
-            while j < len(p):
-                mid1 = notes[i+j].pitch.midi
-                mid2 = p[j][1]
-                print(mid1, mid2)
-                if mid1 == mid2:
-                    j += 1
-                else:
-                    match = False
-                    break
-        if match == True:
-            for k in range(len(p)):
-                print(notes[i+k].offset, p[k][0])
-            break
-                
-    
-    return patterns
+    # Plot all patterns in the score
+    for pat in sortedPatterns:
+        pattern = patterns[pat]
+        occurrencesNumber = len(pattern.keys())
+        print(pat, 'with', occurrencesNumber, 'occurrences')
+        # Parsing score
+        score = converter.parse(concatenatedScore)
+        scoreName = concatenatedScore.split('/')[-1]
+        print(scoreName, 'parsed')
+        notes = score.flat.notes.stream()
+            
+        for occ in pattern:
+            # Convert morphetic pitch into pitch names with octave
+            occurrence = pattern[occ]
+            occPitch = copy.deepcopy(occurrence)
+            for n in occPitch:
+                morphPitch = n[1]
+                n[1] = morphPitchs[morphPitch]
+        
+            # Find notes from pattern according to the offsets
+            for occNote in occPitch:
+                pos = occNote[0]
+                name1 = occNote[1]
+                scoreNote = notes.getElementsByOffset(pos)
+                for n in scoreNote:
+                    name2 = n.nameWithOctave
+                    if name1 == name2:
+                        n.color = 'red'
+                    else:
+                        print('Possible problem at', pos)
+        
+        print('Displaying', pat)
+        score.show()
