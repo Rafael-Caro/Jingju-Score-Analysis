@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from music21 import *
 import jingjuScores as jS
 import fractions
-import pickle
 
 ### TO DELETE?
 #f = 'scores/lsxp-LiangGuoJiao-ShiJieTing-1.xml'

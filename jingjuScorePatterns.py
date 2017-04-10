@@ -10,6 +10,7 @@ import jingjuScores as jS
 import jingjuScoreAnalysis as jSA
 from music21 import *
 from fractions import Fraction
+import pickle
 
 def concatenateSegments(material, title=None):
     '''list --> music21.stream.Stream, list
