@@ -18,9 +18,37 @@ import fractions
 class ProcessException(Exception):
     pass
 
-def plotting(xPositions, xLabels, yValues, searchInfo, set_xlim=True,
-             limY=None, scaleGuides=False, width=0.8):
+def plotting(xPositions, xLabels, yValues, limX=None, limY=None, yLabel=None,
+             col=None, h=None, scaleGuides=False, width=0.8):
+
+    plt.figure()
+    plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
+            color = col,
+            hatch = h)
+    if scaleGuides:
+        plt.axvline(x=64+width/2, color='red', zorder=0) # Tonic line
+        plt.axvline(x=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
+        plt.axvline(x=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
+        plt.axvline(x=71+width/2, color='gray', ls=':', zorder=0) # Fifth
+        plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
+    for yValue in yValues:
+        plt.axhline(y=yValue, color='gray', ls=':', zorder=0)
+    plt.xticks(xPositions + width/2, xLabels, rotation=90)
+    if limX != None:
+        plt.xlim(limX[0]-(1-width), limX[1]+1)
+    else:
+        plt.xlim(xPositions[0]-(1-width), xPositions[-1]+1)
+    if limY != None:
+        plt.ylim(limY[0], limY[1])
+    if yLabel != None:
+        plt.ylabel(yLabel)
+    plt.tight_layout()
+    print('Done!')
+    plt.show()
+    
+def plottingParameters(material, count, yValues):
     # Determing the handang and shengqiang present
+    searchInfo = material[0]
     hdInfo = searchInfo['hd']
     sqInfo = searchInfo['sq']
     # Hangdang information
@@ -41,30 +69,33 @@ def plotting(xPositions, xLabels, yValues, searchInfo, set_xlim=True,
             sq = 'xp'
     
     # Color, hatch and limits codes
-    col = {'ls':'#66CCFF', 'da':'#FF9966', 'sd':'#B2B2B2'}
-    h = {'eh':'/', 'xp':'\\', 'ex':'x'} # hatch for the bars
-    limX = {'ls':(54, 77), 'da':(59, 86), 'sd':(54,86)}
+    colors = {'ls':'#66CCFF', 'da':'#FF9966', 'sd':'#B2B2B2'}
+    hatches = {'eh':'/', 'xp':'\\', 'ex':'x'} # hatch for the bars
+    xLimits = {'ls':(54, 76), 'da':(59, 85), 'sd':(54,85)}
+    
+    # Setting x limits
+    limX = xLimits[hd]
 
-    plt.figure()
-    plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
-            color = col[hd],
-            hatch = h[sq])
-    if scaleGuides:
-        plt.axvline(x=64+width/2, color='red', zorder=0) # Tonic line
-        plt.axvline(x=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
-        plt.axvline(x=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
-        plt.axvline(x=71+width/2, color='gray', ls=':', zorder=0) # Fifth
-        plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
-    for yValue in yValues:
-        plt.axhline(y=yValue, color='gray', ls=':', zorder=0)
-    plt.xticks(xPositions + width/2, xLabels, rotation=90)
-    if set_xlim:
-        plt.xlim(limX[hd][0], limX[hd][1])
-    if limY != None:
-        plt.ylim(limY[0], limY[1])
-    plt.tight_layout()
-    print('Done!')
-    plt.show()
+    # Setting y limits and y label
+    limY = None
+    
+    # Normalising, if requested
+    if count == 'sum':
+        yValues = yValues / float(sum(yValues))
+        yLabel = 'Normalized Count'
+    elif count == 'max':
+        yValues = yValues / float(max(yValues))
+        yLabel = 'Normalized Count'
+    else:
+        yLabel = 'Count'
+    
+    # Setting bar color
+    col = colors[hd]
+    
+    # Setting bar hatch
+    h = hatches[sq]
+    
+    return yValues, limX, yLabel, col, h
 
 def collectMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
                     bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
@@ -163,8 +194,6 @@ def collectMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
 
     return material
 
-
-
 def pitchHistogram(material, count='sum', countGraceNotes=True):
     '''list --> dict, bar plot
     
@@ -230,20 +259,18 @@ def pitchHistogram(material, count='sum', countGraceNotes=True):
     xLabels = [p[0] for p in sortedPitches]
     yValues = np.array([pitchCount[l] for l in xLabels])
     
-    # Normalising, if requested
-    if count == 'sum':
-        yValues = yValues / float(sum(yValues))
-        yLabel = 'Normalized Count'
-    elif count == 'max':
-        yValues = yValues / float(max(yValues))
-        yLabel = 'Normalized Count'
-    else:
-        yLabel = 'Count'
-        
+    # Start plotting
     print('Plotting...')
 
-    plotting(xPositions, xLabels, yValues, material[0], limY=[0, 0.3],
-             scaleGuides=True)
+    # Setting the parameters for plotting
+    yValues, limX, yLabel, col, h = plottingParameters(material,count,yValues)
+    # Setting y limits
+    limY = None
+    if count == 'sum':
+        limY = [0, 0.3]
+
+    plotting(xPositions, xLabels, yValues, limX=limX, limY=limY, yLabel=yLabel,
+             col=col, h=h, scaleGuides=True)
 
 def intervalHistogram(material, count='sum', directedInterval=False,
                       silence2ignore=0.25, ignoreGraceNotes=False):
@@ -318,22 +345,32 @@ def intervalHistogram(material, count='sum', directedInterval=False,
     toSort = {i:interval.Interval(i).semitones for i in intvlNames}
     sortedIntvl = sorted(toSort.items(), key=lambda x: x[1])
     xPositions = np.array([i[1] for i in sortedIntvl])
+    # Check if there repeated positions
+    for i in range(1, len(xPositions)):
+        if xPositions[i] != xPositions[i-1]: continue
+        for j in range(i):
+            xPositions[j] += -1
     xLabels = [i[0] for i in sortedIntvl]
     yValues = np.array([intervalCount[l] for l in xLabels])
     
-    # Normalising, if requested
-    if count == 'sum':
-        yValues = yValues / float(sum(yValues))
-        yLabel = 'Normalized Count'
-    elif count == 'max':
-        yValues = yValues / float(max(yValues))
-        yLabel = 'Normalized Count'
-    else:
-        yLabel = 'Count'
-        
+    # Start plotting
     print('Plotting...')
 
-    plotting(xPositions, xLabels, yValues, material[0], set_xlim=False)
+    ## Setting the parameters for plotting
+    yValues, limX, yLabel, col, h = plottingParameters(material,count,yValues)
+    # Setting x limits
+    limX = None
+    
+    # Setting y limits
+    limY = None
+    if count == 'sum':
+        if directedInterval:
+            limY = [0, 0.26]
+        else:
+            limY = [0, 0.45]
+
+    plotting(xPositions, xLabels, yValues, limX=limX, limY=limY, yLabel=yLabel,
+             col=col, h=h, scaleGuides=True)
 
 def getAmbitus(material):
     '''list --> music21.interval.Interval
