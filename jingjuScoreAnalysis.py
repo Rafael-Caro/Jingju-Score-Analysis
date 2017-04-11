@@ -149,7 +149,7 @@ def collectMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
     material = []
 
     # Search information
-    searchInfo = {'hd':hd, 'sq':sq, 'bs':bs, 'ju':ju}
+    searchInfo = {'hd':[], 'sq':[], 'bs':[], 'ju':[]}
     material.append(searchInfo)
     
     # Segments collection
@@ -175,6 +175,14 @@ def collectMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
         
         if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
             material[-1][-1].append([start, end])
+            if hd0 not in material[0]['hd']:
+                material[0]['hd'].append(hd0)
+            if sq0 not in material[0]['sq']:
+                material[0]['sq'].append(sq0)
+            if bs0 not in material[0]['bs']:
+                material[0]['bs'].append(bs0)
+            if ju0 not in material[0]['ju']:
+                material[0]['ju'].append(ju0)
             
     # Delete empty lists
     score2remove = []
