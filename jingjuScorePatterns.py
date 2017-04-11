@@ -211,3 +211,137 @@ def plotPatterns(concatenatedScore, inputFile, resultsFile, ):#, extendedMateria
         
         print('Displaying', pat)
         score.show()
+
+def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
+    '''
+    '''
+
+    # Check that the given noteName is valid:
+    if noteName not in ['pitch', 'midi']:
+        raise Exception('The given noteName is invalid')
+
+    print('The duration unit is a 64th note')
+    
+    print('The duration value for grace notes is ' + str(graceNoteValue) + 
+          ' duration units')
+
+    # Start recoding
+    recodedScore = []
+    
+    for scoreIndex in range(1, len(material)):
+        score = material[scoreIndex]
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notesAndRests.stream()
+            # Find segments to analyze in the current part
+            for segmentIndex in range(len(score[partIndex])):
+                startEnd = score[partIndex][segmentIndex]
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                line = []
+                graceNote = 0 # It sotres the accumulated valued of grace notes
+                              # to be substracted
+                notePreGrace = None # It stores the index of the note before
+                                    # grace notes found
+                for i in range(len(segment)):
+                    n = segment[i]
+                    # Check if n is note or rest    
+                    if n.isRest:
+                        name = n.name
+                        dur = n.quarterLength*16
+                        lyr = False
+                    else: # If it is a note:
+                        # Check if it is a grace note:
+                        if n.quarterLength == 0:
+                            # Set name
+                            if noteName == 'pitch':
+                                name = n.nameWithOctave
+                            elif noteName == 'midi':
+                                name = n.pitch.midi
+                            # Set duration
+                            dur = graceNoteValue
+                            # Accumulate grace note value to be subtracted
+                            graceNote += graceNoteValue
+                            if (notePreGrace == None) and (len(line) > 0):
+                                notePreGrace = line.index(line[-1])
+                            lyr = False
+                        else:
+                        # If it's not a grace note, then
+                            # Set name
+                            if noteName == 'pitch':
+                                name = n.nameWithOctave
+                            elif noteName == 'midi':
+                                name = n.pitch.midi
+                            # Set duration
+                            # Check if there is some grace note value to be
+                            # subtracted
+                            if (notePreGrace != None) and not n.hasLyrics():
+                            # Subtract grace note value from the previous note
+                                lastNote = line[notePreGrace]
+                                lastNoteDur = lastNote[1]
+                                currentNoteDur = n.quarterLength*16
+                                if lastNoteDur <= graceNote:
+                                    if currentNoteDur <= graceNote:
+                                        adjustment = 0
+                                        for j in range(notePreGrace+1, i):
+                                            note2change = line[j]
+                                            note2change[1] += -1
+                                            adjustment += 1
+                                        lastNote[1] += -(graceNote-adjustment)
+                                        dur = currentNoteDur
+                                    else:
+                                        dur = currentNoteDur - graceNote                                        
+                                else:
+                                    lastNote[1] += -graceNote
+                                    dur = currentNoteDur
+                            else:
+                            # Subtract grace note value, if any, from current
+                            # note
+                                currentNoteDur = n.quarterLength*16
+                                if currentNoteDur <= graceNote:
+                                    lastNote = line[notePreGrace]
+                                    adjustment = 0
+                                    for j in range(notePreGrace+1, i):
+                                        note2change = line[j]
+                                        note2change[1] += -1
+                                        adjustment += 1
+                                    lastNote[1] += -(graceNote-adjustment)
+                                    dur = currentNoteDur
+                                else:
+                                    dur = currentNoteDur - graceNote
+                            # Set grace note counters to start
+                            notePreGrace = None
+                            graceNote = 0
+                            #Check if it has a tie
+                            if n.tie != None:
+                                if n.tie.type == 'start':
+                                    dur += n.next().quarterLength*16
+                                else: continue
+                            # Set lyric
+                            if n.hasLyrics():
+                                # Check if the lyric is a padding syllable
+                                if '（' in n.lyric:
+                                    lyr = False
+                                else:
+                                    lyr = n.hasLyrics()
+                            else:
+                                lyr = n.hasLyrics()
+                    if dur <= 0:
+                        pos = str(n.offset)
+                        message = ('\tDuration ' + str(dur) + ' in ' +
+                                   scoreName + ', ' + pos)
+#                        raise Exception(message)
+                        print(message)
+                    line.append([name, dur, lyr])
+                recodedScore.append(line)
+
+    return recodedScore

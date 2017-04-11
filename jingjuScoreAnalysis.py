@@ -18,84 +18,7 @@ import fractions
 class ProcessException(Exception):
     pass
 
-def plotting(xPositions, xLabels, yValues, limX=None, limY=None, yLabel=None,
-             col=None, h=None, scaleGuides=False, width=0.8):
 
-    plt.figure()
-    plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
-            color = col,
-            hatch = h)
-    if scaleGuides:
-        plt.axvline(x=64+width/2, color='red', zorder=0) # Tonic line
-        plt.axvline(x=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
-        plt.axvline(x=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
-        plt.axvline(x=71+width/2, color='gray', ls=':', zorder=0) # Fifth
-        plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
-    for yValue in yValues:
-        plt.axhline(y=yValue, color='gray', ls=':', zorder=0)
-    plt.xticks(xPositions + width/2, xLabels, rotation=90)
-    if limX != None:
-        plt.xlim(limX[0]-(1-width), limX[1]+1)
-    else:
-        plt.xlim(xPositions[0]-(1-width), xPositions[-1]+1)
-    if limY != None:
-        plt.ylim(limY[0], limY[1])
-    if yLabel != None:
-        plt.ylabel(yLabel)
-    plt.tight_layout()
-    print('Done!')
-    plt.show()
-    
-def plottingParameters(material, count, yValues):
-    # Determing the handang and shengqiang present
-    searchInfo = material[0]
-    hdInfo = searchInfo['hd']
-    sqInfo = searchInfo['sq']
-    # Hangdang information
-    if len(hdInfo) == 2:
-        hd = 'sd'
-    else:
-        if hdInfo[0] == 'laosheng':
-            hd = 'ls'
-        elif hdInfo[0] == 'dan':
-            hd = 'da'
-    # Shengqiang information
-    if len(sqInfo) == 2:
-        sq = 'ex'
-    else:
-        if sqInfo[0] == 'erhuang':
-            sq = 'eh'
-        elif sqInfo[0] == 'xipi':
-            sq = 'xp'
-    
-    # Color, hatch and limits codes
-    colors = {'ls':'#66CCFF', 'da':'#FF9966', 'sd':'#B2B2B2'}
-    hatches = {'eh':'/', 'xp':'\\', 'ex':'x'} # hatch for the bars
-    xLimits = {'ls':(54, 76), 'da':(59, 85), 'sd':(54,85)}
-    
-    # Setting x limits
-    limX = xLimits[hd]
-
-    # Setting y limits and y label
-    limY = None
-    
-    # Normalising, if requested
-    if count == 'sum':
-        yValues = yValues / float(sum(yValues))
-        yLabel = 'Normalized Count'
-    elif count == 'max':
-        yValues = yValues / float(max(yValues))
-        yLabel = 'Normalized Count'
-    else:
-        yLabel = 'Count'
-    
-    # Setting bar color
-    col = colors[hd]
-    
-    # Setting bar hatch
-    h = hatches[sq]
-    
-    return yValues, limX, yLabel, col, h
 
 def collectMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
                     bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
@@ -202,6 +125,172 @@ def collectMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
 
     return material
 
+
+    
+def collectJudouMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
+                         'xipi'], bs = ['manban', 'sanyan', 'zhongsanyan',
+                         'kuaisanyan', 'yuanban', 'erliu', 'liushui',
+                         'kuaiban'], ju = ['s', 's1', 's2', 'x']):
+
+    # Get the path of the folder shared by the lyricsData file and the xml
+    # scores
+    path = lyricsData[:lyricsData.rfind('/')+1]
+    
+    with open(lyricsData, 'r', encoding='utf-8') as f:
+        data = f.readlines()
+    
+    material = []
+
+    # Search information
+    searchInfo = {'hd':[], 'sq':[], 'bs':[], 'ju':[]}
+    material.append(searchInfo)
+    
+    # Segments collection
+    for line in data:
+        strInfo = line.strip().split(',')
+        score = strInfo[0]
+        if score != '':
+            material.append([path+score,[]])
+            if 'Part 1' in line: continue
+    
+        if (score == '') and ('Part' in line):
+            material[-1].append([])
+            continue
+        
+        hd0 = strInfo[1]
+        sq0 = strInfo[2]
+        bs0 = strInfo[3]
+        ju0 = strInfo[4]
+        
+        if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
+            if hd0 not in material[0]['hd']:
+                material[0]['hd'].append(hd0)
+            if sq0 not in material[0]['sq']:
+                material[0]['sq'].append(sq0)
+            if bs0 not in material[0]['bs']:
+                material[0]['bs'].append(bs0)
+            if ju0 not in material[0]['ju']:
+                material[0]['ju'].append(ju0)
+            
+            if strInfo[10] != '':
+                ju1_start = floatOrFraction(strInfo[10])
+                ju1_end = floatOrFraction(strInfo[11])
+                ju1 = [ju1_start, ju1_end]
+                material[-1][-1].append(ju1)
+            if strInfo[13] != '':
+                ju2_start = floatOrFraction(strInfo[13])
+                ju2_end = floatOrFraction(strInfo[14])
+                ju2 = [ju2_start, ju2_end]
+                material[-1][-1].append(ju2)
+            if strInfo[16] != '':
+                ju3_start = floatOrFraction(strInfo[16])
+                ju3_end = floatOrFraction(strInfo[17])
+                ju3 = [ju3_start, ju3_end]
+                material[-1][-1].append(ju3)
+            
+    # Delete empty lists
+    score2remove = []
+    for i in range(1, len(material)):
+        score = material[i]
+        partsLength = 0
+        for j in range(1, len(score)):
+            part = score[j]
+            partsLength += len(part)
+        if partsLength == 0:
+            score2remove.insert(0, i)
+    if len(score2remove) != 0:
+        for l in score2remove:
+            material.pop(l)
+
+    print('All material collected')
+
+    return material
+
+
+
+def plotting(xPositions, xLabels, yValues, limX=None, limY=None, yLabel=None,
+             col=None, h=None, scaleGuides=False, width=0.8):
+
+    plt.figure()
+    plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
+            color = col,
+            hatch = h)
+    if scaleGuides:
+        plt.axvline(x=64+width/2, color='red', zorder=0) # Tonic line
+        plt.axvline(x=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
+        plt.axvline(x=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
+        plt.axvline(x=71+width/2, color='gray', ls=':', zorder=0) # Fifth
+        plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
+    for yValue in yValues:
+        plt.axhline(y=yValue, color='gray', ls=':', zorder=0)
+    plt.xticks(xPositions + width/2, xLabels, rotation=90)
+    if limX != None:
+        plt.xlim(limX[0]-(1-width), limX[1]+1)
+    else:
+        plt.xlim(xPositions[0]-(1-width), xPositions[-1]+1)
+    if limY != None:
+        plt.ylim(limY[0], limY[1])
+    if yLabel != None:
+        plt.ylabel(yLabel)
+    plt.tight_layout()
+    print('Done!')
+    plt.show()
+
+
+    
+def plottingParameters(material, count, yValues):
+    # Determing the handang and shengqiang present
+    searchInfo = material[0]
+    hdInfo = searchInfo['hd']
+    sqInfo = searchInfo['sq']
+    # Hangdang information
+    if len(hdInfo) == 2:
+        hd = 'sd'
+    else:
+        if hdInfo[0] == 'laosheng':
+            hd = 'ls'
+        elif hdInfo[0] == 'dan':
+            hd = 'da'
+    # Shengqiang information
+    if len(sqInfo) == 2:
+        sq = 'ex'
+    else:
+        if sqInfo[0] == 'erhuang':
+            sq = 'eh'
+        elif sqInfo[0] == 'xipi':
+            sq = 'xp'
+    
+    # Color, hatch and limits codes
+    colors = {'ls':'#66CCFF', 'da':'#FF9966', 'sd':'#B2B2B2'}
+    hatches = {'eh':'/', 'xp':'\\', 'ex':'x'} # hatch for the bars
+    xLimits = {'ls':(54, 76), 'da':(59, 85), 'sd':(54,85)}
+    
+    # Setting x limits
+    limX = xLimits[hd]
+
+    # Setting y limits and y label
+    limY = None
+    
+    # Normalising, if requested
+    if count == 'sum':
+        yValues = yValues / float(sum(yValues))
+        yLabel = 'Normalized Count'
+    elif count == 'max':
+        yValues = yValues / float(max(yValues))
+        yLabel = 'Normalized Count'
+    else:
+        yLabel = 'Count'
+    
+    # Setting bar color
+    col = colors[hd]
+    
+    # Setting bar hatch
+    h = hatches[sq]
+    
+    return yValues, limX, yLabel, col, h
+
+
+
 def pitchHistogram(material, count='sum', countGraceNotes=True):
     '''list --> dict, bar plot
     
@@ -279,6 +368,8 @@ def pitchHistogram(material, count='sum', countGraceNotes=True):
 
     plotting(xPositions, xLabels, yValues, limX=limX, limY=limY, yLabel=yLabel,
              col=col, h=h, scaleGuides=True)
+
+
 
 def intervalHistogram(material, count='sum', directedInterval=False,
                       silence2ignore=0.25, ignoreGraceNotes=False):
@@ -380,6 +471,8 @@ def intervalHistogram(material, count='sum', directedInterval=False,
     plotting(xPositions, xLabels, yValues, limX=limX, limY=limY, yLabel=yLabel,
              col=col, h=h, scaleGuides=True)
 
+
+
 def getAmbitus(material):
     '''list --> music21.interval.Interval
     
@@ -474,6 +567,8 @@ def findScore(material, thresholdPitch, lowHigh):
 
     return scores
 
+
+
 def getTones(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
                     bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
                     'yuanban', 'erliu', 'liushui', 'kuaiban'], ju = ['s', 's1',
@@ -541,6 +636,8 @@ def getTones(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
     print(tones)
 
     return tones
+
+
     
 def floatOrFraction(strValue):
     '''str --> fractions.Fraction or float
@@ -555,6 +652,8 @@ def floatOrFraction(strValue):
         value = float(strValue)
         
     return value
+
+
 
 def findInterval(material, intvlList, directedInterval=False,
                  silence2ignore=0.25, ignoreGraceNotes=False):

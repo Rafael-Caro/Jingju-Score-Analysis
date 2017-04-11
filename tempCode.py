@@ -10,6 +10,7 @@ os.chdir('C:/Users/Rafael.Ctt/Documents/PhD/Code')
 from music21 import *
 import jingjuScores as jS
 import jingjuScoreAnalysis as jSA
+import jingjuScorePatterns as jSP
 
 diacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
 
@@ -21,10 +22,10 @@ lyricsData = 'scores/lyricsdata.4.0.csv'
 #      'liushui', 'kuaiban']
 #ju = ['s', 's1', 's2', 'x']
 
-material = jSA.collectMaterial(lyricsData, hd=['dan'], sq=['xipi'])
+#material = jSA.collectMaterial(lyricsData, bs=['erliu'])
 #jSA.pitchHistogram(material)
 #jSA.intervalHistogram(material, directedInterval=False)
-jSA.findInterval(material, ['m7'], directedInterval=False, ignoreGraceNotes=True)
+#jSA.findInterval(material, ['m7'], directedInterval=False, ignoreGraceNotes=True)
 
 #jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
 
@@ -60,3 +61,6 @@ jSA.findInterval(material, ['m7'], directedInterval=False, ignoreGraceNotes=True
 #    if includeScore:
 #        scores2change.append(score)
 #        s.show()
+
+material = jSA.collectJudouMaterial(lyricsData, bs=['erliu'], ju=['x'])
+recodedScore = jSP.recodeScore(material)
