@@ -547,7 +547,75 @@ def floatOrFraction(strValue):
         value = float(strValue)
         
     return value
-        
+
+def findInterval(material, intvlList, directedInterval=False,
+                 silence2ignore=0.25, ignoreGraceNotes=False):
+    '''
+    '''
+    for score in material[1:]:
+        showScore = False
+        intvlsFound = {}
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notesAndRests.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                # Count intervals in the current segment
+                # Find the last note that is not a grace note
+                i = 1
+                lastn = segment[-i]
+                while lastn.quarterLength == 0:
+                    i += 1
+                    lastn = segment[-i]
+
+                for j in range(len(segment)-i):
+                    n1 = segment[j]
+                    if n1.isRest: continue
+                    if ignoreGraceNotes:
+                        if n1.quarterLength == 0: continue
+                    k = 1
+                    while True:
+                        n2 = segment[j+k]
+                        if n2.isRest:
+                            if n2.quarterLength <= silence2ignore:
+                                k += 1
+                            else:
+                                n2 = None
+                                break
+                        elif (n2.quarterLength==0)and(ignoreGraceNotes==True):
+                            j += 1
+                        else:
+                            break
+                    if n2==None: continue
+                    currentIntvl = interval.Interval(n1, n2)
+                    if directedInterval:
+                        intvlName = currentIntvl.directedName
+                    else:
+                        intvlName = currentIntvl.name
+                    if intvlName in intvlList:
+                        n1.color = 'red'
+                        n2.color = 'red'
+                        intvlsFound[intvlName] = intvlsFound.get(intvlName,0)+1
+                        showScore = True
+        if showScore:
+            for k in intvlsFound:
+                print('\t' + str(intvlsFound[k]), 'samples of', k,
+                  'found in this score')
+            print('\tShowing', scoreName)
+            loadedScore.show()
+            print('\n')
     
 ###############################################################################
 ###############################################################################

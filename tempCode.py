@@ -21,9 +21,10 @@ lyricsData = 'scores/lyricsdata.4.0.csv'
 #      'liushui', 'kuaiban']
 #ju = ['s', 's1', 's2', 'x']
 
-material = jSA.collectMaterial(lyricsData, hd=['laosheng'], sq=['xipi'])
-jSA.pitchHistogram(material)
+material = jSA.collectMaterial(lyricsData, bs=['erliu'])
+#jSA.pitchHistogram(material)
 jSA.intervalHistogram(material, directedInterval=False)
+#jSA.findInterval(material, 'm10', directedInterval=False)
 
 #jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
 
