@@ -623,7 +623,6 @@ def findInterval(material, intvlList, directedInterval=False,
                   'found in this score')
             print('\tShowing', scoreName)
             loadedScore.show()
-            print('\n')
     
 ###############################################################################
 ###############################################################################
