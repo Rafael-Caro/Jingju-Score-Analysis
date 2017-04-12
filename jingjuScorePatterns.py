@@ -247,11 +247,21 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
                 start = startEnd[0]
                 end = startEnd[1]
                 segment = notes.getElementsByOffset(start, end)
+                # For validation
+                segmentDuration = 0
+                for n in segment:
+                    segmentDuration += n.quarterLength*16
+                
+                # START RECODING
                 line = []
                 graceNote = 0 # It sotres the accumulated valued of grace notes
                               # to be substracted
                 notePreGrace = None # It stores the index of the note before
                                     # grace notes found
+                includeLyric = True # Check if there are several syllables into
+                                    # brackets that shouldn't be included
+                lyricAdjustment = 0 # Stores how many grace notes back the
+                                    # lyric should be added
                 for i in range(len(segment)):
                     n = segment[i]
                     # Check if n is note or rest    
@@ -259,21 +269,26 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
                         name = n.name
                         dur = n.quarterLength*16
                         lyr = False
-                    else: # If it is a note:
-                        # Check if it is a grace note:
-                        if n.quarterLength == 0:
+                    else: # If it is a note
+                        # Check if it is a grace note
+                        if n.quarterLength == 0: # It is a grace note, then
                             # Set name
                             if noteName == 'pitch':
                                 name = n.nameWithOctave
                             elif noteName == 'midi':
                                 name = n.pitch.midi
-                            # Set duration
+                            # Set duration with the value given
                             dur = graceNoteValue
                             # Accumulate grace note value to be subtracted
                             graceNote += graceNoteValue
+                            # Store the index of the previous note, if there is
+                            # one and is not a grace note
                             if (notePreGrace == None) and (len(line) > 0):
                                 notePreGrace = line.index(line[-1])
+                            # Set lyric
                             lyr = False
+                            # Update lyricAdjustment
+                            lyricAdjustment += -1
                         else:
                         # If it's not a grace note, then
                             # Set name
@@ -281,67 +296,136 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
                                 name = n.nameWithOctave
                             elif noteName == 'midi':
                                 name = n.pitch.midi
+
                             # Set duration
+                            currentNoteDur = n.quarterLength*16
                             # Check if there is some grace note value to be
                             # subtracted
-                            if (notePreGrace != None) and not n.hasLyrics():
-                            # Subtract grace note value from the previous note
-                                lastNote = line[notePreGrace]
-                                lastNoteDur = lastNote[1]
-                                currentNoteDur = n.quarterLength*16
-                                if lastNoteDur <= graceNote:
-                                    if currentNoteDur <= graceNote:
-                                        adjustment = 0
-                                        for j in range(notePreGrace+1, i):
-                                            note2change = line[j]
-                                            note2change[1] += -1
-                                            adjustment += 1
-                                        lastNote[1] += -(graceNote-adjustment)
+                            if graceNote > 0:
+                            # There is grace note(s) duration to be subtracted
+                                if n.hasLyrics():
+                                # Subtract grace note value from the current
+                                # note.
+                                # But check first if its duration is bigger
+                                # than the one of the grace note(s)
+                                    if currentNoteDur > graceNote:
+                                        dur = currentNoteDur - graceNote
+                                    else:
+                                    # Try to substract it from previous note
+                                        if notePreGrace != None:
+                                        # There is a previous note...
+                                            lastNote = line[notePreGrace]
+                                            lastNoteDur = lastNote[1]
+                                            if lastNoteDur > graceNote:
+                                            # ... and its duration is bigger
+                                            # than the grace note(s) duration
+                                                lastNote[1] += -graceNote
+                                                dur = currentNoteDur
+                                            else:
+                                            # But if not, adjust
+                                                adjustment = 0
+                                                for j in range(notePreGrace+1,
+                                                               i):
+                                                    note2adjust = line[j]
+                                                    note2adjust[1] += -1
+                                                    adjustment += 1
+                                                dur = (currentNoteDur -
+                                                       graceNote + adjustment)
+                                        else:
+                                        # There is no previous note, so adjust
+                                            adjustment = 0
+                                            for j in range(i):
+                                                note2adjust = line[j]
+                                                note2adjust[1] += -1
+                                                adjustment += 1
+                                            dur = (currentNoteDur - graceNote +
+                                                   adjustment)
+                                else:
+                                # Current note has no lyrics, the grace note(s)
+                                # duration is subtracted from the previous note
+                                # But check first if its duration is bigger
+                                # than the one of the grace note(s)
+                                    lastNote = line[notePreGrace]
+                                    lastNoteDur = lastNote[1]
+                                    if lastNoteDur > graceNote:
+                                    # It is bigger, duration of grace note(s)
+                                    # subtracted from previous note
+                                        lastNote[1] += -graceNote
                                         dur = currentNoteDur
                                     else:
-                                        dur = currentNoteDur - graceNote                                        
-                                else:
-                                    lastNote[1] += -graceNote
-                                    dur = currentNoteDur
+                                    # It is not bigger
+                                    # Check if the current note duration is
+                                    # bigger than the grace note(s) duration
+                                        if currentNoteDur > graceNote:
+                                        # It is bigger, so subtract
+                                            dur = currentNoteDur - graceNote
+                                        else:
+                                        # It is not bigger, so adjust
+                                            adjustment = 0
+                                            for j in range(notePreGrace, i):
+                                                note2adjust = line[j]
+                                                note2adjust[1] += -1
+                                                adjustment += 1
+                                            lastNote[1] += (-graceNote +
+                                                            adjustment)
+                                            dur = currentNoteDur
+                                    # Set lyricAdjustment to 0
+                                    lyricAdjustment = 0
                             else:
-                            # Subtract grace note value, if any, from current
-                            # note
-                                currentNoteDur = n.quarterLength*16
-                                if currentNoteDur <= graceNote:
-                                    lastNote = line[notePreGrace]
-                                    adjustment = 0
-                                    for j in range(notePreGrace+1, i):
-                                        note2change = line[j]
-                                        note2change[1] += -1
-                                        adjustment += 1
-                                    lastNote[1] += -(graceNote-adjustment)
-                                    dur = currentNoteDur
-                                else:
-                                    dur = currentNoteDur - graceNote
-                            # Set grace note counters to start
-                            notePreGrace = None
-                            graceNote = 0
+                            # There is no grace note(s) duration to subtract
+                                dur = currentNoteDur
+
                             #Check if it has a tie
                             if n.tie != None:
                                 if n.tie.type == 'start':
                                     dur += n.next().quarterLength*16
                                 else: continue
+
                             # Set lyric
                             if n.hasLyrics():
                                 # Check if the lyric is a padding syllable
-                                if '（' in n.lyric:
+                                if ('（' in n.lyric) and ('）' in n.lyric):
                                     lyr = False
+                                elif ('）' in n.lyric) and ('）' not in n.lyric):
+                                    lyr = False
+                                    includeLyric = False
+                                elif ('）' not in n.lyric) and ('）' in n.lyric):
+                                    lyr = False
+                                    includeLyric = True
                                 else:
-                                    lyr = n.hasLyrics()
+                                    if includeLyric:
+                                    # It is not a padding syllable
+                                        if lyricAdjustment == 0:
+                                        # It has no grace notes:
+                                            lyr = True
+                                        else:
+                                        # It has grace note(s):
+                                            line[lyricAdjustment][2] = True
+                                            lyr = False
+                                    else:
+                                        lyr = False
                             else:
-                                lyr = n.hasLyrics()
+                                lyr = False
+                            
+                            # Set all counters to start mode
+                            notePreGrace = None
+                            graceNote = 0
+                            lyricAdjustment = 0
+                            
                     if dur <= 0:
                         pos = str(n.offset)
                         message = ('\tDuration ' + str(dur) + ' in ' +
                                    scoreName + ', ' + pos)
-#                        raise Exception(message)
                         print(message)
                     line.append([name, dur, lyr])
+                
+                # For validation:
+                lineDuration = 0
+                for n in line:
+                    lineDuration += n[1]
+                print(segmentDuration, lineDuration)
+                if segmentDuration != lineDuration:
+                    print("Durations don't match at line", len(recodedScore))
                 recodedScore.append(line)
 
     return recodedScore
