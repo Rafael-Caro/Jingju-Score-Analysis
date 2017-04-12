@@ -32,6 +32,6 @@ if __name__=='__main__':
     
     material = jSA.collectJudouMaterial(args.csv, hd=args.hd, sq=args.sq,
                                    bs=args.bs, ju=args.ju)
-    s, m = jSP.concatenateSegments(material, title=args.title,
-                                   graceNoteValue=args.graceNoteDuration,
-                                   noteName=args.noteName)
+    s, m = jSP.recodeScore(material, title=args.title,
+                           graceNoteValue=args.graceNoteDuration,
+                           noteName=args.noteName)
