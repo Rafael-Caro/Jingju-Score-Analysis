@@ -63,9 +63,7 @@ import jingjuScorePatterns as jSP
 #        s.show()
 
 lyricsData = 'scores/lyricsdata4-unique.csv'
-material = jSA.collectJudouMaterial(lyricsData, hd=['dan'],
-                                    sq=['xipi'],
-                                    bs=['yuanban'])
-recodedScore, extendedMaterial = jSP.recodeScore(material,
-                                                 title='dan-xipi-yuanban.pkl')
+material = jSA.collectMaterial(lyricsData, hd=['laosheng'], sq=['xipi'],
+                               bs=['yuanban'], ju=['s'])
+syllables, notesPerSyl = jSA.melodicDensity(material, includeGraceNotes=False)
 #concatenatedScore, extendedMaterial = jSP.concatenateSegments(material)

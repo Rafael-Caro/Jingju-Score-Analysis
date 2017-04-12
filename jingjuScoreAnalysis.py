@@ -722,6 +722,87 @@ def findInterval(material, intvlList, directedInterval=False,
                   'found in this score')
             print('\tShowing', scoreName)
             loadedScore.show()
+
+
+
+def melodicDensity(material, includeGraceNotes=True):
+    '''list --> box plot
+    
+    It takes the list returned by the collectMaterial function, and returns
+    '''
+
+    syllables = []
+    notesPerSyl = []
+    
+    for score in material[1:]:
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notesAndRests.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                openParenthesis = False
+                graceNote = False
+                for i in range(len(segment)):
+                    n = segment[i]
+                    if n.isRest: continue
+                    if n.quarterLength==0:
+                        if not includeGraceNotes: continue
+                        j = 1
+                        while segment[i+j].quarterLength == 0:
+                            j += 1
+                        n2 = segment[i+j]
+                        if n2.hasLyrics():
+                            if (('（' in n2.lyric) or ('）' in n2.lyric) or
+                                openParenthesis):
+                                notesPerSyl[-1] += 1
+                            else:
+                                if graceNote:
+                                    notesPerSyl[-1] += 1
+                                else:
+                                    notesPerSyl.append(1)
+                                    syllables.append(n2.lyric)
+                                    graceNote = True
+                        else:
+                            notesPerSyl[-1] += 1
+                    else:
+                        if n.hasLyrics():
+                            # Check if the lyric is a padding syllable
+                            if ('（' in n.lyric) and ('）' in n.lyric):
+                                notesPerSyl[-1] += 1
+                            elif ('（' in n.lyric) and ('）' not in n.lyric):
+                                notesPerSyl[-1] += 1
+                                openParenthesis = True
+                            elif ('（' not in n.lyric) and ('）' in n.lyric):
+                                notesPerSyl[-1] += 1
+                                openParenthesis = False
+                            else:
+                                if openParenthesis:
+                                    notesPerSyl[-1] += 1
+                                elif graceNote:
+                                    notesPerSyl[-1] += 1
+                                    graceNote = False
+                                else:
+                                    notesPerSyl.append(1)
+                                    syllables.append(n.lyric)
+                        else:
+                            notesPerSyl[-1] += 1
+
+    for i in range(len(syllables)):
+        print(syllables[i], notesPerSyl[i])
+
+    return syllables, np.array(notesPerSyl)
     
 ###############################################################################
 ###############################################################################
