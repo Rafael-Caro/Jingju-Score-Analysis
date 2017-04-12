@@ -284,7 +284,7 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
                             # Store the index of the previous note, if there is
                             # one and is not a grace note
                             if (notePreGrace == None) and (len(line) > 0):
-                                notePreGrace = line.index(line[-1])
+                                notePreGrace = len(line)-1
                             # Set lyric
                             lyr = False
                             # Update lyricAdjustment
@@ -386,10 +386,10 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
                                 # Check if the lyric is a padding syllable
                                 if ('（' in n.lyric) and ('）' in n.lyric):
                                     lyr = False
-                                elif ('）' in n.lyric) and ('）' not in n.lyric):
+                                elif ('（' in n.lyric) and ('）' not in n.lyric):
                                     lyr = False
                                     includeLyric = False
-                                elif ('）' not in n.lyric) and ('）' in n.lyric):
+                                elif ('（' not in n.lyric) and ('）' in n.lyric):
                                     lyr = False
                                     includeLyric = True
                                 else:
@@ -423,7 +423,6 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
                 lineDuration = 0
                 for n in line:
                     lineDuration += n[1]
-                print(segmentDuration, lineDuration)
                 if segmentDuration != lineDuration:
                     print("Durations don't match at line", len(recodedScore))
                 recodedScore.append(line)
