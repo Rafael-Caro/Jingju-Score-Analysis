@@ -381,9 +381,9 @@ def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
 
                             #Check if it has a tie
                             if n.tie != None:
-                                if n.tie.type == 'start':
-                                    dur += n.next().quarterLength*16
-                                else: continue
+                                if n.tie.type != 'start':
+                                    line[-1][1] += currentNoteDur
+                                    continue
 
                             # Set lyric
                             if n.hasLyrics():
@@ -428,7 +428,9 @@ def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
                 for n in line:
                     lineDuration += n[1]
                 if segmentDuration != lineDuration:
-                    print("Durations don't match at line", len(recodedScore))
+                    print("\tDurations don't match at line", len(recodedScore))
+                    print("\tSegment length: " + str(segmentDuration) +
+                          ", line length: " + str(lineDuration))
                 recodedScore.append(line)
     
     # Extend material list

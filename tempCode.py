@@ -12,7 +12,7 @@ import jingjuScores as jS
 import jingjuScoreAnalysis as jSA
 import jingjuScorePatterns as jSP
 
-diacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
+#diacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
 
 lyricsData = 'scores/lyricsdata.4.0.csv'
 
@@ -62,7 +62,7 @@ lyricsData = 'scores/lyricsdata.4.0.csv'
 #        scores2change.append(score)
 #        s.show()
 
-material = jSA.collectJudouMaterial(lyricsData, sq=['xipi'], bs=['sanyan'],
-                                    ju=['x'])
-recodedScore, extendedMaterial = jSP.recodeScore(material, noteName='midi')
+material = jSA.collectJudouMaterial(lyricsData, hd=['laosheng'], sq=['erhuang'])
+recodedScore, extendedMaterial = jSP.recodeScore(material,
+                                                 title='laosheng-erhuang.pkl')
 #concatenatedScore, extendedMaterial = jSP.concatenateSegments(material)
