@@ -14,7 +14,7 @@ import jingjuScorePatterns as jSP
 
 #diacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
 
-lyricsData = 'scores/lyricsdata.4.0.csv'
+#lyricsData = 'scores/lyricsdata.4.0.csv'
 
 #hd=['laosheng', 'dan']
 #sq=['erhuang', 'xipi']
@@ -62,8 +62,10 @@ lyricsData = 'scores/lyricsdata.4.0.csv'
 #        scores2change.append(score)
 #        s.show()
 
-#lyricsData = 'scores/lyricsdataTest.csv'
-material = jSA.collectJudouMaterial(lyricsData)
-recodedScore, extendedMaterial = jSP.recodeScore(material)
-#                                                 title='laosheng-xipi.pkl')
+lyricsData = 'scores/lyricsdata4-unique.csv'
+material = jSA.collectJudouMaterial(lyricsData, hd=['dan'],
+                                    sq=['xipi'],
+                                    bs=['yuanban'])
+recodedScore, extendedMaterial = jSP.recodeScore(material,
+                                                 title='dan-xipi-yuanban.pkl')
 #concatenatedScore, extendedMaterial = jSP.concatenateSegments(material)
