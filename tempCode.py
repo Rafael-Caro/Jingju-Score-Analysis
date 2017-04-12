@@ -62,7 +62,8 @@ lyricsData = 'scores/lyricsdata.4.0.csv'
 #        scores2change.append(score)
 #        s.show()
 
-material = jSA.collectJudouMaterial(lyricsData, hd=['laosheng'], sq=['erhuang'])
-recodedScore, extendedMaterial = jSP.recodeScore(material,
-                                                 title='laosheng-erhuang.pkl')
+#lyricsData = 'scores/lyricsdataTest.csv'
+material = jSA.collectJudouMaterial(lyricsData)
+recodedScore, extendedMaterial = jSP.recodeScore(material)
+#                                                 title='laosheng-xipi.pkl')
 #concatenatedScore, extendedMaterial = jSP.concatenateSegments(material)

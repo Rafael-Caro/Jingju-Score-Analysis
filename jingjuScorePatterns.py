@@ -254,11 +254,19 @@ def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
                 segmentDuration = 0
                 for n in segment:
                     segmentDuration += n.quarterLength*16
+                if segment[-1].isRest:
+                    segmentDuration += -segment[-1].quarterLength*16
+                    r = -2
+                    while segment[r].quarterLength == 0:
+                        segmentDuration += graceNoteValue
+                        r += -1
+                if segment[-1].quarterLength == 0:
+                    segmentDuration += graceNoteValue
                 
                 # START RECODING
                 line = []
                 lineInfo.append([scoreIndex, partIndex, segmentIndex])
-                graceNote = 0 # It sotres the accumulated valued of grace notes
+                graceNote = 0 # It stores the accumulated dur of grace notes
                               # to be substracted
                 notePreGrace = None # It stores the index of the note before
                                     # grace notes found
@@ -382,8 +390,16 @@ def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
                             #Check if it has a tie
                             if n.tie != None:
                                 if n.tie.type != 'start':
-                                    line[-1][1] += currentNoteDur
-                                    continue
+                                    # Check if there is a grace note
+                                    if graceNote > 0:
+                                    # There is a grace note, so current note
+                                    # counts as not tied
+                                        dur = currentNoteDur
+                                    else:
+                                    # There is no grace note, so add the dur
+                                    # to the previous tied note
+                                        line[-1][1] += currentNoteDur
+                                        continue
 
                             # Set lyric
                             if n.hasLyrics():
@@ -422,6 +438,10 @@ def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
                                    scoreName + ', ' + pos)
                         print(message)
                     line.append([name, dur, lyr])
+                
+                # Check if last note is a rest
+                if line[-1][0] == 'rest':
+                    line.pop(-1)
                 
                 # For validation:
                 lineDuration = 0
