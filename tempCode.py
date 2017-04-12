@@ -62,7 +62,7 @@ lyricsData = 'scores/lyricsdata.4.0.csv'
 #        scores2change.append(score)
 #        s.show()
 
-lyricsDataTest = 'scores/lyricsdataTest.csv'
 material = jSA.collectJudouMaterial(lyricsData, sq=['xipi'], bs=['sanyan'],
                                     ju=['x'])
-recodedScore = jSP.recodeScore(material, noteName='midi')
+recodedScore, extendedMaterial = jSP.recodeScore(material, noteName='midi')
+#concatenatedScore, extendedMaterial = jSP.concatenateSegments(material)

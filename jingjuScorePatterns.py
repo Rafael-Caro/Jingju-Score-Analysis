@@ -212,7 +212,7 @@ def plotPatterns(concatenatedScore, inputFile, resultsFile, ):#, extendedMateria
         print('Displaying', pat)
         score.show()
 
-def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
+def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
     '''
     '''
 
@@ -225,8 +225,11 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
     print('The duration value for grace notes is ' + str(graceNoteValue) + 
           ' duration units')
 
-    # Start recoding
+    # List the recoded score
     recodedScore = []
+    
+    # Store information for line retrieval
+    lineInfo = []
     
     for scoreIndex in range(1, len(material)):
         score = material[scoreIndex]
@@ -254,6 +257,7 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
                 
                 # START RECODING
                 line = []
+                lineInfo.append([scoreIndex, partIndex, segmentIndex])
                 graceNote = 0 # It sotres the accumulated valued of grace notes
                               # to be substracted
                 notePreGrace = None # It stores the index of the note before
@@ -426,5 +430,18 @@ def recodeScore(material, graceNoteValue=2.0, noteName='pitch'):
                 if segmentDuration != lineDuration:
                     print("Durations don't match at line", len(recodedScore))
                 recodedScore.append(line)
+    
+    # Extend material list
+    if len(lineInfo) != len(recodedScore):
+        print('Possible problem with the information for line retrieval')
+    extendedMaterial = copy.deepcopy(material)
+    extendedMaterial.append(lineInfo)
 
-    return recodedScore
+    # Dump the list into a pickle file    
+    if title != None:
+        with open(title, 'wb') as f:
+            pickle.dump(recodedScore, f, protocol=2)
+        with open(title[:-4]+'_material.pkl', 'wb') as f:
+            pickle.dump(extendedMaterial, f, protocol=2)
+
+    return recodedScore, extendedMaterial
