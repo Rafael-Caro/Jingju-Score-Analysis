@@ -25,7 +25,7 @@ if __name__=='__main__':
     parser.add_argument('--sq', nargs='*', help='shengqiang which the search would be restricted to', default=default_sq)
     parser.add_argument('--bs', nargs='*', help='banshi which the search would be restricted to', default=default_bs)
     parser.add_argument('--ju', nargs='*', help='line type which the search would be restricted to', default=default_ju)
-    parser.add_argument('-g', '--graceNoteDuration', help='duration given to grace notes', default=2.0)
+    parser.add_argument('-g', '--graceNoteDuration', help='duration given to grace notes', default='2.0')
     parser.add_argument('-n', '--noteName', help='note pitch can be output as pitch name or midi value', default='pitch')
     
     args = parser.parse_args()
@@ -33,5 +33,5 @@ if __name__=='__main__':
     material = jSA.collectJudouMaterial(args.csv, hd=args.hd, sq=args.sq,
                                    bs=args.bs, ju=args.ju)
     s, m = jSP.recodeScore(material, title=args.title,
-                           graceNoteValue=args.graceNoteDuration,
+                           graceNoteValue=float(args.graceNoteDuration),
                            noteName=args.noteName)
