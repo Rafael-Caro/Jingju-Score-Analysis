@@ -725,11 +725,14 @@ def findInterval(material, intvlList, directedInterval=False,
 
 
 
-def melodicDensity(material, includeGraceNotes=True):
+def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
     '''list --> box plot
     
     It takes the list returned by the collectMaterial function, and returns
     '''
+    
+    if notesOrDuration not in ['notes', 'duration']:
+        raise Exception('The given value for notesOrDuration is not correct')
 
     syllables = []
     notesPerSyl = []
@@ -756,6 +759,10 @@ def melodicDensity(material, includeGraceNotes=True):
                 graceNote = False
                 for i in range(len(segment)):
                     n = segment[i]
+                    if notesOrDuration == 'notes':
+                        value = 1
+                    else:
+                        value = n.quarterLength
                     if n.isRest: continue
                     if n.quarterLength==0:
                         if not includeGraceNotes: continue
@@ -766,38 +773,38 @@ def melodicDensity(material, includeGraceNotes=True):
                         if n2.hasLyrics():
                             if (('（' in n2.lyric) or ('）' in n2.lyric) or
                                 openParenthesis):
-                                notesPerSyl[-1] += 1
+                                notesPerSyl[-1] += value
                             else:
                                 if graceNote:
-                                    notesPerSyl[-1] += 1
+                                    notesPerSyl[-1] += value
                                 else:
-                                    notesPerSyl.append(1)
+                                    notesPerSyl.append(value)
                                     syllables.append(n2.lyric)
                                     graceNote = True
                         else:
-                            notesPerSyl[-1] += 1
+                            notesPerSyl[-1] += value
                     else:
                         if n.hasLyrics():
                             # Check if the lyric is a padding syllable
                             if ('（' in n.lyric) and ('）' in n.lyric):
-                                notesPerSyl[-1] += 1
+                                notesPerSyl[-1] += value
                             elif ('（' in n.lyric) and ('）' not in n.lyric):
-                                notesPerSyl[-1] += 1
+                                notesPerSyl[-1] += value
                                 openParenthesis = True
                             elif ('（' not in n.lyric) and ('）' in n.lyric):
-                                notesPerSyl[-1] += 1
+                                notesPerSyl[-1] += value
                                 openParenthesis = False
                             else:
                                 if openParenthesis:
-                                    notesPerSyl[-1] += 1
+                                    notesPerSyl[-1] += value
                                 elif graceNote:
-                                    notesPerSyl[-1] += 1
+                                    notesPerSyl[-1] += value
                                     graceNote = False
                                 else:
-                                    notesPerSyl.append(1)
+                                    notesPerSyl.append(value)
                                     syllables.append(n.lyric)
                         else:
-                            notesPerSyl[-1] += 1
+                            notesPerSyl[-1] += value
 
     for i in range(len(syllables)):
         print(syllables[i], notesPerSyl[i])

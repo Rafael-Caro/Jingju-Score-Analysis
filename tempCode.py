@@ -30,20 +30,20 @@ import jingjuScorePatterns as jSP
 #jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
 
 
-
-#lyricsData = 'scores/lyricsdata4-unique.csv'
-#material = jSA.collectMaterial(lyricsData, hd=['laosheng'], sq=['xipi'],
-#                               bs=['yuanban'], ju=['s'])
-#syllables, notesPerSyl = jSA.melodicDensity(material, includeGraceNotes=False)
+#lyricsData = 'scores/lyricsdataTest.csv'
+lyricsData = 'scores/lyricsdata4-unique.csv'
+material = jSA.collectMaterial(lyricsData, hd=['laosheng'], sq=['xipi'],
+                               bs=['yuanban'], ju=['s'])
+syllables, notesPerSyl = jSA.melodicDensity(material, notesOrDuration='notes')
 #concatenatedScore, extendedMaterial = jSP.concatenateSegments(material)
 
-path = '../CONFERENCES/2017.10 ISMIR/Patterning/'
-
-concatenatedScore = path + 'scores/laosheng-erhuang-yuanban.xml'
-
-#resultsFile = path + 'results/Tom/laosheng-erhuang-yuanban_SIARCT-C.txt'
-resultsFile = path + 'results/Rong/knn5_laosheng-erhuang-yuanban.pkl'
-extendedMaterial = path + 'scores/laosheng-erhuang-yuanban_material.pkl'
-
-#results = jSP.showResultPatterns(resultsFile, concatenatedScore)
-patterns, material = jSP.showRongPatterns(resultsFile, extendedMaterial)
+#path = '../CONFERENCES/2017.10 ISMIR/Patterning/'
+#
+#concatenatedScore = path + 'scores/laosheng-erhuang-yuanban.xml'
+#
+##resultsFile = path + 'results/Tom/laosheng-erhuang-yuanban_SIARCT-C.txt'
+#resultsFile = path + 'results/Rong/knn5_laosheng-erhuang-yuanban.pkl'
+#extendedMaterial = path + 'scores/laosheng-erhuang-yuanban_material.pkl'
+#
+##results = jSP.showResultPatterns(resultsFile, concatenatedScore)
+#patterns, material = jSP.showRongPatterns(resultsFile, extendedMaterial)
