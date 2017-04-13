@@ -485,3 +485,34 @@ def showResultPatterns(resultsFile, concatenatedScore=None):
             
             print('\tDisplaying', pat)
             score.show()
+
+
+
+def plotFoundPatterns(resultsPickle, showScore=True):
+    '''
+    '''
+    
+    with open(resultsPickle, 'rb') as f:
+        patterns = pickle.load(f)
+    
+    for i in range(len(patterns)):
+        pattern = patterns[i]
+        occurrences = len(pattern)
+        print ('Pattern', i+1, 'with', occurrences, 'occurrences')
+        if showScore:
+            scoreTitle = 'Pattern ' + str(i+1) + ': (' + str(occurrences) + ')'
+            score = stream.Score()
+            score.insert(0, metadata.Metadata(movementName = scoreTitle))
+            for occ in pattern:
+                stave = stream.Stream()
+                for nota in occ[:-1]:
+                    if nota[0] == 'rest':
+                        r = note.Rest()
+                        r.quarterLength = nota[1] / 16
+                        stave.append(r)
+                    else:
+                        n = note.Note(nota[0])
+                        n.quarterLength = nota[1] / 16
+                        stave.append(n)
+                score.insert(0, stave)
+            score.show()

@@ -41,6 +41,8 @@ path = '../CONFERENCES/2017.10 ISMIR/Patterning/'
 
 concatenatedScore = path + 'scores/laosheng-erhuang-yuanban.xml'
 
-resultsFile = path + 'results/Tom/laosheng-erhuang-yuanban_SIARCT-C.txt'
+#resultsFile = path + 'results/Tom/laosheng-erhuang-yuanban_SIARCT-C.txt'
+resultsFile = path + 'results/Rong/knn5_laosheng-erhuang.pkl'
 
-results = jSP.showResultPatterns(resultsFile, concatenatedScore)
+#results = jSP.showResultPatterns(resultsFile, concatenatedScore)
+jSP.plotFoundPatterns(resultsFile, showScore=False)
