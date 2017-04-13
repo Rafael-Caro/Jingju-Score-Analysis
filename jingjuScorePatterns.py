@@ -132,85 +132,8 @@ def concatenateSegments(material, title=None):
     print('Done!')
     
     return concatenatedScore, extendedMaterial
-    
-def plotPatterns(concatenatedScore, inputFile, resultsFile, ):#, extendedMaterial):
-    '''str, str, str --> dic
-    {str:{str:[[float, float]]}}
-    '''
 
-    # Equivalents of morphetic pitches as pitch names with octave in the range
-    # of the corpus score for E major
-    morphPitchs = {56: 'F#3', 57: 'G#3', 58: 'A3', 59: 'B3', 60: 'C#4',
-                   61: 'D#4', 62: 'E4', 63: 'F#4', 64: 'G#4', 65: 'A4',
-                   66: 'B4', 67: 'C#5', 68: 'D#5', 69: 'E5', 70: 'F#5',
-                   71: 'G#5', 72: 'A5', 73: 'B5', 74: 'C#6'}    
-    
-    with open(inputFile, 'r') as f:
-        inputData = f.readlines()
-    
-    with open(resultsFile, 'r') as f:
-        resultsData = f.readlines()
-    
-    patterns = {}
-    
-    # Storing the patterns in the text file into a dictionary
-    for l in resultsData:
-        line = l.strip()
-        if len(line) == 0: continue
-        if 'pattern' in line:
-            pattern = line
-            patterns[pattern] = {}
-        elif 'occurrence' in line:
-            occurrence = line
-            patterns[pattern][occurrence] = []
-        else:
-            pos = float(line.split(', ')[0])
-            mid = float(line.split(', ')[1])
-            patterns[pattern][occurrence].append([pos, mid])
-            
-    # Order notes in each pattern occurrence by time position
-    for pat in patterns.keys():
-        for occ in patterns[pat]:
-            patterns[pat][occ] = sorted(patterns[pat][occ])
-    
-    patternsNumber = len(patterns.keys())
-    print(patternsNumber, 'patterns contained in the results file')
-    
-    sortedPatterns = sorted(patterns.keys())
-            
-    # Plot all patterns in the score
-    for pat in sortedPatterns:
-        pattern = patterns[pat]
-        occurrencesNumber = len(pattern.keys())
-        print(pat, 'with', occurrencesNumber, 'occurrences')
-        # Parsing score
-        score = converter.parse(concatenatedScore)
-        scoreName = concatenatedScore.split('/')[-1]
-        print(scoreName, 'parsed')
-        notes = score.flat.notes.stream()
-            
-        for occ in pattern:
-            # Convert morphetic pitch into pitch names with octave
-            occurrence = pattern[occ]
-            occPitch = copy.deepcopy(occurrence)
-            for n in occPitch:
-                morphPitch = n[1]
-                n[1] = morphPitchs[morphPitch]
-        
-            # Find notes from pattern according to the offsets
-            for occNote in occPitch:
-                pos = occNote[0]
-                name1 = occNote[1]
-                scoreNote = notes.getElementsByOffset(pos)
-                for n in scoreNote:
-                    name2 = n.nameWithOctave
-                    if name1 == name2:
-                        n.color = 'red'
-                    else:
-                        print('Possible problem at', pos)
-        
-        print('Displaying', pat)
-        score.show()
+
 
 def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
     '''
@@ -467,3 +390,95 @@ def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
             pickle.dump(extendedMaterial, f, protocol=2)
 
     return recodedScore, extendedMaterial
+
+
+
+def showResultPatterns(resultsFile, concatenatedScore=None):
+    '''str, str, str --> dic
+    {str:{str:[[float, float]]}}
+    '''
+
+    # Equivalents of morphetic pitches as pitch names with octave in the range
+    # of the corpus score for E major
+    morphPitchs = {56: 'F#3', 57: 'G#3', 58: 'A3', 59: 'B3', 60: 'C#4',
+                   61: 'D#4', 62: 'E4', 63: 'F#4', 64: 'G#4', 65: 'A4',
+                   66: 'B4', 67: 'C#5', 68: 'D#5', 69: 'E5', 70: 'F#5',
+                   71: 'G#5', 72: 'A5', 73: 'B5', 74: 'C#6'}
+    
+    with open(resultsFile, 'r') as f:
+        resultsData = f.readlines()
+    
+    patterns = {}
+    
+    # Storing the patterns in the text file into a dictionary
+    for l in resultsData:
+        line = l.strip()
+        if len(line) == 0: continue
+        if 'pattern' in line:
+            pattern = line
+            patterns[pattern] = {}
+        elif 'occurrence' in line:
+            occurrence = line
+            patterns[pattern][occurrence] = []
+        else:
+            pos = float(line.split(', ')[0])
+            mid = float(line.split(', ')[1])
+            patterns[pattern][occurrence].append([pos, mid])
+            
+    # Order notes in each pattern occurrence by time position
+    for pat in patterns.keys():
+        for occ in patterns[pat]:
+            patterns[pat][occ] = sorted(patterns[pat][occ])
+    
+    patternsNumber = len(patterns.keys())
+    print(patternsNumber, 'patterns contained in the results file')
+    
+    patterns2sort = {}
+    patternNames = patterns.keys()
+    for patternName in patternNames:
+        number = int(patternName[7:])
+        patterns2sort[number] = patternName
+    sortedPatterns = [patterns2sort[x] for x in sorted(patterns2sort.keys())]
+    
+    if concatenatedScore == None:
+        for pat in sortedPatterns:
+            occLengths = [len(patterns[pat][x]) for x in patterns[pat]]
+            avg = round(sum(occLengths) / len(occLengths), 2)
+            print(pat, 'with', len(patterns[pat]), 'occurrences (avg', avg,
+                  'notes)')
+        return patterns
+    
+    else:
+        # Plot all patterns in the score
+        for pat in sortedPatterns:
+            pattern = patterns[pat]
+            occurrencesNumber = len(pattern.keys())
+            print(pat, 'with', occurrencesNumber, 'occurrences')
+            # Parsing score
+            score = converter.parse(concatenatedScore)
+            scoreName = concatenatedScore.split('/')[-1]
+            print(scoreName, 'parsed')
+            notes = score.flat.notes.stream()
+                
+            for occ in pattern:
+                # Convert morphetic pitch into pitch names with octave
+                occurrence = pattern[occ]
+                occPitch = copy.deepcopy(occurrence)
+                for n in occPitch:
+                    morphPitch = n[1]
+                    n[1] = morphPitchs[morphPitch]
+            
+                # Find notes from pattern according to the offsets
+                for occNote in occPitch:
+                    pos = occNote[0]
+                    name1 = occNote[1]
+                    scoreNote = notes.getElementsByOffset(pos)
+                    for n in scoreNote:
+                        name2 = n.nameWithOctave
+                        if name1 == name2:
+                            n.color = 'red'
+                        else:
+                            print('Possible problem at', pos)
+            
+            print('Displaying', pat)
+            score.show()

@@ -29,41 +29,18 @@ import jingjuScorePatterns as jSP
 
 #jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
 
-#a = jSA.getAmbitus(material)
 
-#scores = jSA.findScore(material, 'E4', 'low')
 
-#allfiles = os.listdir('scores/')
-#
-#shengscores = []
-#
-#for f in allfiles:
-#    if f[:2] == 'ls':
-#        shengscores.append('scores/' + f)
-#
-#scores2change = []
-#
-#for score in shengscores:
-#    includeScore = False
-#    s = converter.parse(score)
-#    print(score.split('/')[-1], 'parsed')
-#    p = jS.findVoiceParts(s)[0]
-#    notes = p.flat.notes.stream()
-#    for n in notes:
-##        if n.nameWithOctave == 'C##4':
-##            n.color = 'red'
-##            includeScore = True
-##    if includeScore: s.show()
-#        m = n.pitch.midi
-#        if m > pitch.Pitch('C#5').midi:
-#            includeScore = True
-#            n.color = 'red'
-#    if includeScore:
-#        scores2change.append(score)
-#        s.show()
-
-lyricsData = 'scores/lyricsdata4-unique.csv'
-material = jSA.collectMaterial(lyricsData, hd=['laosheng'], sq=['xipi'],
-                               bs=['yuanban'], ju=['s'])
-syllables, notesPerSyl = jSA.melodicDensity(material, includeGraceNotes=False)
+#lyricsData = 'scores/lyricsdata4-unique.csv'
+#material = jSA.collectMaterial(lyricsData, hd=['laosheng'], sq=['xipi'],
+#                               bs=['yuanban'], ju=['s'])
+#syllables, notesPerSyl = jSA.melodicDensity(material, includeGraceNotes=False)
 #concatenatedScore, extendedMaterial = jSP.concatenateSegments(material)
+
+path = '../CONFERENCES/2017.10 ISMIR/Patterning/'
+
+concatenatedScore = path + 'scores/laosheng-erhuang-yuanban.xml'
+
+resultsFile = path + 'results/Tom/laosheng-erhuang-yuanban_SIARCT-C.txt'
+
+results = jSP.showResultPatterns(resultsFile, concatenatedScore)
