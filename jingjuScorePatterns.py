@@ -516,3 +516,22 @@ def plotFoundPatterns(resultsPickle, showScore=True):
                         stave.append(n)
                 score.insert(0, stave)
             score.show()
+
+
+
+def showRongPatterns(resultsPickle, extendedMaterial, concatenated=True):
+    '''
+    '''
+    with open(resultsPickle, 'rb') as f:
+        patterns = pickle.load(f)
+    
+    with open(extendedMaterial, 'rb') as f:
+        material = pickle.load(f)
+    
+    for i in range(len(patterns)):
+        pattern = patterns[i]
+        occurrences = len(pattern)
+        print ('Pattern', i+1, 'with', occurrences, 'occurrences')
+        for occ in pattern:
+            locator = occ[-1]
+    return patterns, material
