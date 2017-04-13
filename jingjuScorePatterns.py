@@ -456,8 +456,11 @@ def showResultPatterns(resultsFile, concatenatedScore=None):
             print(pat, 'with', occurrencesNumber, 'occurrences')
             # Parsing score
             score = converter.parse(concatenatedScore)
+            scoreTitle = (resultsFile.split('/')[-1][:-4] + ': ' + pat + ' (' +
+                          str(len(patterns[pat])) + ')')
+            score.metadata.movementName = scoreTitle
             scoreName = concatenatedScore.split('/')[-1]
-            print(scoreName, 'parsed')
+            print('\t' + scoreName + 'parsed')
             notes = score.flat.notes.stream()
                 
             for occ in pattern:
@@ -478,7 +481,7 @@ def showResultPatterns(resultsFile, concatenatedScore=None):
                         if name1 == name2:
                             n.color = 'red'
                         else:
-                            print('Possible problem at', pos)
+                            print('\t\tPossible problem at', pos)
             
-            print('Displaying', pat)
+            print('\tDisplaying', pat)
             score.show()
