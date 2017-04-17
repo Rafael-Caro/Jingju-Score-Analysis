@@ -158,6 +158,6 @@ lyricsData = 'scores/lyricsdata.4.0.csv'
 
 material = jSA.collectMaterial(lyricsData, hd=['dan'], sq=['xipi'],
                                bs=['yuanban'])
-jSA.pitchHistogram(material)
-jSA.intervalHistogram(material)
-    
+#jSA.pitchHistogram(material)
+#jSA.intervalHistogram(material)
+jSA.melodicDensity(material, notesOrDuration='notes')

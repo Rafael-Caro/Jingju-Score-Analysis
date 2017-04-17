@@ -208,8 +208,9 @@ def collectJudouMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
 
 
 
-def plotting(xPositions, xLabels, yValues, limX=None, limY=None, yLabel=None,
-             col=None, h=None, scaleGuides=False, width=0.8):
+def plotting(xPositions, xLabels, yValues, title=None, limX=None, xLabel=None,
+             limY=None, yLabel=None, col=None, h=None, scaleGuides=False,
+             width=0.8):
 
     plt.figure()
     plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
@@ -223,15 +224,18 @@ def plotting(xPositions, xLabels, yValues, limX=None, limY=None, yLabel=None,
         plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
     for yValue in yValues:
         plt.axhline(y=yValue, color='gray', ls=':', zorder=0)
-    plt.xticks(xPositions + width/2, xLabels, rotation=90)
+    plt.xticks(xPositions + width/2, xLabels, rotation=90, fontsize=20)
+    plt.yticks(fontsize=18)
     if limX != None:
         plt.xlim(limX[0]-(1-width), limX[1]+1)
     else:
         plt.xlim(xPositions[0]-(1-width), xPositions[-1]+1)
     if limY != None:
         plt.ylim(limY[0], limY[1])
+    if xLabel != None:
+        plt.xlabel(xLabel, fontsize=32)
     if yLabel != None:
-        plt.ylabel(yLabel)
+        plt.ylabel(yLabel, fontsize=20)
     plt.tight_layout()
     print('Done!')
     plt.show()
@@ -366,8 +370,9 @@ def pitchHistogram(material, count='sum', countGraceNotes=True):
     if count == 'sum':
         limY = [0, 0.3]
 
-    plotting(xPositions, xLabels, yValues, limX=limX, limY=limY, yLabel=yLabel,
-             col=col, h=h, scaleGuides=True)
+    plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Pitch',
+             limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
+             width=0.8)
 
 
 
@@ -468,8 +473,9 @@ def intervalHistogram(material, count='sum', directedInterval=False,
         else:
             limY = [0, 0.45]
 
-    plotting(xPositions, xLabels, yValues, limX=limX, limY=limY, yLabel=yLabel,
-             col=col, h=h, scaleGuides=True)
+    plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Interval',
+             limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
+             width=0.4)
 
 
 
@@ -767,8 +773,10 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
                     if n.quarterLength==0:
                         if not includeGraceNotes: continue
                         j = 1
-                        while segment[i+j].quarterLength == 0:
+                        while (i+j<len(segment) and
+                               segment[i+j].quarterLength==0):
                             j += 1
+                        if i+j == len(segment): continue
                         n2 = segment[i+j]
                         if n2.hasLyrics():
                             if (('（' in n2.lyric) or ('）' in n2.lyric) or
