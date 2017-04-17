@@ -741,7 +741,8 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
         raise Exception('The given value for notesOrDuration is not correct')
 
     syllables = []
-    notesPerSyl = []
+    totalCount = []
+    accumulatedCount = []
     
     for score in material[1:]:
         # Loading the score to get the parts list
@@ -749,6 +750,7 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
+        localCount = []
         parts = jS.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
@@ -781,43 +783,71 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
                         if n2.hasLyrics():
                             if (('（' in n2.lyric) or ('）' in n2.lyric) or
                                 openParenthesis):
-                                notesPerSyl[-1] += value
+                                localCount[-1] += value
+                                accumulatedCount[-1] += value
                             else:
                                 if graceNote:
-                                    notesPerSyl[-1] += value
+                                    localCount[-1] += value
+                                    accumulatedCount[-1] += value
                                 else:
-                                    notesPerSyl.append(value)
+                                    localCount.append(value)
+                                    accumulatedCount.append(value)
                                     syllables.append(n2.lyric)
                                     graceNote = True
                         else:
-                            notesPerSyl[-1] += value
+                            localCount[-1] += value
+                            accumulatedCount[-1] += value
                     else:
                         if n.hasLyrics():
                             # Check if the lyric is a padding syllable
                             if ('（' in n.lyric) and ('）' in n.lyric):
-                                notesPerSyl[-1] += value
+                                localCount[-1] += value
+                                accumulatedCount[-1] += value
                             elif ('（' in n.lyric) and ('）' not in n.lyric):
-                                notesPerSyl[-1] += value
+                                localCount[-1] += value
+                                accumulatedCount[-1] += value
                                 openParenthesis = True
                             elif ('（' not in n.lyric) and ('）' in n.lyric):
-                                notesPerSyl[-1] += value
+                                localCount[-1] += value
+                                accumulatedCount[-1] += value
                                 openParenthesis = False
                             else:
                                 if openParenthesis:
-                                    notesPerSyl[-1] += value
+                                    localCount[-1] += value
+                                    accumulatedCount[-1] += value
                                 elif graceNote:
-                                    notesPerSyl[-1] += value
+                                    localCount[-1] += value
+                                    accumulatedCount[-1] += value
                                     graceNote = False
                                 else:
-                                    notesPerSyl.append(value)
+                                    localCount.append(value)
+                                    accumulatedCount.append(value)
                                     syllables.append(n.lyric)
                         else:
-                            notesPerSyl[-1] += value
+                            localCount[-1] += value
+                            accumulatedCount[-1] += value
+        totalCount.append(localCount)
 
-    for i in range(len(syllables)):
-        print(syllables[i], notesPerSyl[i])
+#    for i in range(len(syllables)):
+#        print(syllables[i], notesPerSyl[i])
 
-    return syllables, np.array(notesPerSyl)
+    totalCount.append(accumulatedCount)
+
+#    notesPerSyl = np.array(notesPerSyl)
+
+    xLabels = [str(i) for i in range(1, len(totalCount))]
+    xLabels.append('Avg')
+
+    plt.boxplot(totalCount)
+    plt.xticks(range(1, len(totalCount)+1), xLabels, fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.axvline(x=len(totalCount)-0.5, ls='--', color='red')
+    plt.xlabel('Sample scores', fontsize=32)
+    plt.ylabel('Duration per quarter note', fontsize=20)
+    plt.tight_layout()
+    plt.show()
+
+    return totalCount
     
 ###############################################################################
 ###############################################################################

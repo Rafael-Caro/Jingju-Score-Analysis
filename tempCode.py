@@ -160,4 +160,4 @@ material = jSA.collectMaterial(lyricsData, hd=['dan'], sq=['xipi'],
                                bs=['yuanban'])
 #jSA.pitchHistogram(material)
 #jSA.intervalHistogram(material)
-jSA.melodicDensity(material, notesOrDuration='notes')
+totalCount = jSA.melodicDensity(material, notesOrDuration='duration')
