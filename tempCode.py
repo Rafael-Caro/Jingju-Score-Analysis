@@ -17,11 +17,14 @@ import pickle
 
 lyricsData = 'scores/lyricsdata.4.0.csv'
 
-#path = '../CONFERENCES/2017.10 ISMIR/Patterning/'
-#inputScoreFile = path + 'scores/laosheng-xipi-yuanban.pkl'
-#materialFile = path + 'scores/laosheng-xipi-yuanban_material.pkl'
-#resultsFile = path + 'results/Rong/knn5_laosheng-xipi-yuanban.pkl'
-#
+path = '../CONFERENCES/2017.10 ISMIR/Patterning/'
+inputScoreFile = path + 'scores/laosheng-xipi-yuanban.pkl'
+materialFile = path + 'scores/laosheng-xipi-yuanban_material.pkl'
+resultsFile = path + 'results/Rong/knn5_laosheng-xipi-yuanban.pkl'
+
+jSP.showPatternsFromPickle(lyricsData, materialFile, inputScoreFile,
+                           resultsFile)
+
 #with open(inputScoreFile, 'rb') as f:
 #    inputScore = pickle.load(f)
 #
@@ -155,9 +158,3 @@ lyricsData = 'scores/lyricsdata.4.0.csv'
 #        s1part.insert(0, ks)
 #    s1.makeNotation()
 #    s1.show()
-
-material = jSA.collectMaterial(lyricsData, hd=['dan'], sq=['xipi'],
-                               bs=['yuanban'])
-#jSA.pitchHistogram(material)
-#jSA.intervalHistogram(material)
-totalCount = jSA.melodicDensity(material, notesOrDuration='duration')
