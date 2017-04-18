@@ -393,9 +393,17 @@ def recodeScore(material, title=None, graceNoteValue=2.0, noteName='pitch'):
 
 
 
-def showPatternsFromText(resultsFile, concatenatedScore=None):
-    '''str, str, str --> dic
-    {str:{str:[[float, float]]}}
+def showPatternsFromText(patternsFile, concatenatedScore=None,
+                         morpheticPitch=True):
+    '''str, str --> prints info or opens music xml file
+    Given the path to the patterns file, it prints the information of the
+    patternes, ordered by number, giving the number of occurrences found and
+    the average number of notes per occurrence.
+    If a path for the concatenated score used for computing the patterns is
+    given, the aforementioned info is not printed, but the results are shown
+    as red notes in the concatenated score, that it is opened.
+    The morpheticPitch argument states if the patterns contain pithces as
+    morphetic pitch or as midi pitch.
     '''
 
     # Equivalents of morphetic pitches as pitch names with octave in the range
@@ -405,13 +413,13 @@ def showPatternsFromText(resultsFile, concatenatedScore=None):
                    66: 'B4', 67: 'C#5', 68: 'D#5', 69: 'E5', 70: 'F#5',
                    71: 'G#5', 72: 'A5', 73: 'B5', 74: 'C#6'}
     
-    with open(resultsFile, 'r') as f:
-        resultsData = f.readlines()
+    with open(patternsFile, 'r') as f:
+        patternsData = f.readlines()
     
     patterns = {}
     
     # Storing the patterns in the text file into a dictionary
-    for l in resultsData:
+    for l in patternsData:
         line = l.strip()
         if len(line) == 0: continue
         if 'pattern' in line:
@@ -456,43 +464,56 @@ def showPatternsFromText(resultsFile, concatenatedScore=None):
             print(pat, 'with', occurrencesNumber, 'occurrences')
             # Parsing score
             score = converter.parse(concatenatedScore)
-            scoreTitle = (resultsFile.split('/')[-1][:-4] + ': ' + pat + ' (' +
-                          str(len(patterns[pat])) + ')')
+            scoreTitle = (patternsFile.split('/')[-1][:-4] + ': ' + pat + ' ('
+                          + str(len(patterns[pat])) + ')')
             score.metadata.movementName = scoreTitle
             scoreName = concatenatedScore.split('/')[-1]
-            print('\t' + scoreName + 'parsed')
+            print('\t' + scoreName + ' parsed')
             notes = score.flat.notes.stream()
                 
             for occ in pattern:
                 # Convert morphetic pitch into pitch names with octave
                 occurrence = pattern[occ]
                 occPitch = copy.deepcopy(occurrence)
-                for n in occPitch:
-                    morphPitch = n[1]
-                    n[1] = morphPitchs[morphPitch]
+                if morpheticPitch:
+                    for n in occPitch:
+                        morphPitch = n[1]
+                        n[1] = morphPitchs[morphPitch]
+                else:
+                    for n in occPitch:
+                        midiPitch = n[1]
+                        p = pitch.Pitch(ps=midiPitch)
+                        n[1] = p.nameWithOctave
             
                 # Find notes from pattern according to the offsets
                 for occNote in occPitch:
                     pos = occNote[0]
                     name1 = occNote[1]
                     scoreNote = notes.getElementsByOffset(pos)
+                    # In case there is one or more grace notes in that offset,
+                    # the variable score notes is a list with all the notes
+                    # in that offset
                     for n in scoreNote:
                         name2 = n.nameWithOctave
                         if name1 == name2:
                             n.color = 'red'
-                        else:
-                            print('\t\tPossible problem at', pos)
+#                        else:
+                             # This message indicates that there might be
+                             # grace notes omitted
+#                            print('\t\tPossible problem at', pos)
             
             print('\tDisplaying', pat)
             score.show()
 
 
 
-def convertPatternsToScore(resultsPickle, showScore=True):
-    '''
+def convertPatternsToScore(patternsPickle, showScore=True):
+    '''pkl, bool --> opens music xml file
+    Given the path to the pickle file that contains the patterns, it shows the
+    occurrences of each pattern as a music xml file
     '''
     
-    with open(resultsPickle, 'rb') as f:
+    with open(patternsPickle, 'rb') as f:
         patterns = pickle.load(f)
     
     for i in range(len(patterns)):
