@@ -18,7 +18,7 @@ import pickle
 lyricsData = 'scores/lyricsdata.4.0.csv'
 
 path = '../CONFERENCES/2017.10 ISMIR/Patterning/'
-core = 'laosheng-xipi-yuanban'
+core = 'laosheng-erhuang-yuanban'
 inputScoreFile = path + 'scores/' + core + '.pkl'
 materialFile = path + 'scores/' + core + '_material.pkl'
 rongs_results = path + 'results/Rong/knn5_' + core + '.pkl'
@@ -27,9 +27,9 @@ merediths_results = path + 'results/Meredith/' + core + '.txt'
 concatenatedScore = path + 'scores/' + core + '.xml'
 
 
-#jSP.showPatternsFromPickle(lyricsData, materialFile, inputScoreFile,
-#                           rongs_results)
+jSP.showPatternsFromPickle(lyricsData, materialFile, inputScoreFile,
+                           rongs_results)
 
-jSP.showPatternsFromText(merediths_results)
+#jSP.showPatternsFromText(merediths_results)
 #                         concatenatedScore=concatenatedScore,
 #                         morpheticPitch=False)

@@ -611,20 +611,30 @@ def showPatternsFromPickle(lyricsData, materialFile, inputScoreFile,
             part = parts[p-1]
             notes = part.flat.notesAndRests.stream()
             seg2red = notes.getElementsByOffset(segStart, segEnd)
+            newInit = 0
+            while newInit < init:
+                note2check = seg2red[newInit]
+                newInit += 1
+                if (note2check.tie !=None) and (note2check.tie.type !='start'):
+                    init += 1
             tieJump = 0 # It stores how many tied notes are present
             for n in range(len(occ)-1):
-                note2red = seg2red[n+init+tieJump]
-                while note2red.tie != None and note2red.tie.type != 'start':
+                note2red = seg2red[n+newInit+tieJump]
+                while (note2red.tie !=None) and (note2red.tie.type !='start'):
                     tieJump += 1
-                    note2red = seg2red[n+init+tieJump]
+                    note2red = seg2red[n+newInit+tieJump]
                 if note2red.isRest:
                     noteName = note2red.name
                 else:
                     noteName = note2red.nameWithOctave
                 if noteName != occ[n][0]:
-                    raise Exception("Notes doesn't match at", i, j, k)
+                    print('ERROR: An exception will be raised')
+                    findLine(material, inputScore, patterns, i, j)
+                    raise Exception("Notes doesn't match at " + str(i) + ', '
+                                    + str(j) + ', ' + str(k) + ' (' + noteName
+                                    + ', ' + occ[n][0] + ')')
                 note2red.color = 'red'
-                tieHop = n+init+tieJump+1
+                tieHop = n+newInit+tieJump+1
                 if note2red.tie != None:
                     while (seg2red[tieHop].tie != None
                            and seg2red[tieHop].tie.type != 'start'
@@ -658,3 +668,45 @@ def showPatternsFromPickle(lyricsData, materialFile, inputScoreFile,
             s1part.insert(0, ks)
         s1.makeNotation()
         s1.show()
+
+def findLine(material, inputScore, patterns, a, b):
+    '''list, list, list, int, int
+    Inputs are the material, input score and patterns lists, and the index of
+    the pattern and occurrence in the patterns list.
+    '''
+    line = patterns[a][b]
+    loc = line[-1][0]
+    init = line[-1][1]
+    print('Original line:')    
+    originalLine = inputScore[loc]
+    for n in originalLine:
+        print(n)
+    print('Found pattern:')
+    for n in line:
+        print(n)
+    x = material[-1][loc]
+    score = material[x[0]][0]
+    segment = material[x[0]][x[1]][x[2]]
+    segStart = float(segment[0])
+    segEnd = float(segment[1])
+    s = converter.parse(score)
+    print(score.split('/')[-1], 'parsed')
+    parts = jS.findVoiceParts(s)
+    part = parts[x[1]-1]
+    notes = part.flat.notesAndRests.stream()
+    seg2show = notes.getElementsByOffset(segStart, segEnd)
+    i = 0
+    while i < init:
+        n = seg2show[i]
+        i += 1
+        if (n.tie != None) and (n.tie.type != 'start'):
+            init += 1
+    jump = 0
+    for j in range(len(line)-1):
+        n = seg2show[init+j+jump]
+        if (n.tie != None) and (n.tie.type != 'start'):
+            n.color = 'red'
+            jump += 1
+        else:
+            n.color = 'red'
+    seg2show.show()
