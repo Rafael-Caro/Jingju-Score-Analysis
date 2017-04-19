@@ -21,7 +21,7 @@ bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan', 'yuanban',
               'erliu', 'liushui', 'kuaiban']
 ju_default = ['s', 's1', 's2', 'x']
 
-hangdang = hd_default
+hangdang = ['laosheng']
 shengqiang = sq_default
 banshi = bs_default
 line = ju_default
@@ -33,9 +33,12 @@ material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
 #jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
 
 # INTERVAL HISTOGRAM
-#jSA.intervalHistogram(material, count='sum', directedInterval=False,
+#jSA.intervalHistogram(material, count='sum', directedInterval=True,
 #                      silence2ignore=0.25, ignoreGraceNotes=False)
 
 # MELODIC DENSITY
 #totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
-#                                notesOrDuration='notes')
+#                                notesOrDuration='duration')
+
+def findInterval(material, ['P11'], directedInterval=False,
+                 silence2ignore=0.25, ignoreGraceNotes=False)

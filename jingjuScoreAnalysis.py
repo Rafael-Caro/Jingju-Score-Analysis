@@ -842,6 +842,7 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
     plt.xticks(range(1, len(totalCount)+1), xLabels, fontsize=20)
     plt.yticks(fontsize=20)
     plt.axvline(x=len(totalCount)-0.5, ls='--', color='red')
+    plt.ylim(0, 27)
     plt.xlabel('Sample scores', fontsize=32)
     plt.ylabel('Duration per quarter note', fontsize=20)
     plt.tight_layout()
@@ -854,5 +855,7 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
 ## TO IMPROVE                                                                ##
 ## 1. Keep the banshi information in material, so that the graceNoteDur can  ##
 ##    be adjusted accordingly.                                               ##
+## 2. Check if the arguments given to collectMaterial make no match at all   ##
+##    and raise a message                                                    ##
 ###############################################################################
 ###############################################################################
