@@ -10,8 +10,6 @@ os.chdir('C:/Users/Rafael.Ctt/Documents/PhD/Code')
 import jingjuScorePatterns as jSP
 import pickle
 
-#diacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
-
 lyricsData = 'scores/lyricsdata.4.0.csv'
 
 path = '../CONFERENCES/2017.10 ISMIR/Patterning/'
@@ -23,8 +21,14 @@ toms_results = path + 'results/Tom/' + core + '_SIARCT-C.txt'
 merediths_results = path + 'results/Meredith/' + core + '.txt'
 concatenatedScore = path + 'scores/' + core + '.xml'
 
+# MEREDITH'S RESULTS
+#jSP.showPatternsFromText(merediths_results, morpheticPitch=False, 
+#                         concatenatedScore=None)
 
+# TOM'S RESULTS
+#jSP.showPatternsFromText(toms_results, morpheticPitch=True, 
+#                         concatenatedScore=None)
+
+# RONG'S RESULTS
 #jSP.showPatternsFromPickle(lyricsData, materialFile, inputScoreFile,
 #                           rongs_results)
-
-jSP.showPatternsFromText(toms_results)
