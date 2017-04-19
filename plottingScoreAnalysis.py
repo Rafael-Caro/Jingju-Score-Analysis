@@ -15,17 +15,16 @@ import pickle
 lyricsData = 'scores/lyricsdata.4.0.csv'
 
 # All entities for reference
-# hd=['laosheng', 'dan']
-# sq=['erhuang', 'xipi']
-# bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan', 'yuanban', 'erliu',
-#      'liushui', 'kuaiban']
-# ju = ['s', 's1', 's2', 'x']
+hd_default = ['laosheng', 'dan']
+sq_default = ['erhuang', 'xipi']
+bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan', 'yuanban',
+              'erliu', 'liushui', 'kuaiban']
+ju_default = ['s', 's1', 's2', 'x']
 
-hangdang = ['laosheng', 'dan']
-shengqiang = ['erhuang', 'xipi']
-banshi = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan', 'yuanban', 'erliu',
-          'liushui', 'kuaiban']
-line = ['s', 's1', 's2', 'x']
+hangdang = hd_default
+shengqiang = sq_default
+banshi = bs_default
+line = ju_default
 
 material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
                                bs=banshi, ju=line)
