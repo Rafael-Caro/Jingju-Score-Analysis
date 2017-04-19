@@ -7,9 +7,6 @@ Created on Sun Jan 22 14:27:51 2017
 
 import os
 os.chdir('C:/Users/Rafael.Ctt/Documents/PhD/Code')
-from music21 import *
-import jingjuScores as jS
-import jingjuScoreAnalysis as jSA
 import jingjuScorePatterns as jSP
 import pickle
 
