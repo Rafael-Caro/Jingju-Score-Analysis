@@ -22,12 +22,17 @@ bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan', 'yuanban',
 ju_default = ['s', 's1', 's2', 'x']
 
 hangdang = ['laosheng']
-shengqiang = sq_default
-banshi = bs_default
-line = ju_default
+shengqiang = ['xipi']
+banshi = ['yuanban']
+line = ['x']
 
-material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
-                               bs=banshi, ju=line)
+# MATERIAL PER LINE
+#material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
+#                               bs=banshi, ju=line)
+
+# MATERIAL PER JUDOU
+judouMaterial = jSA.collectJudouMaterial(lyricsData, hd=hangdang,
+                                         sq=shengqiang, bs=banshi, ju=line)
 
 # PITCH HISTOGRAM
 #jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
@@ -40,5 +45,12 @@ material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
 #totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
 #                                notesOrDuration='duration')
 
-def findInterval(material, ['P11'], directedInterval=False,
-                 silence2ignore=0.25, ignoreGraceNotes=False)
+# FIND INTERVALS
+#
+#intvlList = []
+#
+#jSA.findInterval(material, intvlList, directedInterval=False,
+#                 silence2ignore=0.25, ignoreGraceNotes=False)
+
+# CADENTIAL NOTES
+x, y, z = jSA.cadentialNotes(judouMaterial, includeGraceNotes=True)

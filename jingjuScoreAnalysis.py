@@ -292,6 +292,7 @@ def plottingParameters(material, count, yValues):
     h = hatches[sq]
     
     return yValues, limX, yLabel, col, h
+    
 
 
 
@@ -849,6 +850,106 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
     plt.show()
 
     return totalCount
+
+
+
+def cadentialNotes(judouMaterial, includeGraceNotes=True):
+    '''
+    '''
+
+    cadNotCount = [{}, {}, {}]
+    
+    for score in judouMaterial[1:]:
+        scorePath = score[0]
+        loadedScore = converter.parse(scorePath)
+        scoreName = scorePath.split('/')[-1]
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notesAndRests.stream()
+            # Find segments to analyze in the current part
+            for segInd in range(len(score[partIndex])):
+                startEnd = score[partIndex][segInd]
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                i = -1
+                lastNote = segment[i]
+                while lastNote.isRest:
+                    i += -1
+                    lastNote = segment[i]
+                if includeGraceNotes:
+                    cadenceNote = lastNote.nameWithOctave
+                else:
+                    while lastNote.quarterLength == 0:
+                        print('Grace note omitted in ' + scoreName + ', ' + str(partIndex))
+                        i += -1
+                        lastNote = segment[i]
+                    cadenceNote = lastNote.nameWithOctave
+                secInd = segInd % 3
+                sec = cadNotCount[secInd]
+                sec[cadenceNote] = sec.get(cadenceNote, 0) + 1
+
+    noteNames = {}
+
+    for secCount in cadNotCount:
+        for noteName in secCount.keys():
+            noteNames[pitch.Pitch(noteName).midi] = noteName
+            
+    sortedNoteNames = [noteNames[j] for j in sorted(noteNames.keys())]
+    
+    for secCount in cadNotCount:
+        counts = np.array([k for k in secCount.values()])
+        toPerCent = 100 / sum(counts)
+        for noteName in secCount:
+            secCount[noteName] = secCount[noteName] * toPerCent
+    
+    sortedValues = []
+    
+    for noteName in sortedNoteNames:
+        row = []
+        for secCount in cadNotCount:
+            row.append(secCount.get(noteName, 0))
+        sortedValues.append(np.array(row))
+
+#    for i in range(len(cadNotCount)):
+#        toDiscard, noteNames, noteCount = sortDict(cadNotCount[i])
+#        noteCount = np.array(noteCount)
+#        toPerCent = 100 / np.sum(noteCount)
+#        notePerCent = noteCount * toPerCent
+
+    xLabels = ['Sec 1', 'Sec 2', 'Sec 3']
+    pos = np.arange(len(xLabels))
+
+    colors = {'G#3':'#800080', 'B3':'#FF00FF', 'C#4':'#000080',
+              'C##4':'#0000FF', 'D#4':'#008080', 'E4':'#00FFFF',
+              'F#4':'#008000', 'G#4':'#00FF00', 'A4':'#808000',
+              'A#4':'#FFFF00', 'B4':'#800000', 'C#5':'#FF0000',
+              'D#5':'#000000', 'E5':'#808080', 'F#5':'#C0C0C0'}              
+              
+    bot = np.array([0, 0, 0])
+    legendCode = []
+    width = 0.5
+
+    for l in range(len(sortedValues)):
+        val = sortedValues[l]
+        p = plt.bar(pos, val, width, color=colors[sortedNoteNames[l]],
+                    bottom=bot, align='center')
+        legendCode.insert(0, p[0])
+        bot = bot + val
+    sortedNoteNames.reverse()
+    plt.ylim(0, 100)
+    plt.legend(legendCode, sortedNoteNames, bbox_to_anchor=(1, 1), loc=2)
+    plt.xticks(pos, xLabels)
+    plt.tight_layout()
+    plt.show()
+
+    return cadNotCount, sortedValues, sortedNoteNames
+                        
     
 ###############################################################################
 ###############################################################################
