@@ -527,7 +527,7 @@ def getAmbitus(material):
 
 
 
-def findScore(material, thresholdPitch, lowHigh):
+def findScoreByPitchThreshold(material, thresholdPitch, lowHigh):
     '''list, int, str --> [music21.stream.Score]
     It takes the list returned by the collectMaterial function, a pitch midi
     value, and the string "low" or "high" to look for those scores that contain
@@ -659,76 +659,6 @@ def floatOrFraction(strValue):
         value = float(strValue)
         
     return value
-
-
-
-def findInterval(material, intvlList, directedInterval=False,
-                 silence2ignore=0.25, ignoreGraceNotes=False):
-    '''
-    '''
-    for score in material[1:]:
-        showScore = False
-        intvlsFound = {}
-        # Loading the score to get the parts list
-        scorePath = score[0]
-        scoreName = scorePath.split('/')[-1]
-        loadedScore = converter.parse(scorePath)
-        print(scoreName, 'parsed')
-        parts = jS.findVoiceParts(loadedScore)
-        # Work with each part
-        for partIndex in range(1, len(score)):
-            if len(score[partIndex]) == 0: continue # Skip part if it's empty
-            # Get the notes from the current part
-            part = parts[partIndex-1]
-            notes = part.flat.notesAndRests.stream()
-            # Find segments to analyze in the current part
-            for startEnd in score[partIndex]:
-                start = startEnd[0]
-                end = startEnd[1]
-                segment = notes.getElementsByOffset(start, end)
-                # Count intervals in the current segment
-                # Find the last note that is not a grace note
-                i = 1
-                lastn = segment[-i]
-                while lastn.quarterLength == 0:
-                    i += 1
-                    lastn = segment[-i]
-
-                for j in range(len(segment)-i):
-                    n1 = segment[j]
-                    if n1.isRest: continue
-                    if ignoreGraceNotes:
-                        if n1.quarterLength == 0: continue
-                    k = 1
-                    while True:
-                        n2 = segment[j+k]
-                        if n2.isRest:
-                            if n2.quarterLength <= silence2ignore:
-                                k += 1
-                            else:
-                                n2 = None
-                                break
-                        elif (n2.quarterLength==0)and(ignoreGraceNotes==True):
-                            j += 1
-                        else:
-                            break
-                    if n2==None: continue
-                    currentIntvl = interval.Interval(n1, n2)
-                    if directedInterval:
-                        intvlName = currentIntvl.directedName
-                    else:
-                        intvlName = currentIntvl.name
-                    if intvlName in intvlList:
-                        n1.color = 'red'
-                        n2.color = 'red'
-                        intvlsFound[intvlName] = intvlsFound.get(intvlName,0)+1
-                        showScore = True
-        if showScore:
-            for k in intvlsFound:
-                print('\t' + str(intvlsFound[k]), 'samples of', k,
-                  'found in this score')
-            print('\tShowing', scoreName)
-            loadedScore.show()
 
 
 
@@ -976,6 +906,169 @@ def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
     plt.legend(legendColors, legendNotes, bbox_to_anchor=(1, 1), loc=2)
     plt.tight_layout()
     plt.show()
+
+
+
+###############################################################################
+## FUNCTIONS TO FIND SCORES                                                  ##
+###############################################################################
+
+def findScoreByPitchThreshold(material, thresholdPitch, lowHigh):
+    '''list, int, str --> [music21.stream.Score]
+    It takes the list returned by the collectMaterial function, a pitch midi
+    value, and the string "low" or "high" to look for those scores that contain
+    pitchs lower or higher than the given threshold.
+    '''
+    
+    scores = []    
+
+    for score in material:
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notes.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                ###############################################################
+                ## Change here so that it returns scores with the notes      ##
+                ## beyond the threshold colored in red.                      ##
+                ###############################################################
+                segmentAmbitus = segment.analyze('ambitus')
+                ambitusStart = segmentAmbitus.noteStart.midi
+                ambitusEnd = segmentAmbitus.noteEnd.midi
+                if lowHigh == 'low':
+                    if ambitusStart < pitch.Pitch(thresholdPitch).midi:
+                        if scoreName not in scores:
+                            scores.append(scoreName)
+                if lowHigh == 'high':
+                    if ambitusEnd > pitch.Pitch(thresholdPitch).midi:
+                        if scoreName not in scores:
+                            scores.append(scoreName)
+
+    print('Done!')
+
+    return scores
+
+
+
+def findScoreByPitch(material, pitchList):
+    '''
+    '''
+
+    scores = []
+
+    for score in material[1:]:
+        showScore = False
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notes.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                for n in segment:
+                    if n.nameWithOctave in pitchList:
+                        print('\tOne occurrence of ' + n.nameWithOctave +
+                              ' at offset ' + str(n.offset))
+                        n.color = 'red'
+                        showScore = True
+                        if scorePath not in scores:
+                            scores.append(scorePath)
+        if showScore:
+            loadedScore.show()
+
+    return(scores)
+
+
+
+def findScoreByInterval(material, intvlList, directedInterval=False,
+                 silence2ignore=0.25, ignoreGraceNotes=False):
+    '''
+    '''
+    for score in material[1:]:
+        showScore = False
+        intvlsFound = {}
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notesAndRests.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                # Count intervals in the current segment
+                # Find the last note that is not a grace note
+                i = 1
+                lastn = segment[-i]
+                while lastn.quarterLength == 0:
+                    i += 1
+                    lastn = segment[-i]
+
+                for j in range(len(segment)-i):
+                    n1 = segment[j]
+                    if n1.isRest: continue
+                    if ignoreGraceNotes:
+                        if n1.quarterLength == 0: continue
+                    k = 1
+                    while True:
+                        n2 = segment[j+k]
+                        if n2.isRest:
+                            if n2.quarterLength <= silence2ignore:
+                                k += 1
+                            else:
+                                n2 = None
+                                break
+                        elif (n2.quarterLength==0)and(ignoreGraceNotes==True):
+                            j += 1
+                        else:
+                            break
+                    if n2==None: continue
+                    currentIntvl = interval.Interval(n1, n2)
+                    if directedInterval:
+                        intvlName = currentIntvl.directedName
+                    else:
+                        intvlName = currentIntvl.name
+                    if intvlName in intvlList:
+                        n1.color = 'red'
+                        n2.color = 'red'
+                        intvlsFound[intvlName] = intvlsFound.get(intvlName,0)+1
+                        showScore = True
+        if showScore:
+            for k in intvlsFound:
+                print('\t' + str(intvlsFound[k]), 'samples of', k,
+                  'found in this score')
+            print('\tShowing', scoreName)
+            loadedScore.show()
 
 
     
