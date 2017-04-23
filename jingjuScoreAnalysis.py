@@ -886,7 +886,8 @@ def cadentialNotes(judouMaterial, includeGraceNotes=True):
                     cadenceNote = lastNote.nameWithOctave
                 else:
                     while lastNote.quarterLength == 0:
-                        print('Grace note omitted in ' + scoreName + ', ' + str(partIndex))
+                        print('Grace note omitted in ' + scoreName + ', '
+                              + str(partIndex))
                         i += -1
                         lastNote = segment[i]
                     cadenceNote = lastNote.nameWithOctave
@@ -922,6 +923,10 @@ def cadentialNotes(judouMaterial, includeGraceNotes=True):
 #        toPerCent = 100 / np.sum(noteCount)
 #        notePerCent = noteCount * toPerCent
 
+    return sortedNoteNames, sortedValues
+
+def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
+
     xLabels = ['Sec 1', 'Sec 2', 'Sec 3']
     pos = np.arange(len(xLabels))
 
@@ -930,26 +935,49 @@ def cadentialNotes(judouMaterial, includeGraceNotes=True):
               'F#4':'#008000', 'G#4':'#00FF00', 'A4':'#808000',
               'A#4':'#FFFF00', 'B4':'#800000', 'C#5':'#FF0000',
               'D#5':'#000000', 'E5':'#808080', 'F#5':'#C0C0C0'}              
-              
-    bot = np.array([0, 0, 0])
-    legendCode = []
-    width = 0.5
 
-    for l in range(len(sortedValues)):
-        val = sortedValues[l]
-        p = plt.bar(pos, val, width, color=colors[sortedNoteNames[l]],
-                    bottom=bot, align='center')
-        legendCode.insert(0, p[0])
-        bot = bot + val
-    sortedNoteNames.reverse()
-    plt.ylim(0, 100)
-    plt.legend(legendCode, sortedNoteNames, bbox_to_anchor=(1, 1), loc=2)
-    plt.xticks(pos, xLabels)
+    legendCode = {}
+    width = 0.5
+    
+    if len(judouMaterialList) == 2:
+        titles = ['Opening line', 'Closing line']
+    
+    elif len(judouMaterialList) == 3:
+        titles = ['Opening line 1', 'Opening line 2', 'Closing line']
+
+    plt.figure()
+    for i in range(len(judouMaterialList)):
+        material = judouMaterialList[i]
+        sortedNoteNames, sortedValues = cadentialNotes(material,
+                                                       includeGraceNotes)
+        bot = np.array([0, 0, 0])
+        plotNumber = '1' + str(len(judouMaterialList)) + str(i+1)
+        plt.subplot(int(plotNumber))
+        for j in range(len(sortedValues)):
+            val = sortedValues[j]
+            p = plt.bar(pos, val, width, color=colors[sortedNoteNames[j]],
+                        bottom=bot, align='center')
+            bot = bot + val
+            # Prepare the legend
+            noteName = sortedNoteNames[j]
+            mid = pitch.Pitch(noteName).midi
+            legendCode[mid] = [p[0], noteName]
+        plt.ylim(0, 100)
+        plt.title(titles[i])
+        plt.xticks(pos, xLabels)
+
+    legendColors = []
+    legendNotes = []
+    for k in sorted(legendCode.keys(), reverse=True):
+        lcode = legendCode[k]
+        legendColors.append(lcode[0])
+        legendNotes.append(lcode[1])
+
+    plt.legend(legendColors, legendNotes, bbox_to_anchor=(1, 1), loc=2)
     plt.tight_layout()
     plt.show()
 
-    return cadNotCount, sortedValues, sortedNoteNames
-                        
+
     
 ###############################################################################
 ###############################################################################

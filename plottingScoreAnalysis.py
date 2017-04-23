@@ -31,8 +31,8 @@ line = ['x']
 #                               bs=banshi, ju=line)
 
 # MATERIAL PER JUDOU
-judouMaterial = jSA.collectJudouMaterial(lyricsData, hd=hangdang,
-                                         sq=shengqiang, bs=banshi, ju=line)
+#judouMaterial = jSA.collectJudouMaterial(lyricsData, hd=hangdang,
+#                                         sq=shengqiang, bs=banshi, ju=line)
 
 # PITCH HISTOGRAM
 #jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
@@ -52,5 +52,17 @@ judouMaterial = jSA.collectJudouMaterial(lyricsData, hd=hangdang,
 #jSA.findInterval(material, intvlList, directedInterval=False,
 #                 silence2ignore=0.25, ignoreGraceNotes=False)
 
+# MATERIAL FOR CADENTIAL NOTES
+material_s = jSA.collectJudouMaterial(lyricsData, hd=hangdang, sq=shengqiang,
+                                      bs=banshi, ju=['s'])
+#material_s1 = jSA.collectJudouMaterial(lyricsData, hd=hangdang, sq=shengqiang,
+#                                       bs=banshi, ju=['s1'])
+#material_s2 = jSA.collectJudouMaterial(lyricsData, hd=hangdang, sq=shengqiang,
+#                                       bs=banshi, ju=['s2'])
+material_x = jSA.collectJudouMaterial(lyricsData, hd=hangdang, sq=shengqiang,
+                                      bs=banshi, ju=['x'])
+
 # CADENTIAL NOTES
-x, y, z = jSA.cadentialNotes(judouMaterial, includeGraceNotes=True)
+#x, y, z = jSA.cadentialNotes(judouMaterial, includeGraceNotes=True)
+judouMaterialList = [material_s, material_x]
+x = jSA.plottingBoxPlots(judouMaterialList, includeGraceNotes=True)
