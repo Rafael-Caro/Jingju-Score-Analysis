@@ -970,6 +970,7 @@ def findScoreByPitch(material, pitchList):
 
     for score in material[1:]:
         showScore = False
+        pitchesFound = {}
         # Loading the score to get the parts list
         scorePath = score[0]
         scoreName = scorePath.split('/')[-1]
@@ -988,14 +989,18 @@ def findScoreByPitch(material, pitchList):
                 end = startEnd[1]
                 segment = notes.getElementsByOffset(start, end)
                 for n in segment:
-                    if n.nameWithOctave in pitchList:
-                        print('\tOne occurrence of ' + n.nameWithOctave +
-                              ' at offset ' + str(n.offset))
+                    noteName = n.nameWithOctave
+                    if noteName in pitchList:
                         n.color = 'red'
+                        pitchesFound[noteName] = pitchesFound.get(noteName,0)+1
                         showScore = True
                         if scorePath not in scores:
                             scores.append(scorePath)
         if showScore:
+            for p in pitchesFound:
+                print('\t' + str(pitchesFound[p]), 'samples of', p,
+                  'found in this score')
+            print('\tShowing', scoreName)
             loadedScore.show()
 
     return(scores)

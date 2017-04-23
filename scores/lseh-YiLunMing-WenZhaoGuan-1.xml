@@ -8,7 +8,7 @@
     <rights>《京剧曲谱集成·第二集》第71-79， 81-86，87-92页（上海：上海文艺出版社，1992）</rights>
     <encoding>
       <software>MuseScore 2.0.3</software>
-      <encoding-date>2016-12-14</encoding-date>
+      <encoding-date>2017-04-23</encoding-date>
       <supports element="accidental" type="yes"/>
       <supports element="beam" type="yes"/>
       <supports element="print" attribute="new-page" type="yes" value="yes"/>
@@ -19573,16 +19573,16 @@
           <system-distance>147.07</system-distance>
           </system-layout>
         </print>
-      <note default-x="100.75" default-y="-20.00">
+      <note default-x="100.75" default-y="-55.00">
         <pitch>
           <step>B</step>
-          <octave>4</octave>
+          <octave>3</octave>
           </pitch>
         <duration>48</duration>
         <tie type="start"/>
         <voice>1</voice>
         <type>half</type>
-        <stem>down</stem>
+        <stem>up</stem>
         <notations>
           <tied type="start"/>
           <slur type="start" number="1"/>
@@ -19594,16 +19594,16 @@
         </note>
       </measure>
     <measure number="382" width="156.56">
-      <note default-x="12.00" default-y="-20.00">
+      <note default-x="12.00" default-y="-55.00">
         <pitch>
           <step>B</step>
-          <octave>4</octave>
+          <octave>3</octave>
           </pitch>
         <duration>48</duration>
         <tie type="stop"/>
         <voice>1</voice>
         <type>half</type>
-        <stem>down</stem>
+        <stem>up</stem>
         <notations>
           <tied type="stop"/>
           </notations>
