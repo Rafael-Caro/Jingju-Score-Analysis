@@ -233,9 +233,9 @@ def plotting(xPositions, xLabels, yValues, title=None, limX=None, xLabel=None,
     if limY != None:
         plt.ylim(limY[0], limY[1])
     if xLabel != None:
-        plt.xlabel(xLabel, fontsize=32)
+        plt.xlabel(xLabel, fontsize=26)
     if yLabel != None:
-        plt.ylabel(yLabel, fontsize=20)
+        plt.ylabel(yLabel, fontsize=26)
     plt.tight_layout()
     print('Done!')
     plt.show()
@@ -369,7 +369,7 @@ def pitchHistogram(material, count='sum', countGraceNotes=True):
     # Setting y limits
     limY = None
     if count == 'sum':
-        limY = [0, 0.3]
+        limY = [0, 0.31]
 
     plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Pitch',
              limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
@@ -470,13 +470,13 @@ def intervalHistogram(material, count='sum', directedInterval=False,
     limY = None
     if count == 'sum':
         if directedInterval:
-            limY = [0, 0.26]
+            limY = [0, 0.27]
         else:
-            limY = [0, 0.45]
+            limY = [0, 0.5]
 
     plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Interval',
              limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
-             width=0.4)
+             width=0.8)
 
 
 

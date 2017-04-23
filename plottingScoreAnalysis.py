@@ -12,7 +12,7 @@ import pickle
 
 #diacritics = ['。', '，', '、', '；', '：', '（', '）', '？', '！']
 
-lyricsData = 'scores/lyricsdata.4.0.csv'
+lyricsData = 'scores/lyricsdata.4.1.csv'
 
 # All entities for reference
 hd_default = ['laosheng', 'dan']
@@ -21,14 +21,14 @@ bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan', 'yuanban',
               'erliu', 'liushui', 'kuaiban']
 ju_default = ['s', 's1', 's2', 'x']
 
-hangdang = ['laosheng']
-shengqiang = ['xipi']
-banshi = ['yuanban']
-line = ['x']
+hangdang = hd_default
+shengqiang = ['erhuang']
+banshi = bs_default
+line = ju_default
 
 # MATERIAL PER LINE
-#material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
-#                               bs=banshi, ju=line)
+material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
+                               bs=banshi, ju=line)
 
 # MATERIAL PER JUDOU
 #judouMaterial = jSA.collectJudouMaterial(lyricsData, hd=hangdang,
@@ -39,7 +39,7 @@ line = ['x']
 
 # INTERVAL HISTOGRAM
 #jSA.intervalHistogram(material, count='sum', directedInterval=True,
-#                      silence2ignore=0.25, ignoreGraceNotes=False)
+#                      silence2ignore=0.125, ignoreGraceNotes=False)
 
 # MELODIC DENSITY
 #totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
