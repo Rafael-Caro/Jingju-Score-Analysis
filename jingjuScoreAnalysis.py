@@ -771,11 +771,11 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
 
     plt.boxplot(totalCount)
     plt.xticks(range(1, len(totalCount)+1), xLabels, fontsize=20)
-    plt.yticks(fontsize=20)
+    plt.yticks(fontsize=18)
     plt.axvline(x=len(totalCount)-0.5, ls='--', color='red')
     plt.ylim(0, 27)
-    plt.xlabel('Sample scores', fontsize=32)
-    plt.ylabel('Duration per quarter note', fontsize=20)
+    plt.xlabel('Sample scores', fontsize=26)
+    plt.ylabel('Duration per quarter note', fontsize=26)
     plt.tight_layout()
     plt.show()
 
@@ -855,16 +855,18 @@ def cadentialNotes(judouMaterial, includeGraceNotes=True):
 
     return sortedNoteNames, sortedValues
 
+
+
 def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
 
     xLabels = ['Sec 1', 'Sec 2', 'Sec 3']
     pos = np.arange(len(xLabels))
 
-    colors = {'G#3':'#800080', 'B3':'#FF00FF', 'C#4':'#000080',
-              'C##4':'#0000FF', 'D#4':'#008080', 'E4':'#00FFFF',
-              'F#4':'#008000', 'G#4':'#00FF00', 'A4':'#808000',
-              'A#4':'#FFFF00', 'B4':'#800000', 'C#5':'#FF0000',
-              'D#5':'#000000', 'E5':'#808080', 'F#5':'#C0C0C0'}              
+    colors = {'G#3':'#FFD54F', 'B3':'#B2FF59', 'C#4':'#4FC3F7',
+              'C##4':'#18FFFF', 'D#4':'#9575CD', 'E4':'#F44336',
+              'F#4':'#FF5722', 'G#4':'#FF9800', 'A4':'#FFEB3B',
+              'A#4':'#33691E', 'B4':'#64DD17', 'C#5':'#03A9F4',
+              'D#5':'#673AB7', 'E5':'#E57373', 'F#5':'#FF8A65'}              
 
     legendCode = {}
     width = 0.5
@@ -875,6 +877,7 @@ def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
     elif len(judouMaterialList) == 3:
         titles = ['Opening line 1', 'Opening line 2', 'Closing line']
 
+    y = True
     plt.figure()
     for i in range(len(judouMaterialList)):
         material = judouMaterialList[i]
@@ -892,6 +895,9 @@ def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
             noteName = sortedNoteNames[j]
             mid = pitch.Pitch(noteName).midi
             legendCode[mid] = [p[0], noteName]
+        if not y:
+            plt.yticks(np.array([]), ())
+        y = False
         plt.ylim(0, 100)
         plt.title(titles[i])
         plt.xticks(pos, xLabels)
@@ -902,9 +908,8 @@ def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
         lcode = legendCode[k]
         legendColors.append(lcode[0])
         legendNotes.append(lcode[1])
-
     plt.legend(legendColors, legendNotes, bbox_to_anchor=(1, 1), loc=2)
-    plt.tight_layout()
+    plt.tight_layout(rect=(0, 0, 0.83, 1))
     plt.show()
 
 
