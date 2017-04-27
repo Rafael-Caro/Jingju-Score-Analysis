@@ -17,13 +17,13 @@ lyricsData = 'scores/lyricsdata.4.1.csv'
 # All entities for reference
 hd_default = ['laosheng', 'dan']
 sq_default = ['erhuang', 'xipi']
-bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan', 'yuanban',
-              'erliu', 'liushui', 'kuaiban']
+bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
+              'yuanban', 'erliu', 'liushui', 'kuaiban']
 ju_default = ['s', 's1', 's2', 'x']
 
 hangdang = ['dan']
 shengqiang = ['xipi']
-banshi = bs_default
+banshi = ['liushui', 'kuaiban']
 line = ju_default
 
 # MATERIAL PER LINE

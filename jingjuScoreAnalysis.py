@@ -862,11 +862,11 @@ def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
     xLabels = ['Sec 1', 'Sec 2', 'Sec 3']
     pos = np.arange(len(xLabels))
 
-    colors = {'G#3':'#FFD54F', 'B3':'#B2FF59', 'C#4':'#4FC3F7',
-              'C##4':'#18FFFF', 'D#4':'#9575CD', 'E4':'#F44336',
-              'F#4':'#FF5722', 'G#4':'#FF9800', 'A4':'#FFEB3B',
-              'A#4':'#33691E', 'B4':'#64DD17', 'C#5':'#03A9F4',
-              'D#5':'#673AB7', 'E5':'#E57373', 'F#5':'#FF8A65'}              
+    colors = {'G#3':['#F4D03F','x'],'B3':['#76D7C4','x'],'C#4':['#2E86C1','x'],
+              'C##4':['#5B2C6F','x'],'D#4':['#BB8FCE','x'],'E4':['#E74C3C',''],
+              'F#4':['#F39C12',''], 'G#4':['#F4D03F',''], 'A4':['#2ECC71',''],
+              'A#4':['#117864',''], 'B4':['#76D7C4',''], 'C#5':['#2E86C1',''],
+              'D#5':['#BB8FCE',''],'E5':['#E74C3C','O'],'F#5':['#F39C12','O']}              
 
     legendCode = {}
     width = 0.5
@@ -888,8 +888,9 @@ def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
         plt.subplot(int(plotNumber))
         for j in range(len(sortedValues)):
             val = sortedValues[j]
-            p = plt.bar(pos, val, width, color=colors[sortedNoteNames[j]],
-                        bottom=bot, align='center')
+            colHatch = colors[sortedNoteNames[j]]
+            p = plt.bar(pos, val, width, color=colHatch[0],
+                        hatch = colHatch[1], bottom=bot, align='center')
             bot = bot + val
             # Prepare the legend
             noteName = sortedNoteNames[j]
