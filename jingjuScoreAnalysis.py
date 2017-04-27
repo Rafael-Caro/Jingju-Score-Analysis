@@ -296,7 +296,7 @@ def plottingParameters(material, count, yValues):
 
 
 
-def pitchHistogram(material, count='sum', countGraceNotes=True):
+def pitchHistogram(material, count='sum', countGraceNotes=True, makePlot=True):
     '''list --> dict, bar plot
     
     It takes the list returned by the collectMaterial function, and returns a
@@ -361,24 +361,34 @@ def pitchHistogram(material, count='sum', countGraceNotes=True):
     xLabels = [p[0] for p in sortedPitches]
     yValues = np.array([pitchCount[l] for l in xLabels])
     
-    # Start plotting
-    print('Plotting...')
-
     # Setting the parameters for plotting
     yValues, limX, yLabel, col, h = plottingParameters(material,count,yValues)
-    # Setting y limits
-    limY = None
-    if count == 'sum':
-        limY = [0, 0.31]
+    
+    if makePlot:
+        # Start plotting
+        print('Plotting...')
 
-    plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Pitch',
-             limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
-             width=0.8)
+        # Setting y limits
+        limY = None
+        if count == 'sum':
+            limY = [0, 0.31]
+    
+        plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Pitch',
+                 limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
+                 width=0.8)
+        
+    # List to return
+    results = []
+    for i in range(len(xLabels)):
+        results.append([xLabels[i], yValues[i]])
+
+    return results
 
 
 
 def intervalHistogram(material, count='sum', directedInterval=False,
-                      silence2ignore=0.25, ignoreGraceNotes=False):
+                      silence2ignore=0.25, ignoreGraceNotes=False,
+                      makePlot=True):
     '''list --> , bar plot
     
     It takes the list returned by the collectMaterial function, and returns
@@ -457,26 +467,35 @@ def intervalHistogram(material, count='sum', directedInterval=False,
             xPositions[j] += -1
     xLabels = [i[0] for i in sortedIntvl]
     yValues = np.array([intervalCount[l] for l in xLabels])
-    
-    # Start plotting
-    print('Plotting...')
 
     ## Setting the parameters for plotting
     yValues, limX, yLabel, col, h = plottingParameters(material,count,yValues)
-    # Setting x limits
-    limX = None
     
-    # Setting y limits
-    limY = None
-    if count == 'sum':
-        if directedInterval:
-            limY = [0, 0.27]
-        else:
-            limY = [0, 0.5]
+    if makePlot:
+        # Start plotting
+        print('Plotting...')
+        
+        # Setting x limits
+        limX = None
+        
+        # Setting y limits
+        limY = None
+        if count == 'sum':
+            if directedInterval:
+                limY = [0, 0.27]
+            else:
+                limY = [0, 0.5]
+    
+        plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Interval',
+                 limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
+                 width=0.8)
+        
+    # List to return
+    results = []
+    for i in range(len(xLabels)):
+        results.append([xLabels[i], yValues[i]])
 
-    plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Interval',
-             limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
-             width=0.8)
+    return results
 
 
 
@@ -783,7 +802,7 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
 
 
 
-def cadentialNotes(judouMaterial, includeGraceNotes=True):
+def findCadentialNotes(judouMaterial, includeGraceNotes=True):
     '''
     '''
 
@@ -857,7 +876,7 @@ def cadentialNotes(judouMaterial, includeGraceNotes=True):
 
 
 
-def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
+def cadentialNotes(judouMaterialList, includeGraceNotes=True, makePlot=True):
 
     xLabels = ['Sec 1', 'Sec 2', 'Sec 3']
     pos = np.arange(len(xLabels))
@@ -881,8 +900,8 @@ def plottingBoxPlots(judouMaterialList, includeGraceNotes=True):
     plt.figure()
     for i in range(len(judouMaterialList)):
         material = judouMaterialList[i]
-        sortedNoteNames, sortedValues = cadentialNotes(material,
-                                                       includeGraceNotes)
+        sortedNoteNames, sortedValues = findCadentialNotes(material,
+                                                           includeGraceNotes)
         bot = np.array([0, 0, 0])
         plotNumber = '1' + str(len(judouMaterialList)) + str(i+1)
         plt.subplot(int(plotNumber))

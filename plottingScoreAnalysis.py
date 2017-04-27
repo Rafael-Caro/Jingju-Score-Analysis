@@ -23,23 +23,25 @@ ju_default = ['s', 's1', 's2', 'x']
 
 hangdang = ['dan']
 shengqiang = ['xipi']
-banshi = ['liushui', 'kuaiban']
+banshi = ['erliu']
 line = ju_default
 
 # MATERIAL PER LINE
-#material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
-#                               bs=banshi, ju=line)
+material = jSA.collectMaterial(lyricsData, hd=hangdang, sq=shengqiang,
+                               bs=banshi, ju=line)
 
 # MATERIAL PER JUDOU
 #judouMaterial = jSA.collectJudouMaterial(lyricsData, hd=hangdang,
 #                                         sq=shengqiang, bs=banshi, ju=line)
 
 # PITCH HISTOGRAM
-#jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
+#pitchHist = jSA.pitchHistogram(material, count='sum', countGraceNotes=True,
+#                               makePlot=False)
 
 # INTERVAL HISTOGRAM
-#jSA.intervalHistogram(material, count='sum', directedInterval=True,
-#                      silence2ignore=0.125, ignoreGraceNotes=False)
+#intvlHist = jSA.intervalHistogram(material,count='sum',directedInterval=True,
+#                                  silence2ignore=0.125, ignoreGraceNotes=False,
+#                                  makePlot=False)
 
 # MELODIC DENSITY
 #totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
@@ -62,4 +64,4 @@ elif 'xipi' in shengqiang:
                                           sq=shengqiang, bs=banshi, ju=['x'])
     judouMaterialList = [material_s, material_x]
 
-jSA.plottingBoxPlots(judouMaterialList, includeGraceNotes=True)
+jSA.cadentialNotes(judouMaterialList, includeGraceNotes=True, makePlot=True)
