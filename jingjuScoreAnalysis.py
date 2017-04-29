@@ -727,12 +727,7 @@ def melodicDensity(material, filename, includeGraceNotes=True,
                             accumulatedCount[-1] += value
         totalCount.append(localCount)
 
-#    for i in range(len(syllables)):
-#        print(syllables[i], notesPerSyl[i])
-
     totalCount.append(accumulatedCount)
-
-#    notesPerSyl = np.array(notesPerSyl)
 
     xLabels = [str(i) for i in range(1, len(totalCount))]
     xLabels.append('Avg')
@@ -741,12 +736,15 @@ def melodicDensity(material, filename, includeGraceNotes=True,
     plt.xticks(range(1, len(totalCount)+1), xLabels, fontsize=20)
     plt.yticks(fontsize=18)
     plt.axvline(x=len(totalCount)-0.5, ls='--', color='red')
-    plt.ylim(0, 27)
+    if notesOrDuration == 'duration':
+        plt.ylim(0, 27)
+    elif notesOrDuration == 'notes':
+        plt.ylim(0, 70)
     plt.xlabel('Sample scores', fontsize=26)
     plt.ylabel('Duration per quarter note', fontsize=26)
     plt.tight_layout()
-    plt.savefig(filename)
-#    plt.show()
+#    plt.savefig(filename)
+    plt.show()
 
     return totalCount
 
