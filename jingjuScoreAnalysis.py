@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Mar 29 13:57:50 2017
 
-@author: Rafael.Ctt
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 from music21 import *
@@ -207,7 +203,8 @@ def collectJudouMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
 ## MAIN FUNCTIONS                                                            ##
 ###############################################################################  
 
-def pitchHistogram(material, count='sum', countGraceNotes=True, makePlot=True):
+def pitchHistogram(material, filename, count='sum', countGraceNotes=True,
+                   makePlot=True):
     '''list --> dict, bar plot
     
     It takes the list returned by the collectLineMaterial function, and returns
@@ -284,9 +281,9 @@ def pitchHistogram(material, count='sum', countGraceNotes=True, makePlot=True):
         if count == 'sum':
             limY = [0, 0.31]
     
-        plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Pitch',
-                 limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
-                 width=0.8)
+        plotting(filename, xPositions, xLabels, yValues, limX=limX,
+                 xLabel='Pitch', limY=limY, yLabel=yLabel, col=col, h=h,
+                 scaleGuides=True, width=0.8)
         
     # List to return
     results = []
@@ -297,7 +294,7 @@ def pitchHistogram(material, count='sum', countGraceNotes=True, makePlot=True):
 
 
 
-def intervalHistogram(material, count='sum', directedInterval=False,
+def intervalHistogram(material, filename, count='sum', directedInterval=False,
                       silence2ignore=0.25, ignoreGraceNotes=False,
                       makePlot=True):
     '''list --> , bar plot
@@ -397,9 +394,9 @@ def intervalHistogram(material, count='sum', directedInterval=False,
             else:
                 limY = [0, 0.5]
     
-        plotting(xPositions, xLabels, yValues, limX=limX, xLabel='Interval',
-                 limY=limY, yLabel=yLabel, col=col, h=h, scaleGuides=True,
-                 width=0.8)
+        plotting(filename, xPositions, xLabels, yValues, limX=limX,
+                 xLabel='Interval',limY=limY, yLabel=yLabel, col=col, h=h,
+                 scaleGuides=True, width=0.8)
         
     # List to return
     results = []
@@ -410,9 +407,9 @@ def intervalHistogram(material, count='sum', directedInterval=False,
 
 
 
-def plotting(xPositions, xLabels, yValues, title=None, limX=None, xLabel=None,
-             limY=None, yLabel=None, col=None, h=None, scaleGuides=False,
-             width=0.8):
+def plotting(filename, xPositions, xLabels, yValues, title=None, limX=None,
+             xLabel=None, limY=None, yLabel=None, col=None, h=None,
+             scaleGuides=False, width=0.8):
 
     plt.figure()
     plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
@@ -440,7 +437,8 @@ def plotting(xPositions, xLabels, yValues, title=None, limX=None, xLabel=None,
         plt.ylabel(yLabel, fontsize=26)
     plt.tight_layout()
     print('Done!')
-    plt.show()
+    plt.savefig(filename)
+#    plt.show()
 
 
     
@@ -571,7 +569,8 @@ def findCadentialNotes(judouMaterial, includeGraceNotes=True):
 
 
 
-def cadentialNotes(judouMaterialList, includeGraceNotes=True, makePlot=True):
+def cadentialNotes(judouMaterialList, filename, includeGraceNotes=True,
+                   makePlot=True):
 
     xLabels = ['Sec 1', 'Sec 2', 'Sec 3']
     pos = np.arange(len(xLabels))
@@ -625,11 +624,13 @@ def cadentialNotes(judouMaterialList, includeGraceNotes=True, makePlot=True):
         legendNotes.append(lcode[1])
     plt.legend(legendColors, legendNotes, bbox_to_anchor=(1, 1), loc=2)
     plt.tight_layout(rect=(0, 0, 0.83, 1))
-    plt.show()
+    plt.savefig(filename)
+#    plt.show()
 
 
 
-def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
+def melodicDensity(material, filename, includeGraceNotes=True,
+                   notesOrDuration='notes'):
     '''list --> box plot
     
     It takes the list returned by the collectLineMaterial function, and returns
@@ -744,7 +745,8 @@ def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
     plt.xlabel('Sample scores', fontsize=26)
     plt.ylabel('Duration per quarter note', fontsize=26)
     plt.tight_layout()
-    plt.show()
+    plt.savefig(filename)
+#    plt.show()
 
     return totalCount
 
