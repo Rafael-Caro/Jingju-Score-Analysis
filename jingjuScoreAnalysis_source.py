@@ -7,18 +7,23 @@ Created on Wed Mar 29 13:57:50 2017
 import numpy as np
 import matplotlib.pyplot as plt
 from music21 import *
+import jingjuScores as jS
 import fractions
 
+### TO DELETE?
+#f = 'scores/lsxp-LiangGuoJiao-ShiJieTing-1.xml'
+#s = converter.parse(f)
+#part = jS.findVoiceParts(s)[0]
+
+class ProcessException(Exception):
+    pass
 
 
-###############################################################################
-## FUNCTIONS FOR GATHERING MATERIAL                                          ##
-###############################################################################
 
-def collectLineMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
-                        'xipi'], bs = ['manban', 'sanyan', 'zhongsanyan',
-                        'kuaisanyan', 'yuanban', 'erliu', 'liushui',
-                        'kuaiban'], ju = ['s', 's1', 's2', 'x']):
+def collectMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
+                    bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
+                    'yuanban', 'erliu', 'liushui', 'kuaiban'], ju = ['s', 's1',
+                    's2', 'x']):
     '''str, [str], [str], [str], [str] --> [[str][str,[[float]]]]
    
     Given the path of the lyricsData file, and a list of the hangdang,
@@ -203,15 +208,99 @@ def collectJudouMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
 
 
 
-###############################################################################
-## MAIN FUNCTIONS                                                            ##
-###############################################################################  
+def plotting(xPositions, xLabels, yValues, title=None, limX=None, xLabel=None,
+             limY=None, yLabel=None, col=None, h=None, scaleGuides=False,
+             width=0.8):
+
+    plt.figure()
+    plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
+            color = col,
+            hatch = h)
+    if scaleGuides:
+        plt.axvline(x=64+width/2, color='red', zorder=0) # Tonic line
+        plt.axvline(x=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
+        plt.axvline(x=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
+        plt.axvline(x=71+width/2, color='gray', ls=':', zorder=0) # Fifth
+        plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
+    for yValue in yValues:
+        plt.axhline(y=yValue, color='gray', ls=':', zorder=0)
+    plt.xticks(xPositions + width/2, xLabels, rotation=90, fontsize=20)
+    plt.yticks(fontsize=18)
+    if limX != None:
+        plt.xlim(limX[0]-(1-width), limX[1]+1)
+    else:
+        plt.xlim(xPositions[0]-(1-width), xPositions[-1]+1)
+    if limY != None:
+        plt.ylim(limY[0], limY[1])
+    if xLabel != None:
+        plt.xlabel(xLabel, fontsize=26)
+    if yLabel != None:
+        plt.ylabel(yLabel, fontsize=26)
+    plt.tight_layout()
+    print('Done!')
+    plt.show()
+
+
+    
+def plottingParameters(material, count, yValues):
+    # Determing the handang and shengqiang present
+    searchInfo = material[0]
+    hdInfo = searchInfo['hd']
+    sqInfo = searchInfo['sq']
+    # Hangdang information
+    if len(hdInfo) == 2:
+        hd = 'sd'
+    else:
+        if hdInfo[0] == 'laosheng':
+            hd = 'ls'
+        elif hdInfo[0] == 'dan':
+            hd = 'da'
+    # Shengqiang information
+    if len(sqInfo) == 2:
+        sq = 'ex'
+    else:
+        if sqInfo[0] == 'erhuang':
+            sq = 'eh'
+        elif sqInfo[0] == 'xipi':
+            sq = 'xp'
+    
+    # Color, hatch and limits codes
+    colors = {'ls':'#66CCFF', 'da':'#FF9966', 'sd':'#B2B2B2'}
+    hatches = {'eh':'/', 'xp':'\\', 'ex':'x'} # hatch for the bars
+    xLimits = {'ls':(54, 76), 'da':(59, 85), 'sd':(54,85)}
+    
+    # Setting x limits
+    limX = xLimits[hd]
+
+    # Setting y limits and y label
+    limY = None
+    
+    # Normalising, if requested
+    if count == 'sum':
+        yValues = yValues / float(sum(yValues))
+        yLabel = 'Normalized Count'
+    elif count == 'max':
+        yValues = yValues / float(max(yValues))
+        yLabel = 'Normalized Count'
+    else:
+        yLabel = 'Count'
+    
+    # Setting bar color
+    col = colors[hd]
+    
+    # Setting bar hatch
+    h = hatches[sq]
+    
+    return yValues, limX, yLabel, col, h
+    
+
+
 
 def pitchHistogram(material, count='sum', countGraceNotes=True, makePlot=True):
     '''list --> dict, bar plot
     
-    It takes the list returned by the collectLineMaterial function, and returns
-    a dictionary with all the existing pitches' nameWithOctave as keys and its
+    It takes the list returned by the collectMaterial function, and returns a
+    dictionary with all the existing pitches' nameWithOctave as keys and its
     aggregated duration in quarterLengths as values.
     
     For the bar diagram to be plotted, the values can be normalised according
@@ -234,7 +323,7 @@ def pitchHistogram(material, count='sum', countGraceNotes=True, makePlot=True):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = findVoiceParts(loadedScore)
+        parts = jS.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -302,7 +391,7 @@ def intervalHistogram(material, count='sum', directedInterval=False,
                       makePlot=True):
     '''list --> , bar plot
     
-    It takes the list returned by the collectLineMaterial function, and returns
+    It takes the list returned by the collectMaterial function, and returns
     
     For the bar diagram to be plotted, the values can be normalised according
     to count:
@@ -319,7 +408,7 @@ def intervalHistogram(material, count='sum', directedInterval=False,
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = findVoiceParts(loadedScore)
+        parts = jS.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -410,90 +499,306 @@ def intervalHistogram(material, count='sum', directedInterval=False,
 
 
 
-def plotting(xPositions, xLabels, yValues, title=None, limX=None, xLabel=None,
-             limY=None, yLabel=None, col=None, h=None, scaleGuides=False,
-             width=0.8):
+def getAmbitus(material):
+    '''list --> music21.interval.Interval
+    
+    It takes the list returned by the collectMaterial function, and returns an
+    interval from the lowest note found to the highest note found.
+    '''
+    
+    ambitusStart = None
+    ambitusEnd = None
+    
+    for score in material:
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notes.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                segmentAmbitus = segment.analyze('ambitus')
+                if ambitusStart==None and ambitusEnd==None:
+                    ambitusStart = segmentAmbitus.noteStart
+                    ambitusEnd = segmentAmbitus.noteEnd
+                else:
+                    if segmentAmbitus.noteStart.midi < ambitusStart.midi:
+                        ambitusStart = segmentAmbitus.noteStart
+                    if segmentAmbitus.noteEnd.midi > ambitusEnd.midi:
+                        ambitusEnd = segmentAmbitus.noteEnd
 
-    plt.figure()
-    plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
-            color = col,
-            hatch = h)
-    if scaleGuides:
-        plt.axvline(x=64+width/2, color='red', zorder=0) # Tonic line
-        plt.axvline(x=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
-        plt.axvline(x=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
-        plt.axvline(x=71+width/2, color='gray', ls=':', zorder=0) # Fifth
-        plt.axvline(x=83+width/2, color='gray', ls=':', zorder=0) # Fifth
-    for yValue in yValues:
-        plt.axhline(y=yValue, color='gray', ls=':', zorder=0)
-    plt.xticks(xPositions + width/2, xLabels, rotation=90, fontsize=20)
-    plt.yticks(fontsize=18)
-    if limX != None:
-        plt.xlim(limX[0]-(1-width), limX[1]+1)
-    else:
-        plt.xlim(xPositions[0]-(1-width), xPositions[-1]+1)
-    if limY != None:
-        plt.ylim(limY[0], limY[1])
-    if xLabel != None:
-        plt.xlabel(xLabel, fontsize=26)
-    if yLabel != None:
-        plt.ylabel(yLabel, fontsize=26)
-    plt.tight_layout()
+    ambitusInterval = interval.Interval(ambitusStart, ambitusEnd)
+
+    print('Ambitus:', ambitusInterval.niceName + ', from',
+          ambitusStart.nameWithOctave, 'to', ambitusEnd.nameWithOctave)
+
+    return ambitusInterval
+
+
+
+def findScoreByPitchThreshold(material, thresholdPitch, lowHigh):
+    '''list, int, str --> [music21.stream.Score]
+    It takes the list returned by the collectMaterial function, a pitch midi
+    value, and the string "low" or "high" to look for those scores that contain
+    pitchs lower or higher than the given threshold.
+    '''
+    
+    scores = []    
+
+    for score in material:
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notes.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                ###############################################################
+                ## Change here so that it returns scores with the notes      ##
+                ## beyond the threshold colored in red.                      ##
+                ###############################################################
+                segmentAmbitus = segment.analyze('ambitus')
+                ambitusStart = segmentAmbitus.noteStart.midi
+                ambitusEnd = segmentAmbitus.noteEnd.midi
+                if lowHigh == 'low':
+                    if ambitusStart < pitch.Pitch(thresholdPitch).midi:
+                        if scoreName not in scores:
+                            scores.append(scoreName)
+                if lowHigh == 'high':
+                    if ambitusEnd > pitch.Pitch(thresholdPitch).midi:
+                        if scoreName not in scores:
+                            scores.append(scoreName)
+
     print('Done!')
+
+    return scores
+
+
+
+def getTones(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
+                    bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
+                    'yuanban', 'erliu', 'liushui', 'kuaiban'], ju = ['s', 's1',
+                    's2', 'x']):
+    '''str, [str], [str], [str], [str] --> str
+    Given the path of the lyricsData file, and a list of the hangdang,
+    shengqiang, banshi and line type to look for, it returns a string with the
+    score name and intercalated lyrics and tones for the lines found.
+    '''
+    with open(lyricsData, 'r', encoding='utf-8') as f:
+        data = f.readlines()
+        
+    tones = ''
+    
+    diacritics = ['，', '。', '？', '！', '；', '：', '、']
+    
+    # Line finding
+    for line in data:
+        strInfo = line.strip().split(',')
+        score = strInfo[0]
+        if score != '':
+            scoreName = score
+            scoreInTones = False
+    
+        if 'Part' in line: continue
+        
+        hd0 = strInfo[1]
+        sq0 = strInfo[2]
+        bs0 = strInfo[3]
+        ju0 = strInfo[4]
+        
+        lineLyrics = strInfo[5]
+        lineTones = strInfo[8]
+        
+        if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
+            # Intercalate lyrics and tones
+            lyricTones = ''
+            jump = 0
+            ignore = False
+            for i in range(len(lineLyrics)):
+                if lineLyrics[i] == '（':
+                    lyricTones += lineLyrics[i]
+                    ignore = True
+                    jump += 1
+                elif lineLyrics[i] == '）':
+                    lyricTones += lineLyrics[i]
+                    ignore = False
+                    jump += 1
+                elif lineLyrics[i] in diacritics:
+                    lyricTones += lineLyrics[i]
+                    jump += 1
+                else:
+                    if not ignore:
+                        lyricTones += lineLyrics[i] + lineTones[i-jump]
+                    else:
+                        lyricTones += lineLyrics[i]
+                        jump += 1
+            # Add score and lyricTones to tones
+            if not scoreInTones:
+                tones += '\n' + scoreName+'\n'+lyricTones+'\n'
+                scoreInTones = True
+            else:
+                tones += lyricTones+'\n'
+            
+    print(tones)
+
+    return tones
+
+
+    
+def floatOrFraction(strValue):
+    '''str --> fractions.Fraction or float
+    Given a numeric value as a string, it returns it as a fractions.Fraction
+    object if contains '/' on it, or as a float otherwise
+    '''
+    if '/' in strValue:
+        numerator = int(strValue.split('/')[0])
+        denominator = int(strValue.split('/')[1])
+        value = fractions.Fraction(numerator, denominator)
+    else:
+        value = float(strValue)
+        
+    return value
+
+
+
+def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
+    '''list --> box plot
+    
+    It takes the list returned by the collectMaterial function, and returns
+    '''
+    
+    if notesOrDuration not in ['notes', 'duration']:
+        raise Exception('The given value for notesOrDuration is not correct')
+
+    syllables = []
+    totalCount = []
+    accumulatedCount = []
+    
+    for score in material[1:]:
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        localCount = []
+        parts = jS.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notesAndRests.stream()
+            # Find segments to analyze in the current part
+            for startEnd in score[partIndex]:
+                start = startEnd[0]
+                end = startEnd[1]
+                segment = notes.getElementsByOffset(start, end)
+                openParenthesis = False
+                graceNote = False
+                for i in range(len(segment)):
+                    n = segment[i]
+                    if notesOrDuration == 'notes':
+                        value = 1
+                    else:
+                        value = n.quarterLength
+                    if n.isRest: continue
+                    if n.quarterLength==0:
+                        if not includeGraceNotes: continue
+                        j = 1
+                        while (i+j<len(segment) and
+                               segment[i+j].quarterLength==0):
+                            j += 1
+                        if i+j == len(segment): continue
+                        n2 = segment[i+j]
+                        if n2.hasLyrics():
+                            if (('（' in n2.lyric) or ('）' in n2.lyric) or
+                                openParenthesis):
+                                localCount[-1] += value
+                                accumulatedCount[-1] += value
+                            else:
+                                if graceNote:
+                                    localCount[-1] += value
+                                    accumulatedCount[-1] += value
+                                else:
+                                    localCount.append(value)
+                                    accumulatedCount.append(value)
+                                    syllables.append(n2.lyric)
+                                    graceNote = True
+                        else:
+                            localCount[-1] += value
+                            accumulatedCount[-1] += value
+                    else:
+                        if n.hasLyrics():
+                            # Check if the lyric is a padding syllable
+                            if ('（' in n.lyric) and ('）' in n.lyric):
+                                localCount[-1] += value
+                                accumulatedCount[-1] += value
+                            elif ('（' in n.lyric) and ('）' not in n.lyric):
+                                localCount[-1] += value
+                                accumulatedCount[-1] += value
+                                openParenthesis = True
+                            elif ('（' not in n.lyric) and ('）' in n.lyric):
+                                localCount[-1] += value
+                                accumulatedCount[-1] += value
+                                openParenthesis = False
+                            else:
+                                if openParenthesis:
+                                    localCount[-1] += value
+                                    accumulatedCount[-1] += value
+                                elif graceNote:
+                                    localCount[-1] += value
+                                    accumulatedCount[-1] += value
+                                    graceNote = False
+                                else:
+                                    localCount.append(value)
+                                    accumulatedCount.append(value)
+                                    syllables.append(n.lyric)
+                        else:
+                            localCount[-1] += value
+                            accumulatedCount[-1] += value
+        totalCount.append(localCount)
+
+#    for i in range(len(syllables)):
+#        print(syllables[i], notesPerSyl[i])
+
+    totalCount.append(accumulatedCount)
+
+#    notesPerSyl = np.array(notesPerSyl)
+
+    xLabels = [str(i) for i in range(1, len(totalCount))]
+    xLabels.append('Avg')
+
+    plt.boxplot(totalCount)
+    plt.xticks(range(1, len(totalCount)+1), xLabels, fontsize=20)
+    plt.yticks(fontsize=18)
+    plt.axvline(x=len(totalCount)-0.5, ls='--', color='red')
+    plt.ylim(0, 27)
+    plt.xlabel('Sample scores', fontsize=26)
+    plt.ylabel('Duration per quarter note', fontsize=26)
+    plt.tight_layout()
     plt.show()
 
-
-    
-def plottingParameters(material, count, yValues):
-    # Determing the handang and shengqiang present
-    searchInfo = material[0]
-    hdInfo = searchInfo['hd']
-    sqInfo = searchInfo['sq']
-    # Hangdang information
-    if len(hdInfo) == 2:
-        hd = 'sd'
-    else:
-        if hdInfo[0] == 'laosheng':
-            hd = 'ls'
-        elif hdInfo[0] == 'dan':
-            hd = 'da'
-    # Shengqiang information
-    if len(sqInfo) == 2:
-        sq = 'ex'
-    else:
-        if sqInfo[0] == 'erhuang':
-            sq = 'eh'
-        elif sqInfo[0] == 'xipi':
-            sq = 'xp'
-    
-    # Color, hatch and limits codes
-    colors = {'ls':'#66CCFF', 'da':'#FF9966', 'sd':'#B2B2B2'}
-    hatches = {'eh':'/', 'xp':'\\', 'ex':'x'} # hatch for the bars
-    xLimits = {'ls':(54, 76), 'da':(59, 85), 'sd':(54,85)}
-    
-    # Setting x limits
-    limX = xLimits[hd]
-
-    # Setting y limits and y label
-    limY = None
-    
-    # Normalising, if requested
-    if count == 'sum':
-        yValues = yValues / float(sum(yValues))
-        yLabel = 'Normalized Count'
-    elif count == 'max':
-        yValues = yValues / float(max(yValues))
-        yLabel = 'Normalized Count'
-    else:
-        yLabel = 'Count'
-    
-    # Setting bar color
-    col = colors[hd]
-    
-    # Setting bar hatch
-    h = hatches[sq]
-    
-    return yValues, limX, yLabel, col, h
+    return totalCount
 
 
 
@@ -508,7 +813,7 @@ def findCadentialNotes(judouMaterial, includeGraceNotes=True):
         loadedScore = converter.parse(scorePath)
         scoreName = scorePath.split('/')[-1]
         print(scoreName, 'parsed')
-        parts = findVoiceParts(loadedScore)
+        parts = jS.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -629,293 +934,15 @@ def cadentialNotes(judouMaterialList, includeGraceNotes=True, makePlot=True):
 
 
 
-def melodicDensity(material, includeGraceNotes=True, notesOrDuration='notes'):
-    '''list --> box plot
-    
-    It takes the list returned by the collectLineMaterial function, and returns
-    '''
-    
-    if notesOrDuration not in ['notes', 'duration']:
-        raise Exception('The given value for notesOrDuration is not correct')
-
-    syllables = []
-    totalCount = []
-    accumulatedCount = []
-    
-    for score in material[1:]:
-        # Loading the score to get the parts list
-        scorePath = score[0]
-        scoreName = scorePath.split('/')[-1]
-        loadedScore = converter.parse(scorePath)
-        print(scoreName, 'parsed')
-        localCount = []
-        parts = findVoiceParts(loadedScore)
-        # Work with each part
-        for partIndex in range(1, len(score)):
-            if len(score[partIndex]) == 0: continue # Skip part if it's empty
-            # Get the notes from the current part
-            part = parts[partIndex-1]
-            notes = part.flat.notesAndRests.stream()
-            # Find segments to analyze in the current part
-            for startEnd in score[partIndex]:
-                start = startEnd[0]
-                end = startEnd[1]
-                segment = notes.getElementsByOffset(start, end)
-                openParenthesis = False
-                graceNote = False
-                for i in range(len(segment)):
-                    n = segment[i]
-                    if notesOrDuration == 'notes':
-                        value = 1
-                    else:
-                        value = n.quarterLength
-                    if n.isRest: continue
-                    if n.quarterLength==0:
-                        if not includeGraceNotes: continue
-                        j = 1
-                        while (i+j<len(segment) and
-                               segment[i+j].quarterLength==0):
-                            j += 1
-                        if i+j == len(segment): continue
-                        n2 = segment[i+j]
-                        if n2.hasLyrics():
-                            if (('（' in n2.lyric) or ('）' in n2.lyric) or
-                                openParenthesis):
-                                localCount[-1] += value
-                                accumulatedCount[-1] += value
-                            else:
-                                if graceNote:
-                                    localCount[-1] += value
-                                    accumulatedCount[-1] += value
-                                else:
-                                    localCount.append(value)
-                                    accumulatedCount.append(value)
-                                    syllables.append(n2.lyric)
-                                    graceNote = True
-                        else:
-                            localCount[-1] += value
-                            accumulatedCount[-1] += value
-                    else:
-                        if n.hasLyrics():
-                            # Check if the lyric is a padding syllable
-                            if ('（' in n.lyric) and ('）' in n.lyric):
-                                localCount[-1] += value
-                                accumulatedCount[-1] += value
-                            elif ('（' in n.lyric) and ('）' not in n.lyric):
-                                localCount[-1] += value
-                                accumulatedCount[-1] += value
-                                openParenthesis = True
-                            elif ('（' not in n.lyric) and ('）' in n.lyric):
-                                localCount[-1] += value
-                                accumulatedCount[-1] += value
-                                openParenthesis = False
-                            else:
-                                if openParenthesis:
-                                    localCount[-1] += value
-                                    accumulatedCount[-1] += value
-                                elif graceNote:
-                                    localCount[-1] += value
-                                    accumulatedCount[-1] += value
-                                    graceNote = False
-                                else:
-                                    localCount.append(value)
-                                    accumulatedCount.append(value)
-                                    syllables.append(n.lyric)
-                        else:
-                            localCount[-1] += value
-                            accumulatedCount[-1] += value
-        totalCount.append(localCount)
-
-#    for i in range(len(syllables)):
-#        print(syllables[i], notesPerSyl[i])
-
-    totalCount.append(accumulatedCount)
-
-#    notesPerSyl = np.array(notesPerSyl)
-
-    xLabels = [str(i) for i in range(1, len(totalCount))]
-    xLabels.append('Avg')
-
-    plt.boxplot(totalCount)
-    plt.xticks(range(1, len(totalCount)+1), xLabels, fontsize=20)
-    plt.yticks(fontsize=18)
-    plt.axvline(x=len(totalCount)-0.5, ls='--', color='red')
-    plt.ylim(0, 27)
-    plt.xlabel('Sample scores', fontsize=26)
-    plt.ylabel('Duration per quarter note', fontsize=26)
-    plt.tight_layout()
-    plt.show()
-
-    return totalCount
-
-
-
 ###############################################################################
-## AUXILIARY FUNCTIONS                                                       ##
+## FUNCTIONS TO FIND SCORES                                                  ##
 ###############################################################################
-
-def findVoiceParts(score):
-    '''music21.stream.Score --> [music21.stream.Part]
-    
-    Given a music21.stream.Score with one or more parts, it returns a list of
-    the parts that contain lyrics
-    '''
-    
-    voiceParts = []
-    
-    for p in score.parts:
-        if len(p.flat.notes) == 0: continue
-        i = 0
-        n = p.flat.notes[i]
-        while n.quarterLength == 0:
-            i += 1
-            n = p.flat.notes.stream()[i]
-        if n.hasLyrics():
-                if p.hasElementOfClass('Instrument'):
-                    p.remove(p.getInstrument())
-                voiceParts.append(p)
-    return voiceParts
-
-
-
-def getAmbitus(material):
-    '''list --> music21.interval.Interval
-    
-    It takes the list returned by the collectLineMaterial function, and returns
-    an interval from the lowest note found to the highest note found.
-    '''
-    
-    ambitusStart = None
-    ambitusEnd = None
-    
-    for score in material:
-        # Loading the score to get the parts list
-        scorePath = score[0]
-        scoreName = scorePath.split('/')[-1]
-        loadedScore = converter.parse(scorePath)
-        print(scoreName, 'parsed')
-        parts = findVoiceParts(loadedScore)
-        # Work with each part
-        for partIndex in range(1, len(score)):
-            if len(score[partIndex]) == 0: continue # Skip part if it's empty
-            # Get the notes from the current part
-            part = parts[partIndex-1]
-            notes = part.flat.notes.stream()
-            # Find segments to analyze in the current part
-            for startEnd in score[partIndex]:
-                start = startEnd[0]
-                end = startEnd[1]
-                segment = notes.getElementsByOffset(start, end)
-                segmentAmbitus = segment.analyze('ambitus')
-                if ambitusStart==None and ambitusEnd==None:
-                    ambitusStart = segmentAmbitus.noteStart
-                    ambitusEnd = segmentAmbitus.noteEnd
-                else:
-                    if segmentAmbitus.noteStart.midi < ambitusStart.midi:
-                        ambitusStart = segmentAmbitus.noteStart
-                    if segmentAmbitus.noteEnd.midi > ambitusEnd.midi:
-                        ambitusEnd = segmentAmbitus.noteEnd
-
-    ambitusInterval = interval.Interval(ambitusStart, ambitusEnd)
-
-    print('Ambitus:', ambitusInterval.niceName + ', from',
-          ambitusStart.nameWithOctave, 'to', ambitusEnd.nameWithOctave)
-
-    return ambitusInterval
-
-
-
-def getTones(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
-                    bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
-                    'yuanban', 'erliu', 'liushui', 'kuaiban'], ju = ['s', 's1',
-                    's2', 'x']):
-    '''str, [str], [str], [str], [str] --> str
-    Given the path of the lyricsData file, and a list of the hangdang,
-    shengqiang, banshi and line type to look for, it returns a string with the
-    score name and intercalated lyrics and tones for the lines found.
-    '''
-    with open(lyricsData, 'r', encoding='utf-8') as f:
-        data = f.readlines()
-        
-    tones = ''
-    
-    diacritics = ['，', '。', '？', '！', '；', '：', '、']
-    
-    # Line finding
-    for line in data:
-        strInfo = line.strip().split(',')
-        score = strInfo[0]
-        if score != '':
-            scoreName = score
-            scoreInTones = False
-    
-        if 'Part' in line: continue
-        
-        hd0 = strInfo[1]
-        sq0 = strInfo[2]
-        bs0 = strInfo[3]
-        ju0 = strInfo[4]
-        
-        lineLyrics = strInfo[5]
-        lineTones = strInfo[8]
-        
-        if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
-            # Intercalate lyrics and tones
-            lyricTones = ''
-            jump = 0
-            ignore = False
-            for i in range(len(lineLyrics)):
-                if lineLyrics[i] == '（':
-                    lyricTones += lineLyrics[i]
-                    ignore = True
-                    jump += 1
-                elif lineLyrics[i] == '）':
-                    lyricTones += lineLyrics[i]
-                    ignore = False
-                    jump += 1
-                elif lineLyrics[i] in diacritics:
-                    lyricTones += lineLyrics[i]
-                    jump += 1
-                else:
-                    if not ignore:
-                        lyricTones += lineLyrics[i] + lineTones[i-jump]
-                    else:
-                        lyricTones += lineLyrics[i]
-                        jump += 1
-            # Add score and lyricTones to tones
-            if not scoreInTones:
-                tones += '\n' + scoreName+'\n'+lyricTones+'\n'
-                scoreInTones = True
-            else:
-                tones += lyricTones+'\n'
-            
-    print(tones)
-
-    return tones
-
-
-    
-def floatOrFraction(strValue):
-    '''str --> fractions.Fraction or float
-    Given a numeric value as a string, it returns it as a fractions.Fraction
-    object if contains '/' on it, or as a float otherwise
-    '''
-    if '/' in strValue:
-        numerator = int(strValue.split('/')[0])
-        denominator = int(strValue.split('/')[1])
-        value = fractions.Fraction(numerator, denominator)
-    else:
-        value = float(strValue)
-        
-    return value
-
-
 
 def findScoreByPitchThreshold(material, thresholdPitch, lowHigh):
     '''list, int, str --> [music21.stream.Score]
-    It takes the list returned by the collectLineMaterial function, a pitch
-    midi value, and the string "low" or "high" to look for those scores that
-    contain pitchs lower or higher than the given threshold.
+    It takes the list returned by the collectMaterial function, a pitch midi
+    value, and the string "low" or "high" to look for those scores that contain
+    pitchs lower or higher than the given threshold.
     '''
     
     scores = []    
@@ -926,7 +953,7 @@ def findScoreByPitchThreshold(material, thresholdPitch, lowHigh):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = findVoiceParts(loadedScore)
+        parts = jS.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -938,6 +965,10 @@ def findScoreByPitchThreshold(material, thresholdPitch, lowHigh):
                 start = startEnd[0]
                 end = startEnd[1]
                 segment = notes.getElementsByOffset(start, end)
+                ###############################################################
+                ## Change here so that it returns scores with the notes      ##
+                ## beyond the threshold colored in red.                      ##
+                ###############################################################
                 segmentAmbitus = segment.analyze('ambitus')
                 ambitusStart = segmentAmbitus.noteStart.midi
                 ambitusEnd = segmentAmbitus.noteEnd.midi
@@ -970,7 +1001,7 @@ def findScoreByPitch(material, pitchList):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = findVoiceParts(loadedScore)
+        parts = jS.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -1013,7 +1044,7 @@ def findScoreByInterval(material, intvlList, directedInterval=False,
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = findVoiceParts(loadedScore)
+        parts = jS.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -1068,3 +1099,15 @@ def findScoreByInterval(material, intvlList, directedInterval=False,
                   'found in this score')
             print('\tShowing', scoreName)
             loadedScore.show()
+
+
+    
+###############################################################################
+###############################################################################
+## TO IMPROVE                                                                ##
+## 1. Keep the banshi information in material, so that the graceNoteDur can  ##
+##    be adjusted accordingly.                                               ##
+## 2. Check if the arguments given to collectMaterial make no match at all   ##
+##    and raise a message                                                    ##
+###############################################################################
+###############################################################################
