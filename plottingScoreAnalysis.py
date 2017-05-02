@@ -22,11 +22,9 @@ bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
 ju_default = ['s', 's1', 's2', 'x']
 
 hangdang = ['dan']
-shengqiang = ['xipi']
-banshi = ['liushui', 'kuaiban']
+shengqiang = ['erhuang']
+banshi = ['yuanban']
 line = ['x']
-
-filename = '../THESIS/Plots/Melodic density (notes)/md-da-xp-lskb-cl.png'
 
 # MATERIAL PER LINE
 #material = jSA.collectLineMaterial(linesData, hd=hangdang, sq=shengqiang,
@@ -67,4 +65,4 @@ elif 'xipi' in shengqiang:
     judouMaterialList = [material_s, material_x]
 
 #jSA.cadentialNotes(judouMaterialList, includeGraceNotes=True, makePlot=True)
-x, y = jSA.findCadentialNotes(material_s)
+y = jSA.cadentialNotes(judouMaterialList)

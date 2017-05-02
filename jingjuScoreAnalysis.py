@@ -681,6 +681,8 @@ def cadentialNotes(judouMaterialList, filename=None, includeGraceNotes=True):
     legendCode = {}
     width = 0.5
     
+    result = {}
+    
     if len(judouMaterialList) == 2:
         titles = ['Opening line', 'Closing line']
     
@@ -691,19 +693,28 @@ def cadentialNotes(judouMaterialList, filename=None, includeGraceNotes=True):
     plt.figure()
     for i in range(len(judouMaterialList)):
         material = judouMaterialList[i]
+        lt = titles[i] # lt: line type
+        result[lt] = {}
         sortedNoteNames, sortedValues = findCadentialNotes(material,
                                                            includeGraceNotes)
+        for j in range(len(xLabels)):
+            sec = xLabels[j]
+            result[lt][sec] = {} # sec: section
+            for k in range(len(sortedNoteNames)):
+                nn = sortedNoteNames[k] # note name
+                result[lt][sec][nn] = sortedValues[k][j]
+            
         bot = np.array([0, 0, 0])
         plotNumber = '1' + str(len(judouMaterialList)) + str(i+1)
         plt.subplot(int(plotNumber))
-        for j in range(len(sortedValues)):
-            val = sortedValues[j]
-            colHatch = colors[sortedNoteNames[j]]
+        for l in range(len(sortedValues)):
+            val = sortedValues[l]
+            colHatch = colors[sortedNoteNames[l]]
             p = plt.bar(pos, val, width, color=colHatch[0],
                         hatch = colHatch[1], bottom=bot, align='center')
             bot = bot + val
             # Prepare the legend
-            noteName = sortedNoteNames[j]
+            noteName = sortedNoteNames[l]
             mid = pitch.Pitch(noteName).midi
             legendCode[mid] = [p[0], noteName]
         if not y:
@@ -725,6 +736,8 @@ def cadentialNotes(judouMaterialList, filename=None, includeGraceNotes=True):
     if filename != None:
         plt.savefig(filename)
 #        plt.show()
+    
+    return result
 
 
 
