@@ -48,5 +48,5 @@ elif 'xipi' in args.shengqiang:
                                           ju=['x'])
     judouMaterialList = [material_s, material_x]
 
-jSA.cadentialNotes(judouMaterialList, args.file,
+jSA.cadentialNotes(judouMaterialList, filename=args.file,
                    includeGraceNotes=args.graceNotes)

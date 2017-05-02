@@ -33,5 +33,6 @@ if __name__=='__main__':
     material = jSA.collectLineMaterial(linesData, hd=args.hangdang,
                                        sq=args.shengqiang, bs=args.banshi,
                                        ju=args.line)
-    pithHist = jSA.pitchHistogram(material, args.file, count=args.count,
+    pithHist = jSA.pitchHistogram(material, filename=args.file,
+                                  count=args.count,
                                   countGraceNotes=args.graceNotes)

@@ -33,6 +33,7 @@ if __name__=='__main__':
     material = jSA.collectLineMaterial(linesData, hd=args.hangdang,
                                        sq=args.shengqiang, bs=args.banshi,
                                        ju=args.line)
-    jSA.melodicDensity(material, args.file, includeGraceNotes=args.graceNotes,
-                   notesOrDuration=args.duration)
+    jSA.melodicDensity(material, filename=args.file,
+                       includeGraceNotes=args.graceNotes,
+                       notesOrDuration=args.duration)
 

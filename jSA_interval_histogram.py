@@ -35,7 +35,8 @@ if __name__=='__main__':
     material = jSA.collectLineMaterial(linesData, hd=args.hangdang,
                                        sq=args.shengqiang, bs=args.banshi,
                                        ju=args.line)
-    intHist = jSA.intervalHistogram(material, args.file, count=args.count,
+    intHist = jSA.intervalHistogram(material, filename=args.file,
+                                    count=args.count,
                                     directedInterval=False,
                                     silence2ignore=float(args.silence),
                                     ignoreGraceNotes=args.graceNotes)

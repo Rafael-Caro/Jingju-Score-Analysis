@@ -11,13 +11,13 @@ import fractions
 ## FUNCTIONS FOR GATHERING MATERIAL                                          ##
 ###############################################################################
 
-def collectLineMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
+def collectLineMaterial(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
                         'xipi'], bs = ['manban', 'sanyan', 'zhongsanyan',
                         'kuaisanyan', 'yuanban', 'erliu', 'liushui',
                         'kuaiban'], ju = ['s', 's1', 's2', 'x']):
     '''str, [str], [str], [str], [str] --> [[str][str,[[float]]]]
    
-    Given the path of the lyricsData file, and a list of the hangdang,
+    Given the path of the linesData file, and a list of the hangdang,
     shengqiang, banshi and line type to look for, it returns a list with the
     score segments that correspond to the lines that meet that criteria, plus a
     plotting rubric.
@@ -53,11 +53,11 @@ def collectLineMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
     ]
     '''
 
-    # Get the path of the folder shared by the lyricsData file and the xml
+    # Get the path of the folder shared by the linesData file and the xml
     # scores
-    path = lyricsData[:lyricsData.rfind('/')+1]
+    path = linesData[:linesData.rfind('/')+1]
     
-    with open(lyricsData, 'r', encoding='utf-8') as f:
+    with open(linesData, 'r', encoding='utf-8') as f:
         data = f.readlines()
     
     material = []
@@ -118,16 +118,53 @@ def collectLineMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
 
 
     
-def collectJudouMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
+def collectJudouMaterial(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
                          'xipi'], bs = ['manban', 'sanyan', 'zhongsanyan',
                          'kuaisanyan', 'yuanban', 'erliu', 'liushui',
                          'kuaiban'], ju = ['s', 's1', 's2', 'x']):
+    '''str, [str], [str], [str], [str] --> [[str][str,[[float]]]]
+   
+    Given the path of the linesData file, and a list of the hangdang,
+    shengqiang, banshi and line type to look for, it returns a list with the
+    score segments that correspond to the line sections that meet that
+    criteria, plus a plotting rubric.
 
-    # Get the path of the folder shared by the lyricsData file and the xml
-    # scores
-    path = lyricsData[:lyricsData.rfind('/')+1]
+    If any of the four search concepts is indifferent, don't input it in when
+    calling the function, so that it will retrive all the instances. For
+    example, if a search does not care about the banshi, just don't specify the
+    banshi list, so that it will retrieve the lines from all the banshi that
+    meet the other criteria.
+
+    In the returned list, the first element is the plotting rubric, a list of
+    two strings, indicating the hangdang and shengqiang used in the search. It
+    will be used in the plotting function to determine color, xlim and hatch.
     
-    with open(lyricsData, 'r', encoding='utf-8') as f:
+    The remaining elements are score lists, with the following format:
+    [pathToScore,
+     [[float, float],  # starting and ending offset of one segment
+      [float, float],
+      [float, float]], # first part
+     [[float, float],
+      [float, float],
+      [float, float]]  # second part
+    ]
+
+    For scores with multiple parts, if any of the parts doesn't have any line
+    that meets the searching criteria, the part will be store in the score list
+    as an empty list and in the corresponding order. For example:
+    [pathToScore,
+     [],               # first part
+     [[float, float],
+      [float, float],
+      [float, float]]  # second part
+    ]
+    '''
+
+    # Get the path of the folder shared by the linesData file and the xml
+    # scores
+    path = linesData[:linesData.rfind('/')+1]
+    
+    with open(linesData, 'r', encoding='utf-8') as f:
         data = f.readlines()
     
     material = []
@@ -203,13 +240,15 @@ def collectJudouMaterial(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang',
 ## MAIN FUNCTIONS                                                            ##
 ###############################################################################  
 
-def pitchHistogram(material, filename, count='sum', countGraceNotes=True,
-                   makePlot=True):
-    '''list --> dict, bar plot
+def pitchHistogram(material, filename=None, count='sum', countGraceNotes=True):
+    '''list, str --> dict
     
     It takes the list returned by the collectLineMaterial function, and returns
     a dictionary with all the existing pitches' nameWithOctave as keys and its
     aggregated duration in quarterLengths as values.
+    
+    If a filename is given, a bar plot will be computed and saved with that
+    filename.
     
     For the bar diagram to be plotted, the values can be normalised according
     to count:
@@ -272,7 +311,7 @@ def pitchHistogram(material, filename, count='sum', countGraceNotes=True,
     # Setting the parameters for plotting
     yValues, limX, yLabel, col, h = plottingParameters(material,count,yValues)
     
-    if makePlot:
+    if filename != None:
         # Start plotting
         print('Plotting...')
 
@@ -294,18 +333,29 @@ def pitchHistogram(material, filename, count='sum', countGraceNotes=True,
 
 
 
-def intervalHistogram(material, filename, count='sum', directedInterval=False,
-                      silence2ignore=0.25, ignoreGraceNotes=False,
-                      makePlot=True):
-    '''list --> , bar plot
+def intervalHistogram(material, filename=None, count='sum',
+                      directedInterval=False, silence2ignore=0.25,
+                      ignoreGraceNotes=False):
+    '''list --> dict
     
     It takes the list returned by the collectLineMaterial function, and returns
-    
+    a dictionary with all the existing interval classes as keys and their
+    aggregated occurrence as values.
+        
+    If a filename is given, a bar plot will be computed and saved with that
+    filename.
+        
     For the bar diagram to be plotted, the values can be normalised according
     to count:
     - if count=='sum', they are normalised to their summation,
     - if count=='max', they are normalised to their maximun value
-    - if count=='abs', they are not normalised, but absolute values given    
+    - if count=='abs', they are not normalised, but absolute values given
+    
+    If directedInterval is False, the direction of the interval won't be
+    considered. The inverval between two notes separated by a rest whose
+    quarter note duration is less or equal to silence2ignore will be also
+    counted. If ignoreGraceNotes==True, the intervals involving grace notes
+    will be ignored and not counted.
     '''
     
     intervalCount = {}
@@ -379,7 +429,7 @@ def intervalHistogram(material, filename, count='sum', directedInterval=False,
     ## Setting the parameters for plotting
     yValues, limX, yLabel, col, h = plottingParameters(material,count,yValues)
     
-    if makePlot:
+    if filename != None:
         # Start plotting
         print('Plotting...')
         
@@ -410,6 +460,24 @@ def intervalHistogram(material, filename, count='sum', directedInterval=False,
 def plotting(filename, xPositions, xLabels, yValues, title=None, limX=None,
              xLabel=None, limY=None, yLabel=None, col=None, h=None,
              scaleGuides=False, width=0.8):
+    '''
+    str, numpy.array, list, numpy.array --> matplotlib.pyplot.bar
+    
+    It creates a bar plot saved in the given filename, which plots bars at the
+    given xPositions, labelled with the str given in xLabels and with the
+    values given in yValues.
+    title: title of the plot (not given in the intervalHistogram or
+        pitchHistogram functions)
+    limX = boundaries of the x axis
+    xLabel = label of the x axis
+    limY = boundaries of the y axis
+    yLabel = label of the y axis
+    col = color of the bar faces
+    h = style of the bar hatches
+    scaleGuides = vertical lines for 1st degree, its higher octave and each
+        occurrence of the 5th degree
+    width = width of the bars
+    '''
 
     plt.figure()
     plt.bar(xPositions, yValues, width, linewidth=0, zorder=1,
@@ -443,6 +511,16 @@ def plotting(filename, xPositions, xLabels, yValues, title=None, limX=None,
 
     
 def plottingParameters(material, count, yValues):
+    '''
+    list, str, numpy.array --> numpy.array, tuple, str, str, str
+    
+    It takes the list returned by the collectLineMaterial function, the y axis
+    values computed for histogram and the method for normalising them, and
+    returns the normalised values for the y axis, a tuple with the limits for
+    the x axis, the label for the y axis, the color for the bar faces and the
+    style of the bar hatches
+    '''
+    
     # Determing the handang and shengqiang present
     searchInfo = material[0]
     hdInfo = searchInfo['hd']
@@ -497,6 +575,15 @@ def plottingParameters(material, count, yValues):
 
 def findCadentialNotes(judouMaterial, includeGraceNotes=True):
     '''
+    list --> [str], [numpy.array]
+    
+    It takes the list returned by the collectJudouMaterial function and returns
+    a list with the nameWithOctave of all the pitches that work as cadential
+    note in each of the line sections, and a list of numpy arrays with the
+    percentage of how much each of those pitches appear as cadential note in
+    each of the sections.
+    includeGraceNotes: if True, it considers grace notes as cadential notes, if
+        False, it takes the last not grace notes as cadential note.
     '''
 
     cadNotCount = [{}, {}, {}]
@@ -569,8 +656,18 @@ def findCadentialNotes(judouMaterial, includeGraceNotes=True):
 
 
 
-def cadentialNotes(judouMaterialList, filename, includeGraceNotes=True,
-                   makePlot=True):
+def cadentialNotes(judouMaterialList, filename=None, includeGraceNotes=True):
+    '''
+    list --> [dict]
+    
+    It takes the list returned by the collectJudouMaterial function and returns
+    a list of dictionaries for each of the line types contained, in which the
+    keys are the pitches used as cadential notes and the values the percentage
+    of occurrence from the total account. If a filename is given, it saves the
+    plot into that filename.
+    includeGraceNotes: if True, it considers grace notes as cadential notes, if
+        False, it takes the last not grace notes as cadential note.
+    '''
 
     xLabels = ['Sec 1', 'Sec 2', 'Sec 3']
     pos = np.arange(len(xLabels))
@@ -624,16 +721,26 @@ def cadentialNotes(judouMaterialList, filename, includeGraceNotes=True,
         legendNotes.append(lcode[1])
     plt.legend(legendColors, legendNotes, bbox_to_anchor=(1, 1), loc=2)
     plt.tight_layout(rect=(0, 0, 0.83, 1))
-    plt.savefig(filename)
-#    plt.show()
+
+    if filename != None:
+        plt.savefig(filename)
+#        plt.show()
 
 
 
-def melodicDensity(material, filename, includeGraceNotes=True,
+def melodicDensity(material, filename=None, includeGraceNotes=True,
                    notesOrDuration='notes'):
-    '''list --> box plot
+    '''list --> dict
     
-    It takes the list returned by the collectLineMaterial function, and returns
+    It takes the list returned by the collectLineMaterial function, computes
+    the length of each of the syllables contained in each scores, and plots a
+    box plot for each score, and for the average of all scores. It returns the
+    dictionary generated by matplotlib.pyplot.boxplot. If a filename is given,
+    it saves the plot into that filename.
+    includeGraceNotes: if True, it counts the length of grace notes
+    notesOrDuration: if notes, it counts the length of each syllable as number
+    of notes, if duration, it counts it as sum of the quarterLength duration of
+    all the notes for that syllable
     '''
     
     if notesOrDuration not in ['notes', 'duration']:
@@ -732,21 +839,23 @@ def melodicDensity(material, filename, includeGraceNotes=True,
     xLabels = [str(i) for i in range(1, len(totalCount))]
     xLabels.append('Avg')
 
-    plt.boxplot(totalCount)
-    plt.xticks(range(1, len(totalCount)+1), xLabels, fontsize=20)
-    plt.yticks(fontsize=18)
-    plt.axvline(x=len(totalCount)-0.5, ls='--', color='red')
-    if notesOrDuration == 'duration':
-        plt.ylim(0, 27)
-    elif notesOrDuration == 'notes':
-        plt.ylim(0, 70)
-    plt.xlabel('Sample scores', fontsize=26)
-    plt.ylabel('Duration per quarter note', fontsize=26)
-    plt.tight_layout()
-#    plt.savefig(filename)
-    plt.show()
+    result = plt.boxplot(totalCount)
+    
+    if filename != None:
+        plt.xticks(range(1, len(totalCount)+1), xLabels, fontsize=20)
+        plt.yticks(fontsize=18)
+        plt.axvline(x=len(totalCount)-0.5, ls='--', color='red')
+        if notesOrDuration == 'duration':
+            plt.ylim(0, 27)
+        elif notesOrDuration == 'notes':
+            plt.ylim(0, 70)
+        plt.xlabel('Sample scores', fontsize=26)
+        plt.ylabel('Duration per quarter note', fontsize=26)
+        plt.tight_layout()
+        plt.savefig(filename)
+#        plt.show()
 
-    return totalCount
+    return result
 
 
 
@@ -825,16 +934,16 @@ def getAmbitus(material):
 
 
 
-def getTones(lyricsData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
+def getTones(linesData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
                     bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
                     'yuanban', 'erliu', 'liushui', 'kuaiban'], ju = ['s', 's1',
                     's2', 'x']):
     '''str, [str], [str], [str], [str] --> str
-    Given the path of the lyricsData file, and a list of the hangdang,
+    Given the path of the linesData file, and a list of the hangdang,
     shengqiang, banshi and line type to look for, it returns a string with the
     score name and intercalated lyrics and tones for the lines found.
     '''
-    with open(lyricsData, 'r', encoding='utf-8') as f:
+    with open(linesData, 'r', encoding='utf-8') as f:
         data = f.readlines()
         
     tones = ''
@@ -958,6 +1067,11 @@ def findScoreByPitchThreshold(material, thresholdPitch, lowHigh):
 
 def findScoreByPitch(material, pitchList):
     '''
+    list, list --> list
+    It takes the list returned by the collectLineMaterial function and list of
+    pitches' nameWithOctave in str form, and shows the scores that contain at
+    least one instance of any of those pitches with the notes belonging to that
+    pitch in red. It returns a list with the paths to the scores opened.
     '''
 
     scores = []
@@ -997,14 +1111,29 @@ def findScoreByPitch(material, pitchList):
             print('\tShowing', scoreName)
             loadedScore.show()
 
-    return(scores)
+    return scores
 
 
 
 def findScoreByInterval(material, intvlList, directedInterval=False,
                  silence2ignore=0.25, ignoreGraceNotes=False):
     '''
+    list, list --> list
+    It takes the list returned by the collectLineMaterial function and list of
+    intervals in str form, and shows the scores that contain at least one
+    instance of any of those intervals with the notes that form that interval
+    in red. It returns a list with the paths to the scores opened.
+    directedInterval: if False, it doesn't consider the direction of the
+        interval
+    silence2ignore: the inverval between two notes separated by a rest whose
+        quarter note duration is less or equal to silence2ignore will be also
+        counted
+    ignoreGraceNotes: if True, the intervals involving grace notes will be
+        ignored and not counted
     '''
+
+    scores = []
+    
     for score in material[1:]:
         showScore = False
         intvlsFound = {}
@@ -1062,9 +1191,13 @@ def findScoreByInterval(material, intvlList, directedInterval=False,
                         n2.color = 'red'
                         intvlsFound[intvlName] = intvlsFound.get(intvlName,0)+1
                         showScore = True
+                        if scorePath not in scores:
+                            scores.append(scorePath)
         if showScore:
             for k in intvlsFound:
                 print('\t' + str(intvlsFound[k]), 'samples of', k,
                   'found in this score')
             print('\tShowing', scoreName)
             loadedScore.show()
+    
+    return scores
