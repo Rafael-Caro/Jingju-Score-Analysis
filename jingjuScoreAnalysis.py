@@ -204,17 +204,25 @@ def collectJudouMaterial(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
                 ju1_start = floatOrFraction(strInfo[10])
                 ju1_end = floatOrFraction(strInfo[11])
                 ju1 = [ju1_start, ju1_end]
-                material[-1][-1].append(ju1)
+            else:
+                ju1 = []
+            material[-1][-1].append(ju1)
+
             if strInfo[13] != '':
                 ju2_start = floatOrFraction(strInfo[13])
                 ju2_end = floatOrFraction(strInfo[14])
                 ju2 = [ju2_start, ju2_end]
-                material[-1][-1].append(ju2)
+            else:
+                ju2 = []
+            material[-1][-1].append(ju2)
+
             if strInfo[16] != '':
                 ju3_start = floatOrFraction(strInfo[16])
                 ju3_end = floatOrFraction(strInfo[17])
                 ju3 = [ju3_start, ju3_end]
-                material[-1][-1].append(ju3)
+            else:
+                ju3 = []
+            material[-1][-1].append(ju3)
             
     # Delete empty lists
     score2remove = []
@@ -603,6 +611,7 @@ def findCadentialNotes(judouMaterial, includeGraceNotes=True):
             # Find segments to analyze in the current part
             for segInd in range(len(score[partIndex])):
                 startEnd = score[partIndex][segInd]
+                if len(startEnd) == 0: continue
                 start = startEnd[0]
                 end = startEnd[1]
                 segment = notes.getElementsByOffset(start, end)

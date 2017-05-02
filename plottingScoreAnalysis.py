@@ -21,9 +21,9 @@ bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
               'yuanban', 'erliu', 'liushui', 'kuaiban']
 ju_default = ['s', 's1', 's2', 'x']
 
-hangdang = ['dan']
+hangdang = ['laosheng']
 shengqiang = ['erhuang']
-banshi = ['yuanban']
+banshi = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan']
 line = ['x']
 
 # MATERIAL PER LINE
