@@ -611,9 +611,7 @@ def findCadentialNotes(judouMaterial, includeGraceNotes=True):
             # Find segments to analyze in the current part
             for segInd in range(len(score[partIndex])):
                 startEnd = score[partIndex][segInd]
-                if len(startEnd) == 0:
-                    print('Empty section')
-                    continue
+                if len(startEnd) == 0: continue
                 start = startEnd[0]
                 end = startEnd[1]
                 segment = notes.getElementsByOffset(start, end)
