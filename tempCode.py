@@ -12,7 +12,10 @@ linesData = 'scores/lines_data.csv'
 
 hangdang = ['laosheng']
 shengqiang = ['xipi']
-banshi = ['liushui']
+banshi = ['yuanban']
 
 material = jSA.collectJudouMaterial(linesData, hd=hangdang, sq=shengqiang,
                                    bs=banshi)
+
+data, r = jSA.melodicDensity(material)
+
