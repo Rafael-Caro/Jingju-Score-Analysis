@@ -908,7 +908,7 @@ def melodicDensity(material, filename=None, includeGraceNotes=True,
         plt.savefig(filename)
 #        plt.show()
 
-    return data, results
+    return results
 
 
 
