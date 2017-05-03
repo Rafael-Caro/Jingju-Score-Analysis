@@ -745,9 +745,11 @@ def cadentialNotes(judouMaterialList, filename=None, includeGraceNotes=True):
     plt.tight_layout(rect=(0, 0, 0.83, 1))
 
     if filename != None:
+        print('Plotting...')
         plt.savefig(filename)
 #        plt.show()
     
+    print('Done!')
     return result
 
 
@@ -905,9 +907,11 @@ def melodicDensity(material, filename=None, includeGraceNotes=True,
     plt.tight_layout()
     
     if filename != None:
+        print('Plotting...')
         plt.savefig(filename)
 #        plt.show()
 
+    print('Done!')
     return results
 
 
