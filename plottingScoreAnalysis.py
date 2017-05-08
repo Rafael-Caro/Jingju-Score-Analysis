@@ -42,8 +42,8 @@ judouMaterial = jSA.collectJudouMaterial(linesData, hd=hangdang,
 #                                  silence2ignore=0.125, ignoreGraceNotes=False)
 
 # MELODIC DENSITY
-totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
-                                notesOrDuration='notes')
+#totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
+#                                notesOrDuration='notes')
 
 # MATERIAL FOR CADENTIAL NOTES
 if 'erhuang' in shengqiang:

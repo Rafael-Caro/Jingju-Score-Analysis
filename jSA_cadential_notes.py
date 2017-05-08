@@ -17,7 +17,7 @@ if __name__=='__main__':
     parser.add_argument('-hd', '--hangdang', nargs='*', help='Restrict the search to the given role-type. Laosheng and dan given by default', default=default_hd)
     parser.add_argument('-sq', '--shengqiang', nargs='*', help='Restrict the search to either erhuang or xipi')
     parser.add_argument('-bs', '--banshi', nargs='*', help='Restrict the search to the given shengqiang. All of them given by default.', default=default_bs)
-    parser.add_argument('-gn', '--graceNotes', help='Set if grace notes should be counted', default='True')
+    parser.add_argument('-gn', '--graceNotes', help='Set if grace notes should be counted. Take True or False. Set True by default', default='True')
     
     args = parser.parse_args()
     
@@ -26,6 +26,12 @@ if __name__=='__main__':
         linesData = path + 'lines_data.csv'
     else:
         linesData = path + '/lines_data.csv'
+    
+    gn = args.graceNotes
+    if gn == 'True':
+        gn = True
+    elif gn == 'False':
+        gn = False
     
 if 'erhuang' in args.shengqiang:
     material_s1 = jSA.collectJudouMaterial(linesData, args.hangdang,
@@ -49,4 +55,4 @@ elif 'xipi' in args.shengqiang:
     judouMaterialList = [material_s, material_x]
 
 jSA.cadentialNotes(judouMaterialList, filename=args.file,
-                   includeGraceNotes=args.graceNotes)
+                   includeGraceNotes=gn)

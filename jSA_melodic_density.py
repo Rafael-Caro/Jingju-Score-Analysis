@@ -19,7 +19,7 @@ if __name__=='__main__':
     parser.add_argument('-sq', '--shengqiang', nargs='*', help='Restrict the search to the given shengqiang. Erhuang and xipi given by default', default=default_sq)
     parser.add_argument('-bs', '--banshi', nargs='*', help='Restrict the search to the given shengqiang. All of them given by default.', default=default_bs)
     parser.add_argument('-l', '--line', nargs='*', help='Restrict the search to the given shengqiang. S1, s2, s and x given by default', default=default_ju)
-    parser.add_argument('-gn', '--graceNotes', help='Set if grace notes should be counted', default='True')
+    parser.add_argument('-gn', '--graceNotes', help='Set if grace notes should be counted. Take True or False. Set True by default', default='True')
     parser.add_argument('-d', '--duration', help='Set the duration output: notes for number of notes, duration for agregated length in quarter notes. Duration given as default', default='duration')
     
     args = parser.parse_args()
@@ -30,10 +30,16 @@ if __name__=='__main__':
     else:
         linesData = path + '/lines_data.csv'
     
+    gn = args.graceNotes
+    if gn == 'True':
+        gn = True
+    elif gn == 'False':
+        gn = False
+    
     material = jSA.collectLineMaterial(linesData, hd=args.hangdang,
                                        sq=args.shengqiang, bs=args.banshi,
                                        ju=args.line)
     jSA.melodicDensity(material, filename=args.file,
-                       includeGraceNotes=args.graceNotes,
+                       includeGraceNotes=gn,
                        notesOrDuration=args.duration)
 
