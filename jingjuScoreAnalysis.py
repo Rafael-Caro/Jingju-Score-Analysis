@@ -655,12 +655,6 @@ def findCadentialNotes(judouMaterial, includeGraceNotes=True):
             row.append(secCount.get(noteName, 0))
         sortedValues.append(np.array(row))
 
-#    for i in range(len(cadNotCount)):
-#        toDiscard, noteNames, noteCount = sortDict(cadNotCount[i])
-#        noteCount = np.array(noteCount)
-#        toPerCent = 100 / np.sum(noteCount)
-#        notePerCent = noteCount * toPerCent
-
     return sortedNoteNames, sortedValues
 
 

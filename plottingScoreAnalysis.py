@@ -31,21 +31,19 @@ line = ['x']
 #                                   bs=banshi, ju=line)
 
 # MATERIAL PER JUDOU
-#judouMaterial = jSA.collectJudouMaterial(lyricsData, hd=hangdang,
-#                                         sq=shengqiang, bs=banshi, ju=line)
+judouMaterial = jSA.collectJudouMaterial(linesData, hd=hangdang,
+                                         sq=shengqiang, bs=banshi, ju=line)
 
 # PITCH HISTOGRAM
-#pitchHist = jSA.pitchHistogram(material, count='sum', countGraceNotes=True,
-#                               makePlot=True)
+#pitchHist = jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
 
 # INTERVAL HISTOGRAM
 #intvlHist = jSA.intervalHistogram(material,count='sum',directedInterval=False,
-#                                  silence2ignore=0.125, ignoreGraceNotes=False,
-#                                  makePlot=True)
+#                                  silence2ignore=0.125, ignoreGraceNotes=False)
 
 # MELODIC DENSITY
-#totalCount = jSA.melodicDensity(material, filename, includeGraceNotes=True,
-#                                notesOrDuration='notes')
+totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
+                                notesOrDuration='notes')
 
 # MATERIAL FOR CADENTIAL NOTES
 if 'erhuang' in shengqiang:
@@ -64,5 +62,4 @@ elif 'xipi' in shengqiang:
                                           sq=shengqiang, bs=banshi, ju=['x'])
     judouMaterialList = [material_s, material_x]
 
-#jSA.cadentialNotes(judouMaterialList, includeGraceNotes=True, makePlot=True)
-y = jSA.cadentialNotes(judouMaterialList)
+results = jSA.cadentialNotes(judouMaterialList, includeGraceNotes=True)
