@@ -269,18 +269,24 @@ def toneContour(material, countGraceNotes=True):
                 toneJump = 0
                 
                 syl = []
+                graceNotes = [] # Store grace notes to be added to a note with
+                                # lyrics
                 
                 segment = notes.getElementsByOffset(start, end)
                 
-                for n in segment:
+                for i in range(len(segment)):
+                    n = segment[i]
                     if n.hasLyrics():
                         char = n.lyric
                         currentChar = lyrics[lyrIndex:lyrIndex+len(char)]
                         currentTone = tones[lyrIndex-toneJump]
+                        # Check that the lyric in the score and the one from
+                        # the annotations coincide
                         if char != currentChar:
                             print('Problem with', char)
                             segment.show()
-                        if len(syl) != 0:
+                            
+                        if len(syl) != 0: # it is not the first syllable
                             contour = defineContour(syl)
                             temp[-1][-1][-1].append(contour)
                             temp[-1][-1][-1].append(syl)
@@ -290,14 +296,66 @@ def toneContour(material, countGraceNotes=True):
                         temp[-1][-1].append([char,currentChar,currentTone])
                         lyrIndex += len(char)
                         toneJump += len(char) - 1
-                        syl = [n.pitch.midi]
-                    else:
-                        syl.append(n.pitch.midi)
+                        syl = graceNotes + [n.pitch.midi] # Add preceding grace
+                        graceNotes = [] # Grace notes buffer empty
+                    elif n.quarterLength == 0:
+                        # Store grace notes pitches while cheking other stuff
+                        buffer = [n.pitch.midi]
+                        # If it is not the last note of the segment...
+                        if i != len(segment)-1:
+                            # ...check if there are more grace notes following
+                            jump = 1
+                            while ((i+jump<len(segment)) # is not over segment
+                                   and (segment[i+jump]==0)):
+                                mid = segment[i+jump].pitch.midi
+#                                # Check mordent
+#                                if i+jump < len(segment)-1: # not the last note
+#                                    preMid = segment[i+jump-1].pitch.midi
+#                                    postMid = segment[i+jump+1].pitch.midi
+#                                    if preMid != postMid: # not mordent, then
+#                                        buffer.append(mid)
+#                                else: # it is the last note
+                                buffer.append(mid)
+                                jump += 1
+                            # There are not more grace notes following
+                            # Check if the grace notes are at the end
+                            if i+jump >= len(segment):
+                                syl += buffer
+                            # If not, check if the next note has lyrics
+                            elif segment[i+jump].hasLyrics():
+                                graceNotes = buffer
+                            # If not, check if it is a mordent
+                            elif (segment[i-1].pitch.midi ==
+                                  segment[i+jump].pitch.midi):
+                                pass
+                            # If not, it is just a note's grace note(s)
+                            else:
+                                syl += buffer
+                        else: # it is the last note of the segment
+                            syl.append(n.pitch.midi)
+                    else: # A note without lyrics
+                        # Check if it could be a mordent
+                        # So, check if it's not the last and has a shorter
+                        # duration than a quaver
+                        mid = n.pitch.midi
+                        if i<len(segment)-1 and n.quarterLength<0.5:
+                            premid = segment[i-1].pitch.midi
+                            if not segment[i+1].hasLyrics():
+                                postmid = segment[i+1].pitch.midi
+                                if mid != premid and premid == postmid:
+                                    pass
+                                else:
+                                    syl.append(mid)
+                            else:
+                                syl.append(mid)
+                        else:
+                            syl.append(mid)
+                
                 temp[-1][-1][-1].append(defineContour(syl))
                 temp[-1][-1][-1].append(syl)
                 for i in temp[-1][-1]:
                     print(i)
-                segment.show()
+#                segment.show()
                     
     for i in range(1, 5):
         print(i, sorted(contours[str(i)].items(), key=lambda x:x[1],
@@ -319,7 +377,7 @@ def defineContour(pitches):
     '''
     
     if len(pitches) == 1:
-        contour = 'F'
+        contour = 'dF'
         
     elif len(pitches) == 2:
         if pitches[0] > pitches[1]:
@@ -365,6 +423,13 @@ def defineContour(pitches):
                     contour = 'DA'
                 else:
                     contour = 'AD'
+        elif contour == 'F':
+            if h-first > first-l:
+                contour = 'AD'
+            elif first == h == l:
+                contour = 'F'
+            else:
+                contour = 'DA'
 
     else:
         print('Invalid sequence of pitches. Possibly empty list.')          
