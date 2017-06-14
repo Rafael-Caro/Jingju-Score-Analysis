@@ -232,7 +232,7 @@ def collectTonesMaterial(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
 
 
 
-def toneContour(material, countGraceNotes=True):
+def toneContour(material, countGraceNotes=True, query=[]):
     '''list --> dict
     
     It takes the list returned by the collectTonesMaterial function, and
@@ -271,7 +271,11 @@ def toneContour(material, countGraceNotes=True):
                 syl = []
                 graceNotes = [] # Store grace notes to be added to a note with
                                 # lyrics
-                inBrackets = False
+                inBrackets = False # Flag to check if the lyrics syllabe is
+                                   # within a bracket
+                toRed = [] # Stores indexes of the notes to show in red
+                showSegment = False # True if a search has been found in this
+                                    # segment
                 
                 segment = notes.getElementsByOffset(start, end)
                 
@@ -292,22 +296,39 @@ def toneContour(material, countGraceNotes=True):
                             inBrackets = True
                             syl.append(n.pitch.midi)
                             toneJump += len(char)
+                            if len(toRed)>0: toRed.append(i)
                         elif inBrackets == True:
                             syl.append(n.pitch.midi)
                             toneJump += len(char)
+                            if len(toRed)>0: toRed.append(i)
                         elif '）' in char:
                             inBrackets = False
                             syl.append(n.pitch.midi)
                             toneJump += len(char)
+                            if len(toRed)>0: toRed.append(i)
                         else:
-                            currentTone = tones[lyrIndex-toneJump]
-                            if len(syl) != 0: # it is not the first syllable
+                            # First, solve the accumulated pitches in syl from
+                            # the previous syllable
+                            if len(syl) > 0:
                                 contour = defineContour(syl)
+                                if contour==query[1] and len(toRed)>0:
+                                    for n2r in toRed:
+                                        segment[n2r].color = 'red'
+                                    showSegment = True
                                 temp[-1][-1][-1].append(contour)
                                 temp[-1][-1][-1].append(syl)
                                 if currentTone != '5':
                                     c = contours[currentTone]
                                     c[contour] = c.get(contour, 0) + 1
+                            currentTone = tones[lyrIndex-toneJump]
+                            toRed=[]
+                            if currentTone == query[0]:
+                                toRed.append(i)
+                                preGrace = 1
+                                while (i-preGrace >= 0 and
+                                       segment[i-preGrace].quarterLength==0):
+                                    toRed.append(i-preGrace)
+                                    preGrace += 1
                             temp[-1][-1].append([char,currentChar,currentTone])
                             toneJump += len(char) - 1
                             syl = graceNotes + [n.pitch.midi] # Add preceding
@@ -346,22 +367,26 @@ def toneContour(material, countGraceNotes=True):
                             if (i+jump >= len(segment)
                                   or segment[i+jump].isRest):
                                 syl += buffer
+                                if len(toRed)>0: toRed.append(i)
                             # If not, check if the next note has lyrics
                             elif segment[i+jump].hasLyrics():
                                 if '（' in segment[i+jump].lyric or inBrackets:
                                     syl += buffer
+                                    if len(toRed)>0: toRed.append(i)
                                 else:
                                     graceNotes = buffer
                             # If not, check if it is a mordent
                             elif (not segment[i-1].isRest and
                                   segment[i-1].pitch.midi ==
                                   segment[i+jump].pitch.midi):
-                                pass
+                                if len(toRed)>0: toRed.append(i)
                             # If not, it is just a note's grace note(s)
                             else:
                                 syl += buffer
+                                if len(toRed)>0: toRed.append(i)
                         else: # it is the last note of the segment
                             syl.append(n.pitch.midi)
+                            if len(toRed)>0: toRed.append(i)
                     else: # A note without lyrics
                         # Check if it could be a mordent
                         # So, check if it's not the last and has a shorter
@@ -374,19 +399,23 @@ def toneContour(material, countGraceNotes=True):
                                 and not segment[i+1].isRest):
                                 postmid = segment[i+1].pitch.midi
                                 if mid != premid and premid == postmid:
-                                    pass
+                                    if len(toRed)>0: toRed.append(i)
                                 else:
                                     syl.append(mid)
+                                    if len(toRed)>0: toRed.append(i)
                             else:
                                 syl.append(mid)
+                                if len(toRed)>0: toRed.append(i)
                         else:
                             syl.append(mid)
+                            if len(toRed)>0: toRed.append(i)
                 
                 temp[-1][-1][-1].append(defineContour(syl))
                 temp[-1][-1][-1].append(syl)
                 for i in temp[-1][-1]:
                     print(i)
-#                segment.show()
+
+                if showSegment: segment.show()
                     
     for i in range(1, 5):
         print(i, sorted(contours[str(i)].items(), key=lambda x:x[1],

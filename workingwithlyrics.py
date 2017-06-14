@@ -21,7 +21,7 @@ linesData = 'scores/test.csv'
 #    print(x + '\t' + str(i[1]) + '\t' + str(i[2]))
 
 material = jLA.collectTonesMaterial(linesData)
-temp, n = jLA.toneContour(material)
+temp, n = jLA.toneContour(material, query=['1', 'A'])
 
 
 
