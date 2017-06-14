@@ -271,6 +271,7 @@ def toneContour(material, countGraceNotes=True):
                 syl = []
                 graceNotes = [] # Store grace notes to be added to a note with
                                 # lyrics
+                inBrackets = False
                 
                 segment = notes.getElementsByOffset(start, end)
                 
@@ -279,25 +280,38 @@ def toneContour(material, countGraceNotes=True):
                     if n.hasLyrics():
                         char = n.lyric
                         currentChar = lyrics[lyrIndex:lyrIndex+len(char)]
-                        currentTone = tones[lyrIndex-toneJump]
                         # Check that the lyric in the score and the one from
                         # the annotations coincide
                         if char != currentChar:
                             print('Problem with', char)
                             segment.show()
-                            
-                        if len(syl) != 0: # it is not the first syllable
-                            contour = defineContour(syl)
-                            temp[-1][-1][-1].append(contour)
-                            temp[-1][-1][-1].append(syl)
-                            if currentTone != '5':
-                                c = contours[currentTone]
-                                c[contour] = c.get(contour, 0) + 1
-                        temp[-1][-1].append([char,currentChar,currentTone])
+                        
+                        if ('（' in char) and ('）' not in char):
+                            inBrackets = True
+                            syl.append(n.pitch.midi)
+                            toneJump += len(char)
+                        elif inBrackets == True:
+                            syl.append(n.pitch.midi)
+                            toneJump += len(char)
+                        elif '）' in char:
+                            inBrackets = False
+                            syl.append(n.pitch.midi)
+                            toneJump += len(char)
+                        else:
+                            currentTone = tones[lyrIndex-toneJump]
+                            if len(syl) != 0: # it is not the first syllable
+                                contour = defineContour(syl)
+                                temp[-1][-1][-1].append(contour)
+                                temp[-1][-1][-1].append(syl)
+                                if currentTone != '5':
+                                    c = contours[currentTone]
+                                    c[contour] = c.get(contour, 0) + 1
+                            temp[-1][-1].append([char,currentChar,currentTone])
+                            toneJump += len(char) - 1
+                            syl = graceNotes + [n.pitch.midi] # Add preceding
+                                                              # grace notes
+                            graceNotes = [] # Grace notes buffer empty
                         lyrIndex += len(char)
-                        toneJump += len(char) - 1
-                        syl = graceNotes + [n.pitch.midi] # Add preceding grace
-                        graceNotes = [] # Grace notes buffer empty
                     elif n.quarterLength == 0:
                         # Store grace notes pitches while cheking other stuff
                         buffer = [n.pitch.midi]
@@ -355,7 +369,7 @@ def toneContour(material, countGraceNotes=True):
                 temp[-1][-1][-1].append(syl)
                 for i in temp[-1][-1]:
                     print(i)
-#                segment.show()
+                segment.show()
                     
     for i in range(1, 5):
         print(i, sorted(contours[str(i)].items(), key=lambda x:x[1],

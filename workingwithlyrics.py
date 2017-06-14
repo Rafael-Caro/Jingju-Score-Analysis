@@ -8,6 +8,7 @@ Created on Thu Jun  8 10:56:39 2017
 import jingjuLyricsAnalysis as jLA
 
 linesData = 'scores/lines_data.csv'
+#linesData = 'scores/test.csv'
 
 #material = jLA.countLineType(linesData, hd=['dan'], sq=['erhuang'])
 #
@@ -17,6 +18,13 @@ linesData = 'scores/lines_data.csv'
 #    else:
 #        x = ' ' + i[0]
 #    print(x + '\t' + str(i[1]) + '\t' + str(i[2]))
+
+material = jLA.collectTonesMaterial(linesData)
+temp, n = jLA.toneContour(material)
+
+
+
+###############################################################################
 
 ### Comprobar que han tantos tonos caracteres por verso
 #with open(linesData, 'r', encoding='utf-8') as f:
@@ -33,5 +41,19 @@ linesData = 'scores/lines_data.csv'
 #        print('Problem at line', i+1)
 #        print('\t', lyrics, jLA.countCharacters(lyrics), tones, len(tones))
 
-material = jLA.collectTonesMaterial(linesData, bs=['erliu'])
-temp, n = jLA.toneContour(material)
+### Contar tonos:
+#tonesCount = {}
+#for s in material[1:]:
+#    for p in s[1:]:
+#        for l in p:
+#            tones = l[-1]
+#            print(tones)
+#            for i in tones:
+#                tonesCount[i] = tonesCount.get(i, 0) + 1
+#
+#if len(tonesCount) == 5:
+#    for t in '12345':
+#        print(t + ': ' + str(tonesCount[t]))
+#else:
+#    print(tonesCount.keys())
+    
