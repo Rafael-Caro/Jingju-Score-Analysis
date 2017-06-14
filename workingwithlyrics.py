@@ -6,9 +6,10 @@ Created on Thu Jun  8 10:56:39 2017
 """
 
 import jingjuLyricsAnalysis as jLA
+import jingjuScoreAnalysis as jSA
 
-linesData = 'scores/lines_data.csv'
-#linesData = 'scores/test.csv'
+#linesData = 'scores/lines_data.csv'
+linesData = 'scores/test.csv'
 
 #material = jLA.countLineType(linesData, hd=['dan'], sq=['erhuang'])
 #
@@ -56,4 +57,30 @@ temp, n = jLA.toneContour(material)
 #        print(t + ': ' + str(tonesCount[t]))
 #else:
 #    print(tonesCount.keys())
-    
+
+### Ver ornaments
+#
+#material = material = jSA.collectLineMaterial(linesData)
+#
+#ornaments = {}
+#
+#for score in material[1:]:
+#    scorePath = score[0]
+#    scoreName = scorePath.split('/')[-1]
+#    loadedScore = converter.parse(scorePath)
+#    print(scoreName, 'parsed')
+#    parts = jSA.findVoiceParts(loadedScore)
+#    for partIndex in range(1, len(score)):
+#        if len(score[partIndex]) == 0: continue # Skip part if it's empty
+#        # Get the notes from the current part
+#        part = parts[partIndex-1]
+#        notes = part.flat.notes.stream()
+#        for startEnd in score[partIndex]:
+#            start = startEnd[0]
+#            end = startEnd[1]
+#            segment = notes.getElementsByOffset(start, end)
+#            for n in segment:
+#                if len(n.expressions) > 0:
+#                    for e in n.expressions:
+#                        ornaments[e.name] = ornaments.get(e.name, 0) + 1
+                
