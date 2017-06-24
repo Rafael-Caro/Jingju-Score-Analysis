@@ -8,8 +8,8 @@ Created on Thu Jun  8 10:56:39 2017
 import jingjuLyricsAnalysis as jLA
 import jingjuScoreAnalysis as jSA
 
-#linesData = 'scores/lines_data.csv'
-linesData = 'scores/test.csv'
+linesData = 'scores/lines_data.csv'
+#linesData = 'scores/test2.csv'
 
 #material = jLA.countLineType(linesData, hd=['dan'], sq=['erhuang'])
 #
@@ -20,8 +20,9 @@ linesData = 'scores/test.csv'
 #        x = ' ' + i[0]
 #    print(x + '\t' + str(i[1]) + '\t' + str(i[2]))
 
-material = jLA.collectTonesMaterial(linesData)
-temp, n = jLA.toneContour(material, query=['1', 'A'])
+#material = jLA.collectTonesMaterial(linesData)
+#temp, n = jLA.toneContour(material)
+material = jLA.tonesPerJudou(linesData)
 
 
 

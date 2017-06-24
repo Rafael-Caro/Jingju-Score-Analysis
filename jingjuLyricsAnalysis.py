@@ -228,7 +228,105 @@ def collectTonesMaterial(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
 
     print('All material collected')
 
-    return material    
+    return material
+
+
+
+def tonesPerJudou(linesData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
+                  bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
+                  'yuanban', 'erliu', 'liushui', 'kuaiban'],
+                  ju = ['s', 's1', 's2', 'x']):
+
+    '''str, [str], [str], [str], [str] --> [{str:list}, ______________
+   
+    Given the path of the linesData file, and a list of the hangdang,
+    shengqiang, banshi and line type to look for, it returns 
+    
+    
+    
+    
+    
+    '''
+
+    # Get the path of the folder shared by the linesData file and the xml
+    # scores
+    path = linesData[:linesData.rfind('/')+1]
+    
+    with open(linesData, 'r', encoding='utf-8') as f:
+        data = f.readlines()
+    
+    material = []
+
+    # Search information
+    searchInfo = {'hd':[], 'sq':[], 'bs':[], 'ju':[]}
+    material.append(searchInfo)
+    
+    # Segments collection
+    for row in data:
+        strInfo = row.strip().split(',')
+        score = strInfo[0]
+        if score != '':
+            material.append([path+score,[]])
+            if 'Part 1' in row: continue
+    
+        if (score == '') and ('Part' in row):
+            material[-1].append([])
+            continue
+        
+        hd0 = strInfo[1]
+        sq0 = strInfo[2]
+        bs0 = strInfo[3]
+        ju0 = strInfo[4]
+        
+        # Get the information to store in material
+        tones = strInfo[8]
+        jd1 = strInfo[9]
+        jd1tones = tones[0:countCharacters(jd1)]
+        jd1start = strInfo[10]
+        jd1end = strInfo[11]
+        jd2 = strInfo[12]
+        jd2tones = tones[countCharacters(jd1):
+                         countCharacters(jd1)+countCharacters(jd2)]
+        jd2start = strInfo[13]
+        jd2end = strInfo[14]
+        jd3 = strInfo[15]
+        jd3tones = tones[countCharacters(jd1)+countCharacters(jd2):]
+        jd3start = strInfo[16]
+        jd3end = strInfo[17]
+        
+        if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
+            if len(jd1) > 0:
+                material[-1][-1].append([jd1, jd1start, jd1end, jd1tones])
+            if len(jd2) > 0:
+                material[-1][-1].append([jd2, jd2start, jd2end, jd2tones])
+            if len(jd3) > 0:
+                material[-1][-1].append([jd3, jd3start, jd3end, jd3tones])
+            if hd0 not in material[0]['hd']:
+                material[0]['hd'].append(hd0)
+            if sq0 not in material[0]['sq']:
+                material[0]['sq'].append(sq0)
+            if bs0 not in material[0]['bs']:
+                material[0]['bs'].append(bs0)
+            if ju0 not in material[0]['ju']:
+                material[0]['ju'].append(ju0)
+            
+    # Delete empty lists
+    score2remove = []
+    for i in range(1, len(material)):
+        score = material[i]
+        partsLength = 0
+        for j in range(1, len(score)):
+            part = score[j]
+            partsLength += len(part)
+        if partsLength == 0:
+            score2remove.insert(0, i)
+    if len(score2remove) != 0:
+        for l in score2remove:
+            material.pop(l)
+
+    print('All material collected')
+
+    return material
 
 
 
@@ -263,7 +361,7 @@ def toneContour(material, countGraceNotes=True, query=[]):
                 start = line[1]
                 end = line[2]
                 tones = line[3]
-                print(tones)
+#                print(tones)
                 
                 lyrIndex = 0
                 toneJump = 0
@@ -311,7 +409,8 @@ def toneContour(material, countGraceNotes=True, query=[]):
                             # the previous syllable
                             if len(syl) > 0:
                                 contour = defineContour(syl)
-                                if contour==query[1] and len(toRed)>0:
+                                if (len(query)>0 and contour==query[1]
+                                    and len(toRed)>0):
                                     for n2r in toRed:
                                         segment[n2r].color = 'red'
                                     showSegment = True
@@ -322,7 +421,7 @@ def toneContour(material, countGraceNotes=True, query=[]):
                                     c[contour] = c.get(contour, 0) + 1
                             currentTone = tones[lyrIndex-toneJump]
                             toRed=[]
-                            if currentTone == query[0]:
+                            if len(query)>0 and currentTone == query[0]:
                                 toRed.append(i)
                                 preGrace = 1
                                 while (i-preGrace >= 0 and
@@ -412,8 +511,8 @@ def toneContour(material, countGraceNotes=True, query=[]):
                 
                 temp[-1][-1][-1].append(defineContour(syl))
                 temp[-1][-1][-1].append(syl)
-                for i in temp[-1][-1]:
-                    print(i)
+#                for i in temp[-1][-1]:
+#                    print(i)
 
                 if showSegment: segment.show()
                     
@@ -499,7 +598,6 @@ def defineContour(pitches):
         print('Invalid sequence of pitches. Possibly empty list.')          
     
     return contour
-    
 
 
 
