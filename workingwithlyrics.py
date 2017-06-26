@@ -23,7 +23,8 @@ linesData = 'scores/lines_data.csv'
 #material = jLA.collectTonesMaterial(linesData)
 #temp, n = jLA.toneContour(material)
 material = jLA.tonesPerJudou(linesData)
-dous, pairs = jLA.tonePair(material, comparisonPoint=[1, 0])
+dous, pairs = jLA.tonePair(material, comparisonPoint=[1, 0],
+                           fileName='scores/prueba.txt')
 
 
 

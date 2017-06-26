@@ -524,7 +524,7 @@ def toneContour(material, countGraceNotes=True, query=[]):
 
 
 
-def tonePair(material, comparisonPoint=[1, 0], query=[]):
+def tonePair(material, comparisonPoint=[1, 0], fileName='', query=[]):
     '''list --> dict
     
     It takes the list returned by the tonePair function, and returns
@@ -541,7 +541,7 @@ def tonePair(material, comparisonPoint=[1, 0], query=[]):
              '2-1':{}, '2-2':{}, '2-3':{}, '2-4':{}, '2-5':{},
              '3-1':{}, '3-2':{}, '3-3':{}, '3-4':{}, '3-5':{},
              '4-1':{}, '4-2':{}, '4-3':{}, '4-4':{}, '4-5':{},
-             '5-1':{}, '5-2':{}, '5-3':{}, '5-4':{}, '5-5':{}}
+             '5-1':{}, '5-2':{}, '5-3':{}, '5-4':{}}
     dous = []
     
     for score in material[1:]:
@@ -585,7 +585,7 @@ def tonePair(material, comparisonPoint=[1, 0], query=[]):
                             # Check that the lyric in the score and the one
                             # from the annotations coincide
                             if char != currentChar:
-                                print('Problem with', char)
+                                print('Problem with', char, currentChar)
                                 segment.show()
                             
                             if ('（' in char) and ('）' not in char):
@@ -656,7 +656,43 @@ def tonePair(material, comparisonPoint=[1, 0], query=[]):
                             start = segmentInfo[1]
                             end = segmentInfo[2]
                             segment = notes.getElementsByOffset(start, end)
-                            segment.show()                            
+                            segment.show()
+                            
+    txt2write = '\tA\tF\tD'
+    print(txt2write)
+        
+    for p in ['1-1', '1-2', '1-3', '1-4', '1-5', '2-1', '2-2', '2-3', '2-4',
+                 '2-5', '3-1', '3-2', '3-3', '3-4', '3-5', '4-1', '4-2', '4-3',
+                 '4-4', '4-5', '5-1', '5-2', '5-3', '5-4']:
+        pair = pairs[p]
+        if len(pair) > 0:
+            total = sum(pair.values())
+            if 'A' in pair.keys():
+                ax = pair['A']
+                ay = round(ax / (total / 100), 2)
+                a = str(ax) + ' (' + str(ay) + '%)'
+            else:
+                a = ''
+            if 'F' in pair.keys():
+                fx = pair['F']
+                fy = round(fx / (total / 100), 2)
+                f = str(fx) + ' (' + str(fy) + '%)'
+            else:
+                f = ''
+            if 'D' in pair.keys():
+                dx = pair['D']
+                dy = round(dx / (total / 100), 2)
+                d = str(dx) + ' (' + str(dy) + '%)'
+            else:
+                d = ''
+            txt = p + ':\t' + a + '\t' + f + '\t' + d
+            if len(fileName) > 0:
+                txt2write += '\n' + txt
+            print(txt)
+            
+    if len(fileName) > 0:
+        with open(fileName, 'w') as f:
+            f.write(txt2write)
 
     return dous, pairs
 
