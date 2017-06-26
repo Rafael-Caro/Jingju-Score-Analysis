@@ -1062,6 +1062,8 @@ def floatOrFraction(strValue):
         numerator = int(strValue.split('/')[0])
         denominator = int(strValue.split('/')[1])
         value = fractions.Fraction(numerator, denominator)
+    elif len(strValue) == 0:
+        value = None
     else:
         value = float(strValue)
         
