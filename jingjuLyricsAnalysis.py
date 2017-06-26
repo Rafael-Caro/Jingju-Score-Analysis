@@ -282,17 +282,17 @@ def tonesPerJudou(linesData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
         tones = strInfo[8]
         jd1 = strInfo[9]
         jd1tones = tones[0:countCharacters(jd1)]
-        jd1start = strInfo[10]
-        jd1end = strInfo[11]
+        jd1start = jSA.floatOrFraction(strInfo[10])
+        jd1end = jSA.floatOrFraction(strInfo[11])
         jd2 = strInfo[12]
         jd2tones = tones[countCharacters(jd1):
                          countCharacters(jd1)+countCharacters(jd2)]
-        jd2start = strInfo[13]
-        jd2end = strInfo[14]
+        jd2start = jSA.floatOrFraction(strInfo[13])
+        jd2end = jSA.floatOrFraction(strInfo[14])
         jd3 = strInfo[15]
         jd3tones = tones[countCharacters(jd1)+countCharacters(jd2):]
-        jd3start = strInfo[16]
-        jd3end = strInfo[17]
+        jd3start = jSA.floatOrFraction(strInfo[16])
+        jd3end = jSA.floatOrFraction(strInfo[17])
         
         if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
             if len(jd1) > 0:
@@ -521,9 +521,147 @@ def toneContour(material, countGraceNotes=True, query=[]):
                         reverse=True))
 
     return temp, contours
+
+
+
+def tonePair(material, comparisonPoint=[1, 0], query=[]):
+    '''list --> dict
     
+    It takes the list returned by the tonePair function, and returns
+
+    comparisonPoint:
+        0: first note
+        1: last note
+        
+    query has include first the tones pair, in the form '1-2' for first tone
+    followed by a second tone, and then the shape; for example: ['1-2', 'A']
+    '''
     
+    pairs = {'1-1':{}, '1-2':{}, '1-3':{}, '1-4':{}, '1-5':{},
+             '2-1':{}, '2-2':{}, '2-3':{}, '2-4':{}, '2-5':{},
+             '3-1':{}, '3-2':{}, '3-3':{}, '3-4':{}, '3-5':{},
+             '4-1':{}, '4-2':{}, '4-3':{}, '4-4':{}, '4-5':{},
+             '5-1':{}, '5-2':{}, '5-3':{}, '5-4':{}, '5-5':{}}
+    dous = []
     
+    for score in material[1:]:
+        s = []
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = jSA.findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            p = []
+            if len(score[partIndex]) > 0:
+                # Get the notes from the current part
+                part = parts[partIndex-1]
+                notes = part.flat.notes.stream()
+                
+                for line in score[partIndex]:
+                    lyrics = line[0]
+                    start = line[1]
+                    end = line[2]
+                    tones = line[3]
+                    
+                    lyrIndex = 0
+                    toneJump = 0
+                    
+                    dou = []
+    
+                    inBrackets = False # Flag to check if the lyrics syllabe is
+                                       # within a bracket
+                    
+                    segment = notes.getElementsByOffset(start, end)
+                    
+                    for i in range(len(segment)):
+                        n = segment[i]
+                        if n.quarterLength == 0: continue
+                        elif n.hasLyrics():
+                            char = n.lyric
+                            currentChar = lyrics[lyrIndex:lyrIndex+len(char)]
+                            # Check that the lyric in the score and the one
+                            # from the annotations coincide
+                            if char != currentChar:
+                                print('Problem with', char)
+                                segment.show()
+                            
+                            if ('（' in char) and ('）' not in char):
+                                toneJump += len(char)
+                                inBrackets = True
+                            elif inBrackets == True:
+                                toneJump += len(char)
+                            elif '）' in char:
+                                toneJump += len(char)
+                                inBrackets = False
+                            else:
+                                currentTone = tones[lyrIndex-toneJump]
+                                if len(dou) > 0:
+                                    jump = 1
+                                    while segment[i-jump].quarterLength == 0:
+                                        jump += 1
+                                    last = segment[i-jump].pitch.midi
+                                    dou[-1].append(last)
+                                first = n.pitch.midi
+                                dou.append([currentChar, currentTone,
+                                                   first])
+                                toneJump += len(char) - 1
+                            lyrIndex += len(char)
+                    jump = 0
+                    while segment[i-jump].quarterLength == 0:
+                        jump += 1
+                    last = segment[i-jump].pitch.midi
+                    dou[-1].append(last)
+                    p.append(dou)
+            s.append(p)    
+        dous.append(s)
+        
+    queryMessage = True
+
+    for s in range(len(dous)):
+        score = dous[s]
+        for p in range(len(score)):
+            part = score[p]
+            for d in range(len(part)):
+                dou = part[d]
+                for i in range(len(dou)-1):
+                    syl1 = dou[i]
+                    syl2 = dou[i+1]
+                    pair = syl1[1] + '-' + syl2[1]
+                    note1 = syl1[comparisonPoint[0]+2]
+                    note2 = syl2[comparisonPoint[1]+2]
+                    if note1 > note2:
+                        shape = 'D'
+                    elif note1 == note2:
+                        shape = 'F'
+                    elif note1 < note2:
+                        shape = 'A'
+                    pairs[pair][shape] = pairs[pair].get(shape, 0) + 1
+                    
+                    if len(query) > 0:
+                        if query[0] == pair and query[1] == shape:
+                            if queryMessage:
+                                print('\nRetrieving found queries')
+                                queryMessage = False
+                            scorePath = material[s+1][0]
+                            loadedScore = converter.parse(scorePath)
+                            print(scorePath.split('/')[-1], 'loaded')
+                            parts = jSA.findVoiceParts(loadedScore)
+                            parte = parts[p]
+                            notes = parte.flat.notesAndRests.stream()
+                            segmentInfo = material[s+1][p+1][d]
+                            print(segmentInfo[0], segmentInfo[-1])
+                            start = segmentInfo[1]
+                            end = segmentInfo[2]
+                            segment = notes.getElementsByOffset(start, end)
+                            segment.show()                            
+
+    return dous, pairs
+
+
+
 def defineContour(pitches):
     '''
     [int] --> str

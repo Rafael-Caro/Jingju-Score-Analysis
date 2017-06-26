@@ -9,7 +9,7 @@ import jingjuLyricsAnalysis as jLA
 import jingjuScoreAnalysis as jSA
 
 linesData = 'scores/lines_data.csv'
-#linesData = 'scores/test2.csv'
+#linesData = 'scores/test.csv'
 
 #material = jLA.countLineType(linesData, hd=['dan'], sq=['erhuang'])
 #
@@ -23,6 +23,7 @@ linesData = 'scores/lines_data.csv'
 #material = jLA.collectTonesMaterial(linesData)
 #temp, n = jLA.toneContour(material)
 material = jLA.tonesPerJudou(linesData)
+dous, pairs = jLA.tonePair(material, comparisonPoint=[1, 0])
 
 
 
