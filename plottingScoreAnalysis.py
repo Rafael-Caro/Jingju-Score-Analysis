@@ -22,17 +22,17 @@ bs_default = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
 ju_default = ['s', 's1', 's2', 'x']
 
 hangdang = ['laosheng']
-shengqiang = ['xipi']
-banshi = ['liushui']
-line = ['x']
+shengqiang = ['erhuang']
+banshi = ['yuanban']
+line = ['s', 's1', 's2', 'x']
 
 # MATERIAL PER LINE
-#material = jSA.collectLineMaterial(linesData, hd=hangdang, sq=shengqiang,
-#                                   bs=banshi, ju=line)
+material = jSA.collectLineMaterial(linesData, hd=hangdang, sq=shengqiang,
+                                   bs=banshi, ju=line)
 
 # MATERIAL PER JUDOU
-judouMaterial = jSA.collectJudouMaterial(linesData, hd=hangdang,
-                                         sq=shengqiang, bs=banshi, ju=line)
+#judouMaterial = jSA.collectJudouMaterial(linesData, hd=hangdang,
+#                                         sq=shengqiang, bs=banshi, ju=line)
 
 # PITCH HISTOGRAM
 #pitchHist = jSA.pitchHistogram(material, count='sum', countGraceNotes=True)
@@ -42,24 +42,26 @@ judouMaterial = jSA.collectJudouMaterial(linesData, hd=hangdang,
 #                                  silence2ignore=0.125, ignoreGraceNotes=False)
 
 # MELODIC DENSITY
-#totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
-#                                notesOrDuration='notes')
+totalCount = jSA.melodicDensity(material, includeGraceNotes=True,
+                                notesOrDuration='duration')
+
+print(min(totalCount['Avg']['upper fence']))
 
 # MATERIAL FOR CADENTIAL NOTES
-if 'erhuang' in shengqiang:
-    material_s1 = jSA.collectJudouMaterial(linesData, hd=hangdang,
-                                           sq=shengqiang, bs=banshi, ju=['s1'])
-    material_s2 = jSA.collectJudouMaterial(linesData, hd=hangdang,
-                                           sq=shengqiang, bs=banshi, ju=['s2'])
-    material_x = jSA.collectJudouMaterial(linesData, hd=hangdang,
-                                          sq=shengqiang, bs=banshi, ju=['x'])
-    judouMaterialList = [material_s1, material_s2, material_x]
-    
-elif 'xipi' in shengqiang:
-    material_s = jSA.collectJudouMaterial(linesData, hd=hangdang,
-                                          sq=shengqiang, bs=banshi, ju=['s'])
-    material_x = jSA.collectJudouMaterial(linesData, hd=hangdang,
-                                          sq=shengqiang, bs=banshi, ju=['x'])
-    judouMaterialList = [material_s, material_x]
-
-results = jSA.cadentialNotes(judouMaterialList, includeGraceNotes=True)
+#if 'erhuang' in shengqiang:
+#    material_s1 = jSA.collectJudouMaterial(linesData, hd=hangdang,
+#                                           sq=shengqiang, bs=banshi, ju=['s1'])
+#    material_s2 = jSA.collectJudouMaterial(linesData, hd=hangdang,
+#                                           sq=shengqiang, bs=banshi, ju=['s2'])
+#    material_x = jSA.collectJudouMaterial(linesData, hd=hangdang,
+#                                          sq=shengqiang, bs=banshi, ju=['x'])
+#    judouMaterialList = [material_s1, material_s2, material_x]
+#    
+#elif 'xipi' in shengqiang:
+#    material_s = jSA.collectJudouMaterial(linesData, hd=hangdang,
+#                                          sq=shengqiang, bs=banshi, ju=['s'])
+#    material_x = jSA.collectJudouMaterial(linesData, hd=hangdang,
+#                                          sq=shengqiang, bs=banshi, ju=['x'])
+#    judouMaterialList = [material_s, material_x]
+#
+#results = jSA.cadentialNotes(judouMaterialList, includeGraceNotes=True)

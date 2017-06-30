@@ -10,12 +10,28 @@ import jingjuScores as jS
 
 linesData = 'scores/lines_data.csv'
 
-hangdang = ['laosheng']
-shengqiang = ['xipi']
-banshi = ['yuanban']
+x = [['laosheng', 'erhuang', 'manban'],
+     ['laosheng', 'erhuang', 'sanyan'],
+     ['laosheng', 'erhuang', 'kuaisanyan'],
+     ['laosheng', 'erhuang', 'yuanban'],
+     ['laosheng', 'xipi', 'manban'],
+     ['laosheng', 'xipi', 'sanyan'],
+     ['laosheng', 'xipi', 'kuaisanyan'],
+     ['laosheng', 'xipi', 'yuanban'],
+     ['laosheng', 'xipi', 'liushui'],
+     ['laosheng', 'xipi', 'kuaiban'],
+     ['dan', 'erhuang', 'manban'],
+     ['dan', 'erhuang', 'zhongsanyan'],
+     ['dan', 'erhuang', 'kuaisanyan'],
+     ['dan', 'erhuang', 'yuanban'],
+     ['dan', 'xipi', 'manban'],
+     ['dan', 'xipi', 'yuanban'],
+     ['dan', 'xipi', 'erliu'],
+     ['dan', 'xipi', 'liushui'],
+     ['dan', 'xipi', 'kuaiban']]
 
-material = jSA.collectJudouMaterial(linesData, hd=hangdang, sq=shengqiang,
-                                   bs=banshi)
-
-data, r = jSA.melodicDensity(material)
+i = x[18]
+material = jSA.collectLineMaterial(linesData, hd=[i[0]], sq=[i[1]], bs=[i[2]])
+results = jSA.melodicDensity(material, notesOrDuration='duration')
+print('\t', i[0], i[1], i[2], results['Avg']['upper fence'], '\n')
 

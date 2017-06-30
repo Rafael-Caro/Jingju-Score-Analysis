@@ -7,6 +7,7 @@ Created on Thu Jun  8 10:56:39 2017
 
 import jingjuLyricsAnalysis as jLA
 import jingjuScoreAnalysis as jSA
+from music21 import *
 
 linesData = 'scores/lines_data.csv'
 #linesData = 'scores/test.csv'
@@ -23,8 +24,8 @@ linesData = 'scores/lines_data.csv'
 #material = jLA.collectTonesMaterial(linesData)
 #temp, n = jLA.toneContour(material)
 material = jLA.tonesPerJudou(linesData)
-dous, pairs = jLA.tonePair(material, comparisonPoint=[1, 0],
-                           fileName='scores/prueba.txt')
+dous, pairs = jLA.tonePair(material, comparisonPoint=[0, 0],
+                           fileName='scores/all_first-first.txt')
 
 
 
@@ -81,9 +82,18 @@ dous, pairs = jLA.tonePair(material, comparisonPoint=[1, 0],
 #        for startEnd in score[partIndex]:
 #            start = startEnd[0]
 #            end = startEnd[1]
-#            segment = notes.getElementsByOffset(start, end)
+#            segment = notes.getElementsByet(start, end)
 #            for n in segment:
 #                if len(n.expressions) > 0:
 #                    for e in n.expressions:
 #                        ornaments[e.name] = ornaments.get(e.name, 0) + 1
-                
+
+#s = converter.parse('scores/lseh-YiLunMing-ZhuoFangCao-1.xml')
+#p = s.parts[1]
+#notes = p.flat.notes.stream()
+#for i in range(len(notes)):
+#    n = notes[i]
+#    nid = n.id
+#    if n.quarterLength == 0: continue
+#    slus = n.getSpannerSites('Slur')
+#    for sl in slurs

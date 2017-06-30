@@ -202,7 +202,7 @@ def collectTonesMaterial(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
         tones = strInfo[8]
         
         if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
-            material[-1][-1].append([line, start, end, tones])
+            material[-1][-1].append([line, start, end, tones, hd0, sq0, bs0])
             if hd0 not in material[0]['hd']:
                 material[0]['hd'].append(hd0)
             if sq0 not in material[0]['sq']:
@@ -361,12 +361,63 @@ def toneContour(material, countGraceNotes=True, query=[]):
                 start = line[1]
                 end = line[2]
                 tones = line[3]
+                hd = line[4]
+                sq = line[5]
+                bs = line[6]
 #                print(tones)
+                
+                # Set the tuoqiang threshold
+                if hd == 'laosheng':
+                    if sq == 'erhuang':
+                        if bs == 'manban':
+                            threshold = 4.5
+                        elif bs == 'sanyan':
+                            threshold = 3.5
+                        elif bs == 'kuaisanyan':
+                            threshold = 3.5
+                        elif bs == 'yuanban':
+                            threshold = 2.5
+                    elif sq == 'xipi':
+                        if bs == 'manban':
+                            threshold = 3.5
+                        elif bs == 'sanyan':
+                            threshold = 3.5
+                        elif bs == 'kuaisanyan':
+                            threshold = 3.0
+                        elif bs == 'yuanban':
+                            threshold = 2.25
+                        elif bs == 'liushui':
+                            threshold = 1.75
+                        elif bs == 'kuaiban':
+                            threshold = 1.5
+                elif hd == 'dan':
+                    if sq == 'erhuang':
+                        if bs == 'manban':
+                            threshold = 3.5
+                        elif bs == 'zhongsanyan':
+                            threshold = 3.0
+                        elif bs == 'kuaisanyan':
+                            threshold = 2.0
+                        elif bs == 'yuanban':
+                            threshold = 1.75
+                    elif sq == 'xipi':
+                        if bs == 'manban':
+                            threshold = 3.5
+                        elif bs == 'yuanban':
+                            threshold = 3.5
+                        elif bs == 'erliu':
+                            threshold = 2.0
+                        elif bs == 'liushui':
+                            threshold = 1.75
+                        elif bs == 'kuaiban':
+                            threshold = 1.5
                 
                 lyrIndex = 0
                 toneJump = 0
                 
                 syl = []
+                sylLength = 0
+                tuoqiang = False
                 graceNotes = [] # Store grace notes to be added to a note with
                                 # lyrics
                 inBrackets = False # Flag to check if the lyrics syllabe is
@@ -392,23 +443,50 @@ def toneContour(material, countGraceNotes=True, query=[]):
                         
                         if ('（' in char) and ('）' not in char):
                             inBrackets = True
-                            syl.append(n.pitch.midi)
+                            if sylLength <= threshold:
+                                syl.append(n.pitch.midi)
+                                sylLength += n.quarterLength
+                            else:
+                                m = n.getContextByClass('Measure')
+                                b = n.getOffsetBySite(m)
+                                tuoqiang = True
+#                                print('Tuoqiang at ' + str(m) + ', ' + str(b))
+#                                showSegment = True
                             toneJump += len(char)
                             if len(toRed)>0: toRed.append(i)
                         elif inBrackets == True:
-                            syl.append(n.pitch.midi)
+                            if sylLength <= threshold:
+                                syl.append(n.pitch.midi)
+                                sylLength += n.quarterLength
+                            else:
+                                m = n.getContextByClass('Measure')
+                                b = n.getOffsetBySite(m)
+                                tuoqiang = True
+#                                print('Tuoqiang at ' + str(m) + ', ' + str(b))
+#                                showSegment = True
                             toneJump += len(char)
                             if len(toRed)>0: toRed.append(i)
                         elif '）' in char:
                             inBrackets = False
-                            syl.append(n.pitch.midi)
+                            if sylLength <= threshold:
+                                syl.append(n.pitch.midi)
+                                sylLength += n.quarterLength
+                            else:
+                                m = n.getContextByClass('Measure')
+                                b = n.getOffsetBySite(m)
+                                tuoqiang = True
+#                                print('Tuoqiang at ' + str(m) + ', ' + str(b))
+#                                showSegment = True
                             toneJump += len(char)
                             if len(toRed)>0: toRed.append(i)
                         else:
                             # First, solve the accumulated pitches in syl from
                             # the previous syllable
                             if len(syl) > 0:
-                                contour = defineContour(syl)
+                                if tuoqiang:
+                                    contour = defineContour(syl[:3])
+                                else:
+                                    contour = defineContour(syl)
                                 if (len(query)>0 and contour==query[1]
                                     and len(toRed)>0):
                                     for n2r in toRed:
@@ -433,64 +511,67 @@ def toneContour(material, countGraceNotes=True, query=[]):
                             syl = graceNotes + [n.pitch.midi] # Add preceding
                                                               # grace notes
                             graceNotes = [] # Grace notes buffer empty
+                            sylLength = 0
+                            tuoqiang = False
                         lyrIndex += len(char)
-                    elif n.quarterLength == 0:
-                        # Store grace notes pitches while cheking other stuff
-                        buffer = [n.pitch.midi]
-                        # Check that is not preceded by other grace notes,
-                        # because in that case it's already been taken care of
-                        if i>0 and segment[i-1].quarterLength==0: continue
-                        # If it is not the last note of the segment...
-                        if i != len(segment)-1:
-                            # ...check if there are more grace notes following
-                            jump = 1
-                            while ((i+jump<len(segment)) # is not over segment
-                                   and (segment[i+jump].quarterLength==0)):
-                                mid = segment[i+jump].pitch.midi
-                                # Check mordent
-                                if (i+jump < len(segment)-1 # not the last note
-                                    and not segment[i+jump-1].isRest
-                                    and not segment[i+jump+1].isRest):
-                                    preMid = segment[i+jump-1].pitch.midi
-                                    postMid = segment[i+jump+1].pitch.midi
-                                    if preMid == postMid: # it's mordent, then
-                                        jump += 1
-                                    else:
-                                        buffer.append(mid)
-                                        jump += 1
-                                else: # it is the last note
-                                    buffer.append(mid)
-                                    jump += 1
-                            # There are not more grace notes following
-                            # Check if the grace notes are at the end
-                            if (i+jump >= len(segment)
-                                  or segment[i+jump].isRest):
-                                syl += buffer
-                                if len(toRed)>0: toRed.append(i)
-                            # If not, check if the next note has lyrics
-                            elif segment[i+jump].hasLyrics():
-                                if '（' in segment[i+jump].lyric or inBrackets:
-                                    syl += buffer
-                                    if len(toRed)>0: toRed.append(i)
-                                else:
-                                    graceNotes = buffer
-                            # If not, check if it is a mordent
-                            elif (not segment[i-1].isRest and
-                                  segment[i-1].pitch.midi ==
-                                  segment[i+jump].pitch.midi):
-                                if len(toRed)>0: toRed.append(i)
-                            # If not, it is just a note's grace note(s)
-                            else:
-                                syl += buffer
-                                if len(toRed)>0: toRed.append(i)
-                        else: # it is the last note of the segment
-                            syl.append(n.pitch.midi)
-                            if len(toRed)>0: toRed.append(i)
+                    elif n.quarterLength == 0: continue
+#                        # Store grace notes pitches while cheking other stuff
+#                        buffer = [n.pitch.midi]
+#                        # Check that is not preceded by other grace notes,
+#                        # because in that case it's already been taken care of
+#                        if i>0 and segment[i-1].quarterLength==0: continue
+#                        # If it is not the last note of the segment...
+#                        if i != len(segment)-1:
+#                            # ...check if there are more grace notes following
+#                            jump = 1
+#                            while ((i+jump<len(segment)) # is not over segment
+#                                   and (segment[i+jump].quarterLength==0)):
+#                                mid = segment[i+jump].pitch.midi
+#                                # Check mordent
+#                                if (i+jump < len(segment)-1 # not the last note
+#                                    and not segment[i+jump-1].isRest
+#                                    and not segment[i+jump+1].isRest):
+#                                    preMid = segment[i+jump-1].pitch.midi
+#                                    postMid = segment[i+jump+1].pitch.midi
+#                                    if preMid == postMid: # it's mordent, then
+#                                        jump += 1
+#                                    else:
+#                                        buffer.append(mid)
+#                                        jump += 1
+#                                else: # it is the last note
+#                                    buffer.append(mid)
+#                                    jump += 1
+#                            # There are not more grace notes following
+#                            # Check if the grace notes are at the end
+#                            if (i+jump >= len(segment)
+#                                  or segment[i+jump].isRest):
+#                                syl += buffer
+#                                if len(toRed)>0: toRed.append(i)
+#                            # If not, check if the next note has lyrics
+#                            elif segment[i+jump].hasLyrics():
+#                                if '（' in segment[i+jump].lyric or inBrackets:
+#                                    syl += buffer
+#                                    if len(toRed)>0: toRed.append(i)
+#                                else:
+#                                    graceNotes = buffer
+#                            # If not, check if it is a mordent
+#                            elif (not segment[i-1].isRest and
+#                                  segment[i-1].pitch.midi ==
+#                                  segment[i+jump].pitch.midi):
+#                                if len(toRed)>0: toRed.append(i)
+#                            # If not, it is just a note's grace note(s)
+#                            else:
+#                                syl += buffer
+#                                if len(toRed)>0: toRed.append(i)
+#                        else: # it is the last note of the segment
+#                            syl.append(n.pitch.midi)
+#                            if len(toRed)>0: toRed.append(i)
                     else: # A note without lyrics
                         # Check if it could be a mordent
                         # So, check if it's not the last and has a shorter
                         # duration than a quaver
                         mid = n.pitch.midi
+                        dur = n.quarterLength
                         if (i<len(segment)-1 and n.quarterLength<0.5
                             and not segment[i-1].isRest):
                             premid = segment[i-1].pitch.midi
@@ -500,16 +581,44 @@ def toneContour(material, countGraceNotes=True, query=[]):
                                 if mid != premid and premid == postmid:
                                     if len(toRed)>0: toRed.append(i)
                                 else:
-                                    syl.append(mid)
+                                    if sylLength <= threshold:
+                                        syl.append(mid)
+                                        sylLength += n.quarterLength
+                                    else:
+                                        m = n.getContextByClass('Measure')
+                                        b = n.getOffsetBySite(m)
+                                        tuoqiang = True
+#                                        print('Tuoqiang at ' + str(m) + ', ' +
+#                                              str(b))
+#                                        showSegment = True
                                     if len(toRed)>0: toRed.append(i)
                             else:
-                                syl.append(mid)
+                                if sylLength <= threshold:
+                                    syl.append(mid)
+                                    sylLength += n.quarterLength
+                                else:
+                                    m = n.getContextByClass('Measure')
+                                    b = n.getOffsetBySite(m)
+                                    tuoqiang = True
+#                                    print('Tuoqiang at ' + str(m) + ', ' + str(b))
+#                                    showSegment = True
                                 if len(toRed)>0: toRed.append(i)
                         else:
-                            syl.append(mid)
+                            if sylLength <= threshold:
+                                syl.append(mid)
+                                sylLength += n.quarterLength
+                            else:
+                                m = n.getContextByClass('Measure')
+                                b = n.getOffsetBySite(m)
+                                tuoqiang = True
+#                                print('Tuoqiang at ' + str(m) + ', ' + str(b))
+#                                showSegment = True
                             if len(toRed)>0: toRed.append(i)
                 
-                temp[-1][-1][-1].append(defineContour(syl))
+                if tuoqiang:
+                    temp[-1][-1][-1].append(defineContour(syl[:3]))
+                else:
+                    temp[-1][-1][-1].append(defineContour(syl))
                 temp[-1][-1][-1].append(syl)
 #                for i in temp[-1][-1]:
 #                    print(i)
