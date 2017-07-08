@@ -219,7 +219,7 @@ def toneMaterialPerJudou(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
 ## MAIN FUNCTIONS                                                            ##
 ###############################################################################
 
-def syllabicContour(material, filename='', query=[]):
+def syllabicContour(material, filename=None, query=[]):
     '''list --> dict
     
     It takes the list returned by the toneMaterialPerLine function, computes a
@@ -500,7 +500,7 @@ def syllabicContour(material, filename='', query=[]):
     print('Pairwise relationship analysis results\n')
     print(txt2print)
             
-    if len(filename) > 0:
+    if filename != None:
         with open(filename, 'w') as f:
             f.write(txt2print)
 
@@ -508,7 +508,7 @@ def syllabicContour(material, filename='', query=[]):
 
 
 
-def pairwiseRelationship(material, relationship=[1, 0], filename='',
+def pairwiseRelationship(material, relationship=[1, 0], filename=None,
                          query=[]):
     '''list --> list, dict
     
@@ -693,7 +693,7 @@ def pairwiseRelationship(material, relationship=[1, 0], filename='',
     print('Pairwise relationship analysis results\n')
     print(txt2print)
             
-    if len(filename) > 0:
+    if filename != None:
         with open(filename, 'w') as f:
             f.write(txt2print)
 
