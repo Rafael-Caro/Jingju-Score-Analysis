@@ -655,7 +655,6 @@ def pairwiseRelationship(material, relationship=[1, 0], filename=None,
                             parte = parts[p]
                             notes = parte.flat.notesAndRests.stream()
                             segmentInfo = material[s+1][p+1][d]
-                            print(segmentInfo[0], segmentInfo[-1])
                             start = segmentInfo[1]
                             end = segmentInfo[2]
                             segment = notes.getElementsByOffset(start, end)
