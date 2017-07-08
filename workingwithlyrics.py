@@ -21,11 +21,11 @@ linesData = 'scores/lines_data.csv'
 #        x = ' ' + i[0]
 #    print(x + '\t' + str(i[1]) + '\t' + str(i[2]))
 
-#material = jLA.collectTonesMaterial(linesData)
-#temp, n = jLA.toneContour(material)
-material = jLA.tonesPerJudou(linesData)
-dous, pairs = jLA.tonePair(material, comparisonPoint=[0, 0],
-                           fileName='scores/all_first-first.txt')
+material = jLA.toneMaterialPerLine(linesData)
+temp, contours = jLA.syllabicContour(material, filename='prueba.txt')
+
+#material = jLA.toneMaterialPerJudou(linesData)
+#dous, pairs = jLA.pairwiseRelationship(material, relationship=[1, 0])
 
 
 
