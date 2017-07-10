@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from music21 import *
-import jingjuScoreAnalysis as jSA
+import common_functions as cf
 
 
 
@@ -71,8 +71,8 @@ def toneMaterialPerLine(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
         
         # Get the information to store in material
         line = strInfo[5]
-        start = jSA.floatOrFraction(strInfo[6])
-        end = jSA.floatOrFraction(strInfo[7])
+        start = cf.floatOrFraction(strInfo[6])
+        end = cf.floatOrFraction(strInfo[7])
         tones = strInfo[8]
         
         if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
@@ -167,17 +167,17 @@ def toneMaterialPerJudou(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
         tones = strInfo[8]
         jd1 = strInfo[9]
         jd1tones = tones[0:countCharacters(jd1)]
-        jd1start = jSA.floatOrFraction(strInfo[10])
-        jd1end = jSA.floatOrFraction(strInfo[11])
+        jd1start = cf.floatOrFraction(strInfo[10])
+        jd1end = cf.floatOrFraction(strInfo[11])
         jd2 = strInfo[12]
         jd2tones = tones[countCharacters(jd1):
                          countCharacters(jd1)+countCharacters(jd2)]
-        jd2start = jSA.floatOrFraction(strInfo[13])
-        jd2end = jSA.floatOrFraction(strInfo[14])
+        jd2start = cf.floatOrFraction(strInfo[13])
+        jd2end = cf.floatOrFraction(strInfo[14])
         jd3 = strInfo[15]
         jd3tones = tones[countCharacters(jd1)+countCharacters(jd2):]
-        jd3start = jSA.floatOrFraction(strInfo[16])
-        jd3end = jSA.floatOrFraction(strInfo[17])
+        jd3start = cf.floatOrFraction(strInfo[16])
+        jd3end = cf.floatOrFraction(strInfo[17])
         
         if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
             if len(jd1) > 0:
@@ -252,7 +252,7 @@ def syllabicContour(material, filename=None, query=[]):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = jSA.findVoiceParts(loadedScore)
+        parts = cf.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -554,7 +554,7 @@ def pairwiseRelationship(material, relationship=[1, 0], filename=None,
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = jSA.findVoiceParts(loadedScore)
+        parts = cf.findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             p = []
@@ -651,7 +651,7 @@ def pairwiseRelationship(material, relationship=[1, 0], filename=None,
                             scorePath = material[s+1][0]
                             loadedScore = converter.parse(scorePath)
                             print(scorePath.split('/')[-1], 'loaded')
-                            parts = jSA.findVoiceParts(loadedScore)
+                            parts = cf.findVoiceParts(loadedScore)
                             parte = parts[p]
                             notes = parte.flat.notesAndRests.stream()
                             segmentInfo = material[s+1][p+1][d]
@@ -945,3 +945,73 @@ def countLineType(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
     print('All material collected')
 
     return material
+
+
+
+def getTones(linesData, hd=['laosheng', 'dan'], sq=['erhuang', 'xipi'],
+                    bs = ['manban', 'sanyan', 'zhongsanyan', 'kuaisanyan',
+                    'yuanban', 'erliu', 'liushui', 'kuaiban'], ju = ['s', 's1',
+                    's2', 'x']):
+    '''str, [str], [str], [str], [str] --> str
+    Given the path of the linesData file, and a list of the hangdang,
+    shengqiang, banshi and line type to look for, it returns a string with the
+    score name and intercalated lyrics and tones for the lines found.
+    '''
+    with open(linesData, 'r', encoding='utf-8') as f:
+        data = f.readlines()
+        
+    tones = ''
+    
+    diacritics = ['，', '。', '？', '！', '；', '：', '、']
+    
+    # Line finding
+    for line in data:
+        strInfo = line.strip().split(',')
+        score = strInfo[0]
+        if score != '':
+            scoreName = score
+            scoreInTones = False
+    
+        if 'Part' in line: continue
+        
+        hd0 = strInfo[1]
+        sq0 = strInfo[2]
+        bs0 = strInfo[3]
+        ju0 = strInfo[4]
+        
+        lineLyrics = strInfo[5]
+        lineTones = strInfo[8]
+        
+        if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
+            # Intercalate lyrics and tones
+            lyricTones = ''
+            jump = 0
+            ignore = False
+            for i in range(len(lineLyrics)):
+                if lineLyrics[i] == '（':
+                    lyricTones += lineLyrics[i]
+                    ignore = True
+                    jump += 1
+                elif lineLyrics[i] == '）':
+                    lyricTones += lineLyrics[i]
+                    ignore = False
+                    jump += 1
+                elif lineLyrics[i] in diacritics:
+                    lyricTones += lineLyrics[i]
+                    jump += 1
+                else:
+                    if not ignore:
+                        lyricTones += lineLyrics[i] + lineTones[i-jump]
+                    else:
+                        lyricTones += lineLyrics[i]
+                        jump += 1
+            # Add score and lyricTones to tones
+            if not scoreInTones:
+                tones += '\n' + scoreName+'\n'+lyricTones+'\n'
+                scoreInTones = True
+            else:
+                tones += lyricTones+'\n'
+            
+    print(tones)
+
+    return tones

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import jingjuScoreAnalysis as jSA
+import jingju_singing_analysis as jSA
 
 import argparse
 

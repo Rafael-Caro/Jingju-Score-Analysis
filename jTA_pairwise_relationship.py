@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import jingjuLyricsAnalysis as jLA
+import jingju_tones_analysis as jTA
 
 import argparse
 
@@ -39,9 +39,9 @@ if __name__=='__main__':
     if args.query != None:
         q = args.query
     
-    material = jLA.toneMaterialPerJudou(linesData, hd=args.hangdang,
+    material = jTA.toneMaterialPerJudou(linesData, hd=args.hangdang,
                                         sq=args.shengqiang, bs=args.banshi,
                                         ju=args.line)
 
-    jLA.pairwiseRelationship(material, relationship=[r1, r2],
+    jTA.pairwiseRelationship(material, relationship=[r1, r2],
                              filename=args.filename, query=q)

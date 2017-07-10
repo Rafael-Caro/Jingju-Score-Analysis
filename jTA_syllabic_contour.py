@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import jingjuLyricsAnalysis as jLA
+import jingju_tones_analysis as jTA
 
 import argparse
 
@@ -33,8 +33,8 @@ if __name__=='__main__':
     if args.query != None:
         q = args.query
     
-    material = jLA.toneMaterialPerLine(linesData, hd=args.hangdang,
+    material = jTA.toneMaterialPerLine(linesData, hd=args.hangdang,
                                        sq=args.shengqiang, bs=args.banshi,
                                        ju=args.line)
 
-    jLA.syllabicContour(material, filename=args.filename, query=q)
+    jTA.syllabicContour(material, filename=args.filename, query=q)
