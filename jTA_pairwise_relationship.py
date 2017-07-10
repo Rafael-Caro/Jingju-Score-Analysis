@@ -14,7 +14,7 @@ if __name__=='__main__':
 
     parser = argparse.ArgumentParser(description='Print a table with the analysis of the pairwise relationship of the syllables from all the dou that match the given search parameters. If none given, the whole collection is used')
     parser.add_argument('path', help='Path to the directory file with the scores and the lines_data.csv file')
-    parser.add_argument('relationship', type=int, nargs=2, help='Notes from the melodic contour of each syllable to be compared: 0 for the first, 1 for the last')
+    parser.add_argument('relationship', type=int, nargs=2, help='Notes from the melodic contour of each syllable to be compared: 0 for the first, 1 for the last. Two arguments required, one for the first syllable in the pair, and one for the second')
     parser.add_argument('-hd', '--hangdang', nargs='*', help='Restrict the search to the given role-type. Laosheng and dan given by default', default=default_hd)
     parser.add_argument('-sq', '--shengqiang', nargs='*', help='Restrict the search to the given shengqiang. Erhuang and xipi given by default', default=default_sq)
     parser.add_argument('-bs', '--banshi', nargs='*', help='Restrict the search to the given shengqiang. All of them given by default.', default=default_bs)

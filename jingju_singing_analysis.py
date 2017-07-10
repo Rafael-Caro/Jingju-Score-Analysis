@@ -3,7 +3,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from music21 import *
-import fractions
 import common_functions as cf
 
 

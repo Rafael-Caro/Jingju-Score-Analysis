@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import fractions
+
 def findVoiceParts(score):
     '''music21.stream.Score --> [music21.stream.Part]
     
