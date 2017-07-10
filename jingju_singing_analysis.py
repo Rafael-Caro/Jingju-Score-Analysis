@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from music21 import *
-import common_functions as cf
+import fractions
 
 
 
@@ -84,8 +84,8 @@ def collectLineMaterial(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
         ju0 = strInfo[4]
         
         # Get the starting and ending points of the line as floats or fractions
-        start = cf.floatOrFraction(strInfo[6])
-        end = cf.floatOrFraction(strInfo[7])
+        start = floatOrFraction(strInfo[6])
+        end = floatOrFraction(strInfo[7])
         
         if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
             material[-1][-1].append([start, end])
@@ -201,24 +201,24 @@ def collectJudouMaterial(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
                 material[0]['ju'].append(ju0)
             
             if strInfo[10] != '':
-                ju1_start = cf.floatOrFraction(strInfo[10])
-                ju1_end = cf.floatOrFraction(strInfo[11])
+                ju1_start = floatOrFraction(strInfo[10])
+                ju1_end = floatOrFraction(strInfo[11])
                 ju1 = [ju1_start, ju1_end]
             else:
                 ju1 = []
             material[-1][-1].append(ju1)
 
             if strInfo[13] != '':
-                ju2_start = cf.floatOrFraction(strInfo[13])
-                ju2_end = cf.floatOrFraction(strInfo[14])
+                ju2_start = floatOrFraction(strInfo[13])
+                ju2_end = floatOrFraction(strInfo[14])
                 ju2 = [ju2_start, ju2_end]
             else:
                 ju2 = []
             material[-1][-1].append(ju2)
 
             if strInfo[16] != '':
-                ju3_start = cf.floatOrFraction(strInfo[16])
-                ju3_end = cf.floatOrFraction(strInfo[17])
+                ju3_start = floatOrFraction(strInfo[16])
+                ju3_end = floatOrFraction(strInfo[17])
                 ju3 = [ju3_start, ju3_end]
             else:
                 ju3 = []
@@ -278,7 +278,7 @@ def pitchHistogram(material, filename=None, count='sum', countGraceNotes=True):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -374,7 +374,7 @@ def intervalHistogram(material, filename=None, count='sum',
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -601,7 +601,7 @@ def findCadentialNotes(judouMaterial, includeGraceNotes=True):
         loadedScore = converter.parse(scorePath)
         scoreName = scorePath.split('/')[-1]
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -786,7 +786,7 @@ def melodicDensity(material, filename=None, includeGraceNotes=True,
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
         localCount = []
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -912,6 +912,48 @@ def melodicDensity(material, filename=None, includeGraceNotes=True,
 ## AUXILIARY FUNCTIONS                                                       ##
 ###############################################################################
 
+def findVoiceParts(score):
+    '''music21.stream.Score --> [music21.stream.Part]
+    
+    Given a music21.stream.Score with one or more parts, it returns a list of
+    the parts that contain lyrics
+    '''
+    
+    voiceParts = []
+    
+    for p in score.parts:
+        if len(p.flat.notes) == 0: continue
+        i = 0
+        n = p.flat.notes[i]
+        while n.quarterLength == 0:
+            i += 1
+            n = p.flat.notes.stream()[i]
+        if n.hasLyrics():
+                if p.hasElementOfClass('Instrument'):
+                    p.remove(p.getInstrument())
+                voiceParts.append(p)
+    return voiceParts
+
+
+    
+def floatOrFraction(strValue):
+    '''str --> fractions.Fraction or float
+    Given a numeric value as a string, it returns it as a fractions.Fraction
+    object if contains '/' on it, or as a float otherwise
+    '''
+    if '/' in strValue:
+        numerator = int(strValue.split('/')[0])
+        denominator = int(strValue.split('/')[1])
+        value = fractions.Fraction(numerator, denominator)
+    elif len(strValue) == 0:
+        value = None
+    else:
+        value = float(strValue)
+        
+    return value
+
+
+
 def getAmbitus(material):
     '''list --> music21.interval.Interval
     
@@ -928,7 +970,7 @@ def getAmbitus(material):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -974,7 +1016,7 @@ def findScoreByPitchThreshold(material, thresholdPitch, lowHigh):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -1023,7 +1065,7 @@ def findScoreByPitch(material, pitchList):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -1081,7 +1123,7 @@ def findScoreByInterval(material, intvlList, directedInterval=False,
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty

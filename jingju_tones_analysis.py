@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from music21 import *
-import common_functions as cf
+import fractions
 
 
 
@@ -71,8 +71,8 @@ def toneMaterialPerLine(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
         
         # Get the information to store in material
         line = strInfo[5]
-        start = cf.floatOrFraction(strInfo[6])
-        end = cf.floatOrFraction(strInfo[7])
+        start = floatOrFraction(strInfo[6])
+        end = floatOrFraction(strInfo[7])
         tones = strInfo[8]
         
         if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
@@ -167,17 +167,17 @@ def toneMaterialPerJudou(linesData, hd=['laosheng', 'dan'], sq=['erhuang',
         tones = strInfo[8]
         jd1 = strInfo[9]
         jd1tones = tones[0:countCharacters(jd1)]
-        jd1start = cf.floatOrFraction(strInfo[10])
-        jd1end = cf.floatOrFraction(strInfo[11])
+        jd1start = floatOrFraction(strInfo[10])
+        jd1end = floatOrFraction(strInfo[11])
         jd2 = strInfo[12]
         jd2tones = tones[countCharacters(jd1):
                          countCharacters(jd1)+countCharacters(jd2)]
-        jd2start = cf.floatOrFraction(strInfo[13])
-        jd2end = cf.floatOrFraction(strInfo[14])
+        jd2start = floatOrFraction(strInfo[13])
+        jd2end = floatOrFraction(strInfo[14])
         jd3 = strInfo[15]
         jd3tones = tones[countCharacters(jd1)+countCharacters(jd2):]
-        jd3start = cf.floatOrFraction(strInfo[16])
-        jd3end = cf.floatOrFraction(strInfo[17])
+        jd3start = floatOrFraction(strInfo[16])
+        jd3end = floatOrFraction(strInfo[17])
         
         if (hd0 in hd) and (sq0 in sq) and (bs0 in bs) and (ju0 in ju):
             if len(jd1) > 0:
@@ -252,7 +252,7 @@ def syllabicContour(material, filename=None, query=[]):
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             if len(score[partIndex]) == 0: continue # Skip part if it's empty
@@ -554,7 +554,7 @@ def pairwiseRelationship(material, relationship=[1, 0], filename=None,
         scoreName = scorePath.split('/')[-1]
         loadedScore = converter.parse(scorePath)
         print(scoreName, 'parsed')
-        parts = cf.findVoiceParts(loadedScore)
+        parts = findVoiceParts(loadedScore)
         # Work with each part
         for partIndex in range(1, len(score)):
             p = []
@@ -651,7 +651,7 @@ def pairwiseRelationship(material, relationship=[1, 0], filename=None,
                             scorePath = material[s+1][0]
                             loadedScore = converter.parse(scorePath)
                             print(scorePath.split('/')[-1], 'loaded')
-                            parts = cf.findVoiceParts(loadedScore)
+                            parts = findVoiceParts(loadedScore)
                             parte = parts[p]
                             notes = parte.flat.notesAndRests.stream()
                             segmentInfo = material[s+1][p+1][d]
@@ -703,6 +703,48 @@ def pairwiseRelationship(material, relationship=[1, 0], filename=None,
 ###############################################################################
 ## AUXILIARY FUNCTIONS                                                       ##
 ###############################################################################
+
+def findVoiceParts(score):
+    '''music21.stream.Score --> [music21.stream.Part]
+    
+    Given a music21.stream.Score with one or more parts, it returns a list of
+    the parts that contain lyrics
+    '''
+    
+    voiceParts = []
+    
+    for p in score.parts:
+        if len(p.flat.notes) == 0: continue
+        i = 0
+        n = p.flat.notes[i]
+        while n.quarterLength == 0:
+            i += 1
+            n = p.flat.notes.stream()[i]
+        if n.hasLyrics():
+                if p.hasElementOfClass('Instrument'):
+                    p.remove(p.getInstrument())
+                voiceParts.append(p)
+    return voiceParts
+
+
+    
+def floatOrFraction(strValue):
+    '''str --> fractions.Fraction or float
+    Given a numeric value as a string, it returns it as a fractions.Fraction
+    object if contains '/' on it, or as a float otherwise
+    '''
+    if '/' in strValue:
+        numerator = int(strValue.split('/')[0])
+        denominator = int(strValue.split('/')[1])
+        value = fractions.Fraction(numerator, denominator)
+    elif len(strValue) == 0:
+        value = None
+    else:
+        value = float(strValue)
+        
+    return value
+
+
 
 def defineContour(pitches):
     '''
