@@ -341,6 +341,102 @@ def pitchHistogram(material, filename=None, count='sum', countGraceNotes=True):
 
 
 
+def judouPitchHistogram(material, filename=None, norm='sum',
+                        countGraceNotes=True):
+    '''
+    '''
+    count = ({}, {}, {})
+    
+    for score in material[1:]:
+        # Loading the score to get the parts list
+        scorePath = score[0]
+        scoreName = scorePath.split('/')[-1]
+        loadedScore = converter.parse(scorePath)
+        print(scoreName, 'parsed')
+        parts = findVoiceParts(loadedScore)
+        # Work with each part
+        for partIndex in range(1, len(score)):
+            if len(score[partIndex]) == 0: continue # Skip part if it's empty
+            # Get the notes from the current part
+            part = parts[partIndex-1]
+            notes = part.flat.notes.stream()
+    
+            # Set the duration of grace notes if needed
+            if countGraceNotes:
+                minDur = 0.25
+                for n in notes:
+                    noteDur = n.quarterLength
+                    if noteDur!=0 and noteDur<minDur:
+                        minDur = noteDur
+    
+            # Find segments to analyze in the current part
+            for startEndIndex in range(len(score[partIndex])):
+                startEnd = score[partIndex][startEndIndex]
+                i = startEndIndex % 3
+                if len(startEnd) > 0:
+                    start = startEnd[0]
+                    end = startEnd[1]
+                    segment = notes.getElementsByOffset(start, end)
+                    # Count pitches in the current segment
+                    for n in segment:
+                        noteName = n.nameWithOctave
+                        noteDur = n.quarterLength
+                        if noteDur == 0:
+                            if not countGraceNotes: continue
+                            noteDur = minDur
+                        count[i][noteName] = count[i].get(noteName, 0)+noteDur
+    toPlot = []
+    for judou in count:
+        pitches = judou.keys()
+        toSort = {p:pitch.Pitch(p).midi for p in pitches}
+        sortedPitches = sorted(toSort.items(), key=lambda x: x[1])
+        xPositions = np.array([p[1] for p in sortedPitches])
+        xLabels = [p[0] for p in sortedPitches]
+        yValues = np.array([judou[l] for l in xLabels])
+        toPlot.append([xPositions, xLabels, yValues])
+    
+    width = 0.8
+
+    # Setting y limits
+    limY = None
+    if norm == 'sum':
+        limY = [0, 0.5]
+
+    plt.figure(1)
+
+    for j in range(len(toPlot)):    
+        # Setting the parameters for plotting
+        yValues, limX, yLabel, col, h = plottingParameters(material, norm,
+                                                           toPlot[j][2])
+        pos = int('13'+str(j+1))
+        plt.subplot(pos)
+        plt.barh(toPlot[j][0], yValues, linewidth=0, zorder=1, color = col,
+            hatch = h)
+        plt.axhline(y=64+width/2, color='red', zorder=0) # Tonic line
+        plt.axhline(y=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
+        plt.axhline(y=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
+        plt.axhline(y=71+width/2, color='gray', ls=':', zorder=0) # Fifth
+        plt.axhline(y=83+width/2, color='gray', ls=':', zorder=0) # Fifth
+        for yValue in yValues:
+            plt.axvline(x=yValue, color='gray', ls=':', zorder=0)
+        if limY != None:
+            plt.xlim(limY[0], limY[1])
+        if limX != None:
+            plt.ylim(limX[0]-(1-width), limX[1]+1)
+        else:
+            plt.ylim(toPlot[j][0][0]-(1-width), toPlot[j][0][-1]+1)
+        if limX != None:
+            plt.ylim(limX[0], limX[1])
+        plt.yticks(toPlot[j][0] + width/2, toPlot[j][1])
+        plt.title('Judou ' + str(j+1))
+    
+    plt.tight_layout()    
+    plt.show()
+
+    return count
+
+
+
 def intervalHistogram(material, filename=None, count='sum',
                       directedInterval=False, silence2ignore=0.25,
                       ignoreGraceNotes=False):
