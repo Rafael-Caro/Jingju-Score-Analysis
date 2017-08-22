@@ -403,21 +403,26 @@ def judouPitchHistogram(material, filename=None, norm='sum',
         limY = [0, 0.5]
 
     plt.figure(1)
+    
+    results = {'Sec1':[], 'Sec2':[], 'Sec3':[]}
 
     for j in range(len(toPlot)):    
         # Setting the parameters for plotting
-        yValues, limX, yLabel, col, h = plottingParameters(material, norm,
+        yNormValues, limX, yLabel, col, h = plottingParameters(material, norm,
                                                            toPlot[j][2])
+        key = 'Sec' + str(j+1)
+        for k in range(len(toPlot[j][0])):
+            results[key].append([toPlot[j][0][k], yNormValues[k]])
         pos = int('13'+str(j+1))
         plt.subplot(pos)
-        plt.barh(toPlot[j][0], yValues, linewidth=0, zorder=1, color = col,
+        plt.barh(toPlot[j][0], yNormValues, linewidth=0, zorder=1, color = col,
             hatch = h)
         plt.axhline(y=64+width/2, color='red', zorder=0) # Tonic line
         plt.axhline(y=76+width/2, color='red', ls='--', zorder=0) # 8ve tonic
         plt.axhline(y=59+width/2, color='gray', ls=':', zorder=0) # Fifth    
         plt.axhline(y=71+width/2, color='gray', ls=':', zorder=0) # Fifth
         plt.axhline(y=83+width/2, color='gray', ls=':', zorder=0) # Fifth
-        for yValue in yValues:
+        for yValue in yNormValues:
             plt.axvline(x=yValue, color='gray', ls=':', zorder=0)
         if limY != None:
             plt.xlim(limY[0], limY[1])
@@ -430,10 +435,12 @@ def judouPitchHistogram(material, filename=None, norm='sum',
         plt.yticks(toPlot[j][0] + width/2, toPlot[j][1])
         plt.title('Judou ' + str(j+1))
     
-    plt.tight_layout()    
-    plt.show()
+    plt.tight_layout()
+    print('Done!')
+    plt.savefig(filename)    
+#    plt.show()
 
-    return count
+    return results
 
 
 

@@ -9,7 +9,7 @@ import jingju_singing_analysis as jSA
 
 linesData = 'scores/lines_data.csv'
 
-material = jSA.collectJudouMaterial(linesData, hd=['laosheng'], sq=['xipi'],
-                                    bs = ['yuanban'], ju = ['s'])
+material = jSA.collectJudouMaterial(linesData, hd=['laosheng'], sq=['erhuang'],
+                                    bs = ['yuanban'], ju = ['x'])
 
-count = jSA.judouPitchHistogram(material)
+results = jSA.judouPitchHistogram(material)
